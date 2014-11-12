@@ -1,21 +1,20 @@
 {
-  "name": "poketh",
+  "name": "parth",
   "main": "index.js",
-  "version": "0.6.8",
+  "version": "0.5.0",
   "engines": {
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "concat-regexp": "0.0.4",
     "utils-merge": "^1.0.0",
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
   "description": "string/array poking for pet params",
-  "repository": "stringparser/node-poketh",
-  "homepage": "https://github.com/stringparser/node-poketh",
+  "repository": "stringparser/node-parth",
+  "homepage": "https://github.com/stringparser/node-parth",
   "bugs": {
-    "url": "https://github.com/stringparser/node-poketh/issues"
+    "url": "https://github.com/stringparser/node-parth/issues"
   },
   "scripts": {
     "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
