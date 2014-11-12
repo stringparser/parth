@@ -17,18 +17,14 @@ parth.parse = function(path, opts){
   path = type(path); var p = { };
   p.path = (path.string || '').trim();
 
-
   // not a path or cached
   if(!p.path){ return { }; }
   if(cache[p.path]){
     cache[p.path].cached = true;
     return cache[p.path];
   }
-
   // parse options
-  opts = type(opts);
-  p.strict = !opts.boolean || opts;
-  opts = opts.plainObject || { };
+  opts = type(opts).plainObject || { };
 
   // separation token
   p.sep = type(opts.sep).string ||
@@ -64,7 +60,13 @@ parth.parse = function(path, opts){
   if(!isRelative.test(p.path)){  p.relative = true;  }
   else { p.depth--; }
   if(p.path.indexOf(':') < 0){
-    p.raw = true; cache[p.path] = p;
+    p.raw = true; cache[p.path] = {
+           sep : p.sep,
+        tokens : p.tokens,
+         depth : p.depth,
+           raw : true,
+      relative : Boolean(p.relative)
+    };
   }
 
   return p;
@@ -76,29 +78,29 @@ parth.set = function set(path, opts){
   else if(p.cached){ return this; }
 
   // get the params
-  p.path.replace(util.paramRE,
+  var parsed = p.re = p.parsed.trim().substring(0);
+  parsed.replace(/\:\S+/g,
     function($0){
-      var par = $0.split(util.paramSep).slice(1);
-      util.sanitizeParam(p);
-      p.re = (p.re || p.parsed.substring(0))
-        .replace($0,(par[1] || '(\\S+)'));
+      var par = $0.split(':').slice(1);
+      util.sanitizeParam(par);
+      console.log('par', par, p);
+      p.re = p.re.replace($0, (par[1] || '(\\S+)'));
       p.parsed = p.parsed.replace($0, ':'+par[0]);
     });
 
   p.re += p.sep.source + '?';
-  if(!p.relative){  p.re = '^' + p.re;  }
+  if(!p.relative){  p.re = '^' + p.sep.source + p.re;  }
   p.re = new RegExp(p.re.replace(/[ ]/g, p.sep.source), 'g');
 
   // add to cache
-  var depth = p.depth-1;
   cache[p.path] = p;
-  cache.re[depth].push(p.re);
-  cache.paths[depth].push(p.path);
+  cache.re[p.depth].push(p.re);
+  cache.paths[p.depth].push(p.path);
   // adjust masterRE
   var re = p.re.source;
-  var masterRE = cache.masterRE[depth].source || '';
+  var masterRE = cache.masterRE[p.depth].source || '';
   if(masterRE){ re = '|' + re; }
-  cache.masterRE[depth] = new RegExp(masterRE + re);
+  cache.masterRE[p.depth] = new RegExp(masterRE + re,'g');
 
   return this;
 };
@@ -113,19 +115,18 @@ parth.get = function(path){
   }
 
   var p = util.tokenize(path);
-  var re = cache.masterRE[p.depth-1];
+  var re = cache.masterRE[p.depth];
   if(!re){ return null; }
   if(!re.test(p.path)){ return null; }
 
   var index = 0;
-  var depth = p.depth-1;
-  re = cache.re[depth];
+  re = cache.re[p.depth];
 
   while( !re[index].test(path) ){ index++;  }
-  p = cache[cache.paths[depth][index]];
+  p = merge({}, cache[cache.paths[p.depth][index]]);
 
   index = 0; p.params = { };
-  var param = p.parsed.match(util.paramRE) || [ ];
+  var param = p.parsed.match(/\:\S+/g) || [ ];
   path.replace(p.re, function(/* arguments */){
       var label = param[index] || '';
       if(!label){ index++; return; }

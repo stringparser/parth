@@ -6,7 +6,7 @@ var testPath = [
   '/hey/world'
 ];
 parth.set('/hello/world');
-parth.set('/hello/:there');
+parth.set('/hello/:there:\\d+');
 parth.set('/:page/world');
 parth('/hello/world');
 parth('/whatever');

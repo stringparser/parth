@@ -3,8 +3,6 @@
 var type = require('utils-type');
 
 exports = module.exports = {
-  paramRE : /\:\S+(?=[\.\=\/\\])|\:\S+/g,
-  paramSep : /\:/,
   cache : {
     re : [ ],
     paths : [ ],
@@ -35,8 +33,10 @@ function tokenize(path, opt) {
     ? p.depth.length
     : p.depth.length-1;
 
-  // choose space as invariant
-  p.parsed = p.path.replace(p.tokens, ' ');
+  // choose space as invariant, trim right
+  p.parsed = p.path.replace(p.tokens, ' ')
+    .replace(/[ ]+$/, '');
+
   return p;
 }
 exports.tokenize = tokenize;
@@ -45,12 +45,9 @@ exports.tokenize = tokenize;
 // ## substitue parameters and return array
 //
 function getArgs(p){
-  var args = p.parsed.replace(exports.paramRE,
-      function($0){  return p.params[$0.substring(1)];  })
-    .split(/[ ]/);
-
-  if(!p.relative){ args.shift(); }
-  return args;
+  return p.parsed.replace(/\:\S+/g,
+    function($0){  return p.params[$0.substring(1)];
+  }).trim().split(/[ ]/);
 }
 exports.getArgs = getArgs;
 
