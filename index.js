@@ -6,30 +6,30 @@ var merge = require('utils-merge');
 
 var cache = util.cache;
 
-// ok, two methods
-// one for getting and another for setting
+exports = module.exports = parth;
 
 function parth(path, opts){
   return parth.get(path, opts);
 }
 
-parth.parse = function(path, opts){
-  path = type(path); var p = { };
-  p.path = (path.string || '').trim();
+//
+// ## tokenize the given path
+//
 
+parth.tokenize = function(path, opts){
+  var p = { }; p.path = (type(path).string || '').trim();
   // not a path or cached
-  if(!p.path){ return { }; }
-  if(cache[p.path]){
+  if(!p.path){ return { }; }  if(cache[p.path]){
     cache[p.path].cached = true;
     return cache[p.path];
   }
-  // parse options
+
+  // options
   opts = type(opts).plainObject || { };
 
   // separation token
   p.sep = type(opts.sep).string ||
-    (p.path.match(/(\\|\/)(?=[\/\\])|(\\|\/)/)
-      || p.path.match(/\./) || '  ')[0];
+    (p.path.match(/(\\|\/|\.)(?=\:)|(\\|\/|\.)/) || '  ')[0];
 
   // possible tokens
   p.tokens = type(opts.tokens).regexp || new RegExp('['+
@@ -40,13 +40,29 @@ parth.parse = function(path, opts){
   if( p.sep.trim() ){  p.sep = '\\' + p.sep;  }
   p.sep = new RegExp(p.sep, 'g');
 
-  // choose space as invariant token
-  p.depth = p.path.split(p.tokens).length;
-  p.parsed = p.path.replace(p.tokens, ' ');
+  // choose space as invariant token, trim right
+  p.parsed = p.path.replace(p.tokens, ' ')
+    .replace(/[ ]+$/, '');
+
+  // find out depth
+  p.depth = p.path.split(p.tokens);
+  p.depth = p.depth[0]
+    ? p.depth.length
+    : p.depth.length-1;
+
+  return p;
+};
+
+//
+// ## parse the path
+//
+
+parth.parse = function(path, opts){
+  var p = this.tokenize(path, opts);
 
   // check + prepare paths and regexes
   var index;
-  if( cache.re.length < p.depth ){
+  if( cache.re.length < p.depth+1 ){
     index = cache.re.length;
     while(index < p.depth){
       cache.paths.push([ ]);
@@ -56,9 +72,11 @@ parth.parse = function(path, opts){
   }
 
   // hints
+  console.log('query?', p.path.indexOf('?'));
+  index = p.path.indexOf('?');
+  if(index > -1){  p.query = p.path.substring(index);  }    
   var isRelative = new RegExp('^' + p.sep.source);
   if(!isRelative.test(p.path)){  p.relative = true;  }
-  else { p.depth--; }
   if(p.path.indexOf(':') < 0){
     p.raw = true; cache[p.path] = {
            sep : p.sep,
@@ -78,67 +96,63 @@ parth.set = function set(path, opts){
   else if(p.cached){ return this; }
 
   // get the params
-  var parsed = p.re = p.parsed.trim().substring(0);
-  parsed.replace(/\:\S+/g,
-    function($0){
+  p.parsed.substring(0).replace(/\:\S+/g,
+    function($0, index, _){
       var par = $0.split(':').slice(1);
       util.sanitizeParam(par);
-      console.log('par', par, p);
-      p.re = p.re.replace($0, (par[1] || '(\\S+)'));
+      p.re = (p.re || _).replace($0, (par[1] || '(\\S+)'));
       p.parsed = p.parsed.replace($0, ':'+par[0]);
     });
 
   p.re += p.sep.source + '?';
-  if(!p.relative){  p.re = '^' + p.sep.source + p.re;  }
-  p.re = new RegExp(p.re.replace(/[ ]/g, p.sep.source), 'g');
+  if(!p.relative){  p.re = '^' + p.re;  }
+  p.re = new RegExp(p.re.replace(/[ ]/g, p.sep.source));
 
+  var depth = p.depth-1;
   // add to cache
   cache[p.path] = p;
-  cache.re[p.depth].push(p.re);
-  cache.paths[p.depth].push(p.path);
+  cache.re[depth].push(p.re);
+  cache.paths[depth].push(p.path);
   // adjust masterRE
   var re = p.re.source;
-  var masterRE = cache.masterRE[p.depth].source || '';
+  var masterRE = cache.masterRE[depth].source || '';
   if(masterRE){ re = '|' + re; }
-  cache.masterRE[p.depth] = new RegExp(masterRE + re,'g');
+
+  cache.masterRE[depth] = new RegExp(masterRE + re);
 
   return this;
 };
 
-parth.get = function(path){
+parth.get = function(path, opts){
   if( !path ){ return null; }
+  var cached = cache[path];
+  if( cached ){ return cached; }
 
-  var copy;
-  if( cache[path] ){
-    copy = merge({ }, cache[path]);
-    return copy;
-  }
-
-  var p = util.tokenize(path);
-  var re = cache.masterRE[p.depth];
+  var p = this.tokenize(path, opts);
+  console.log('orig path', path);
+  console.log('tokenized', p);
+  var depth = p.depth-1;
+  var re = cache.masterRE[depth];
+  console.log(cache.masterRE[depth], depth);
   if(!re){ return null; }
   if(!re.test(p.path)){ return null; }
 
-  var index = 0;
-  re = cache.re[p.depth];
+  var index = 0;  re = cache.re[depth];
+  while( !re[index].test(path) ){  index++;  }
+  var part = cache[cache.paths[depth][index]];
 
-  while( !re[index].test(path) ){ index++;  }
-  p = merge({}, cache[cache.paths[p.depth][index]]);
-
-  index = 0; p.params = { };
-  var param = p.parsed.match(/\:\S+/g) || [ ];
-  path.replace(p.re, function(/* arguments */){
-      var label = param[index] || '';
-      if(!label){ index++; return; }
-      p.params[label.substring(1)] = arguments[index+1];
-      index++; p.params._ = '?';
+  p.params = { };
+  var labels = part.parsed.match(/\:\S+/g);
+  var params = p.path.match(part.re).slice(1);
+  console.log('labels', labels);
+  console.log('params', params);
+    labels.forEach(function(label, index){
+      console.log(label, params[index]);
+      p.params[label.substring(1)] = params[index];
     });
 
   p.params._ = util.getArgs(p);
-  copy = merge({ }, p);
-  return copy;
+  return p;
 };
 
 parth.cache = cache;
-
-module.exports = parth;
