@@ -1,0 +1,42 @@
+{
+  "name": "poketh",
+  "main": "index.js",
+  "version": "0.6.8",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "dependencies": {
+    "concat-regexp": "0.0.4",
+    "utils-merge": "^1.0.0",
+    "utils-type": "*"
+  },
+  "author": "Javier Carrillo",
+  "description": "string/array poking for pet params",
+  "repository": "stringparser/node-poketh",
+  "homepage": "https://github.com/stringparser/node-poketh",
+  "bugs": {
+    "url": "https://github.com/stringparser/node-poketh/issues"
+  },
+  "scripts": {
+    "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
+    "test": "npm run-script lint && mocha --reporter spec test/_main.js"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "jshint-stylish": "*",
+    "jshint": "*"
+  },
+  "keywords": [
+    "utils",
+    "poke",
+    "token",
+    "tokenize",
+    "string",
+    "array",
+    "params",
+    "args",
+    "argv"
+  ],
+  "license": "MIT"
+}

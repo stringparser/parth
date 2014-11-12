@@ -1,0 +1,14 @@
+'use strict';
+
+var should = require('should');
+var use, input, args, result;
+module.exports = function(poke, util){
+  should.exists(util);
+  use = 'object args';
+  it('should handle '+use, function(){
+    args = {there : 'awesome', you: 'human'};
+    input = 'hello.:there.:you';
+    result = poke(input, args);
+    should(result.path).be.eql('hello.awesome.human');
+  });
+};
