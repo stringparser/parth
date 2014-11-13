@@ -38,7 +38,9 @@ console.log('\n ', use, '\n -- ');
 console.log(result);
 
 use = 'be specific';
-pattern = '/hello/:one/:two?:three\\w+';
+pattern = '/hello/:one/:two/?:three:\\w+';
 result = parth.set(pattern).get('/hello/there/awesome?you');
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
+
+console.log(parth.cache);
