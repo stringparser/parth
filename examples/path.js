@@ -1,6 +1,6 @@
 'use strict';
 
-var parth = require('../');
+var parth = require('../')();
 var use, pattern, args, result;
 
 use = 'object paths';
@@ -38,7 +38,7 @@ console.log('\n ', use, '\n -- ');
 console.log(result);
 
 use = 'be specific';
-pattern = '/hello/:one/:two?:three\\w+';
+pattern = '/hello/:one/:two?you';
 result = parth.set(pattern).get('/hello/there/awesome?you');
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);

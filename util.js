@@ -1,12 +1,7 @@
 'use strict';
 
 exports = module.exports = {
-  paramRE : /:\S+/g,
-  cache : {
-    re : [ ],
-    paths : [ ],
-    masterRE : [ ],
-  }
+  paramRE : /:\S+/g
 };
 
 //
