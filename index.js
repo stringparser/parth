@@ -118,7 +118,7 @@ Parth.prototype.parse = function(path, opts){
   }
   p.hasRE = Boolean(p.hasRE);
   p.re = new RegExp(p.re.replace(/[ ]/g, p.sep));
-  console.log('parsed', p);
+
   return p;
 };
 //
