@@ -28,10 +28,7 @@ function Parth(cache){
 //----
 Parth.prototype.sep = function(path, opts){
   var p = { path : (type(path).string || '').trim() };
-  if(!p.path){ return null; }  if(this.cache[p.path]){
-    this.cache[p.path].cached = true;
-    return this.cache[p.path];
-  }
+  if(!p.path){ return null; }
 
   opts = type(opts).plainObject || { };
   p.sep = type(opts.sep).string ||
@@ -45,45 +42,32 @@ Parth.prototype.sep = function(path, opts){
 //----
 Parth.prototype.tokenize = function(path, opts){
   var p = this.sep(path, opts);
-  if(!p){ return null; }  if(p.cached){ return p; }
+  if(!p){ return null; }
 
   opts = type(opts).plainObject || { };
   p.tokens = type(opts.tokens).regexp || new RegExp('[' +
-    p.sep.replace(/[\/\\]/, '\\$&\\#\\? ') +
+    p.sep.replace(/[\/\\]/, '\\$&\\#') +
   ']+','g');
 
   // if p.sep is not a space scape it
   if( p.sep.trim() ){ p.sep = '\\' + p.sep; }
+  // path with no params
+  if(p.path.indexOf(':') < 0){  p.raw = true; }
 
-  // depth and relative?
+  // query
+  var query = p.path.replace(p.tokens, ' ').split('?');
+  p.query = query[1];
+  if(p.query && p.query.indexOf(':') > -1){
+    p.path = query[0];
+  }
+  if(!p.query){ delete p.query; }
+
+  // depth
   p.depth = p.path
     .replace(p.tokens, ' ').trim()
     .split(/[ ]+/).length;
 
-  if(!p.path[0].match(p.tokens)){ p.relative = true; }
-
-  // path with no params
-  if(p.path.indexOf(':') < 0){
-    p = this.cache[p.path] = {
-          path : p.path,
-           sep : p.sep,
-        tokens : p.tokens,
-         depth : p.depth,
-           raw : true,
-      relative : Boolean(p.relative)
-    };
-    return p;
-  }
-
-  // has query
-  var index = p.path.indexOf('?');
-  if(index > -1){
-    p.query = p.path.substring(index);
-    if( p.query.indexOf(':') < 0 ){
-      p.path = p.path.substring(0, index+1) + ':query';
-    }
-  }
-
+  console.log('tokenize path', p);
   return p;
 };
 //----
@@ -93,13 +77,13 @@ Parth.prototype.tokenize = function(path, opts){
 Parth.prototype.parse = function(path, opts){
   var p = this.tokenize(path, opts);
   if(!p){ return null; }  if(p.cached){ return p; }
-
+  if(!p.tokens.test(p.path[0])){ p.relative = true; }
   // space as invariant token, trim right
   p.parsed = p.path
     .replace(p.tokens, ' ')
     .replace(/[ ]+$/, '');
 
-  // parse params
+  // params
   var parsed = p.re = p.parsed.substring(0);
   parsed.replace(/\:\S+/g,
     function($0){
@@ -110,13 +94,11 @@ Parth.prototype.parse = function(path, opts){
       p.hasRE = p.hasRE || param[1];
     });
 
-  if(!p.relative){  p.re = '^' + p.re;  }
-  if(p.query){
-    p.re = p.re.split(/[ ]/);  p.query = p.re.pop();
-    p.re = p.re.join(' ') + ' ?\\?' + p.query;
-    delete p.query;
+  // regexp
+  p.re += ' ?';  if(!p.relative){  p.re = '^' + p.re;  }
+  if(p.query && p.query.indexOf(':') > -1) {
+    p.re += '\\' + p.query;
   }
-  p.hasRE = Boolean(p.hasRE);
   p.re = new RegExp(p.re.replace(/[ ]/g, p.sep));
 
   return p;
@@ -127,10 +109,9 @@ Parth.prototype.parse = function(path, opts){
 //
 Parth.prototype.set = function(path, opts){
   var p = this.parse(path, opts);
-  if(p.raw){ return this; }
-  else if(p.cached){ return this; }
-  var depth = p.depth-1;
+  if(!p){ return this; }
 
+  var depth = p.depth-1;
   var index, cache = this.cache;
   // check + prepare paths and regexes
   if( cache.regexp.length < p.depth ){
@@ -144,14 +125,18 @@ Parth.prototype.set = function(path, opts){
 
   // add to cache
   cache[p.path] = p;
-  cache.regexp[depth].push(p.re);
   cache.paths[depth].push(p.path);
+  cache.regexp[depth].push(p.re);
+
   // adjust masterRE
   var re = p.re.source;
   var masterRE = cache.masterRE[depth].source || '';
-  if(masterRE){ re = '|' + re; }
-
-  cache.masterRE[depth] = new RegExp(masterRE + re);
+  if(masterRE){
+    if(p.hasRE){ masterRE = re + '|' + masterRE; }
+          else { masterRE = masterRE + '|' + re; }
+  }
+  delete p.hasRE;
+  cache.masterRE[depth] = new RegExp(masterRE);
 
   return this;
 };
@@ -162,37 +147,37 @@ Parth.prototype.set = function(path, opts){
 
 Parth.prototype.get = function(path, opts){
   var p = this.tokenize(path, opts);
-  if(!p){ return null; } if(p.cached){ return p; }
+  console.log('\n----\n');
+  console.log('p', p);
+  if(!p){ return null; }
 
-  var index = 0;
-  var depth = p.depth-1;
   var cache = this.cache;
-  var part = cache.masterRE[depth];
+  var regexp = cache.masterRE[p.depth-1];
+  if(!regexp){ return null; }
+  if(!regexp.test(p.path)){ return null; }
 
-  if(!part){ return null; }
-  if(!part.test(path)){ return null; }
-
-  part = cache.regexp[depth];
-  while(!part[index].test(path)){  index++;  }
-  part = cache[cache.paths[depth][index]];
-
-  p.params = {_:[ ]};
+  var index = 0; regexp = cache.regexp[p.depth-1];
+  while(!regexp[index].test(p.path)){
+    index++;
+  }
+  var part = cache[cache.paths[p.depth-1][index]];
   var labels = part.parsed.match(/\:\S+/g);
   var params = p.path.match(part.re).slice(1);
+  p.path = part.path;
+  p.params = { };
   labels.forEach(function(label, index){
     var param = params[index];
     p.params[label.substring(1)] = param;
   });
 
-  p.params._ = part.parsed.replace(/\:\S+/g,
-    function($0){
+  p.argv = part.parsed.replace(/\:\S+/g, function($0){
       var param = p.params[$0.substring(1)];
       if(!param){  return '';  }
       return param;
   }).replace(/[ ]/, ' ').trim().split(/[ ]/);
 
-  p.path = part.path;
-  p.raw = Boolean(p.raw);
+  console.log('regexp', regexp);
+
   return p;
 };
 
