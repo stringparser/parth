@@ -4,7 +4,9 @@
 [<img alt="NPM version" src="http://img.shields.io/npm/v/parth.svg?style=flat-square" align="right"/>](http://www.npmjs.org/package/parth)
 <br><br>
 
-express-like string path madness not only for an url
+The module provides express-like string path madness not only for an url.
+
+See usage for details.
 
 ## usage
 

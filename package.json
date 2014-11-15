@@ -10,7 +10,7 @@
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
-  "description": "string/array poking for pet params",
+  "description": "tamed path madness",
   "repository": "stringparser/node-parth",
   "homepage": "https://github.com/stringparser/node-parth",
   "bugs": {
@@ -28,9 +28,10 @@
   },
   "keywords": [
     "utils",
-    "poke",
-    "token",
-    "tokenize",
+    "path",
+    "regex",
+    "regexp",
+    "tokens",
     "string",
     "array",
     "params",
