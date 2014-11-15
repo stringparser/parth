@@ -51,3 +51,18 @@ result = parth
   .get('get /hello/there/awesome?page=10');
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
+
+use = 'controvert';
+result = parth
+  .set(
+    'Come to :here:(Granada|Berlin|NY) ' +
+    'we have :something:paella|beer|awesomeness '+
+    'for :you'
+  ).get(
+   'Come to granada ' +
+   'we have paella '+
+   'for everyone'
+  );
+
+console.log('\n -- \n', use, '\n -- ');
+console.log(result);

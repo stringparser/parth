@@ -7,20 +7,26 @@ module.exports = function(Parth, util){
   should.exists(util);
   use = 'sentences';
   var parth = Parth();
-  use = 'windows absolute paths';
+  use = 'unix and spaces';
   it('should handle '+use, function(){
-    args = '\\hello\\awesome\\human';
-    input = '\\hello\\:there\\:you';
+    args = 'get /hello/awesome/human';
+    input = ':method:get /hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
+
+    args = args.replace(/^get/, 'delete');
+    should(parth.get(args)).be.eql(null);
   });
-  use = 'windows relative paths';
+  use = 'unix relative and spaces';
   it('should handle '+use, function(){
-    args = 'hello\\awesome\\human';
-    input = 'hello\\:there\\:you';
+    args = 'get /hello/awesome/human';
+    input = ':method:get /hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
+    
+    args = args.replace(/^get/, 'delete');
+    should(parth.get(args)).be.eql(null);
   });
 };

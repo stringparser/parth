@@ -2,34 +2,24 @@
 
 var should = require('should');
 var use, input, args, result;
-module.exports = function(poke, util){
+
+module.exports = function(Parth, util){
   should.exists(util);
+  var parth = Parth();
   use = 'string args';
   it('should handle '+use, function(){
-    args = 'string';
-    input = 'hey :there';
-    result = poke(input, args);
-    should(result.path).be.eql('hey string');
+    input = 'hey :there :you';
+    args = 'hey string person';
+    result = parth.set(input).get(args);
+    should(result.input).be.eql('hey string person');
+    should(result.path).be.eql('hey :there :you');
   });
   use = 'array args';
   it('should handle '+use, function(){
-    args = ['array', 'thing'];
-    input = 'hey :there :you';
-    result = poke(input, args);
-    should(result.path).be.eql('hey array thing');
-  });
-  use = 'object args';
-  it('should handle '+use, function(){
-    args = {there: 'object', you: 'thing'};
-    input = 'hey :there :you';
-    result = poke(input, args);
-    should(result.path).be.eql('hey object thing');
-  });
-  use = 'arguments args';
-  it('should handle '+use, function(){
-    args = (function(){ return arguments; })('arguments', 'thing');
-    input = 'hey :there :you';
-    result = poke(input, args);
-    should(result.path).be.eql('hey arguments thing');
+    args = ['hey', 'array', 'thing'];
+    result = parth.set(input).get(args);
+    should(result.path).be.eql('hey :there :you');
+    should(result.argv).be.eql(args);
+    should(result.input).be.eql(args.join(' '));
   });
 };

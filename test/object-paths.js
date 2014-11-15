@@ -2,13 +2,16 @@
 
 var should = require('should');
 var use, input, args, result;
-module.exports = function(poke, util){
+
+module.exports = function(Parth, util){
   should.exists(util);
+  var parth = Parth();
   use = 'object paths';
   it('should handle object paths', function(){
-    args = 'awesome human';
+    args = 'hello.awesome.human';
     input = 'hello.:there.:you';
-    result = poke(input, args);
-    should(result.path).be.eql('hello.awesome.human');
+    result = parth.set(input).get(args);
+    should(result.input).be.eql(args);
+    should(result.path).be.eql(input);
   });
 };
