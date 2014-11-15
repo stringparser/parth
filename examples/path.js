@@ -63,6 +63,7 @@ result = parth
    'we have paella '+
    'for everyone'
   );
-
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
+
+console.log(parth.cache);
