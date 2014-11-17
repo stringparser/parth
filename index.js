@@ -16,7 +16,10 @@ function Parth(cache){
   }
   merge(parth, this);
   parth.cache = type(cache).plainObject || {
-    raws: [ ], paths : [ ], regexp : [ ], masterRE : [ ]
+    raws: [ ],
+    paths : [ ],
+    regexp : [ ],
+    masterRE : [ ]
   };
   return parth;
 }
@@ -25,19 +28,14 @@ function Parth(cache){
 // path separation token, defaults to [ ]
 //----
 Parth.prototype.sep = function(path, opt){
-  var p = { };
+  path = (type(path).string || '');
+  if(!path){ return null; }
   opt = type(opt).plainObject || { };
   opt.sep = type(opt.sep).string || '';
 
-  p.path = type(path);
-  p.path = p.input = p.path.array
-     ? p.path.array.join(opt.sep || ' ')
-     : p.path.string || '';
-  if(!p.path){ return null; }
-
-  p.sep = opt.sep
-    || (p.path.match(/(?!\:)(.?\/|.?\.|.\\+|^\\)/) || '  ')[0];
-  if(p.sep.length > 1){ p.sep = p.sep.substring(1); }
+  var p = { };  p.input = path;  p.path = path;
+  p.sep = opt.sep || p.path.replace(/(\(.+?\))/g, '');
+  p.sep = (p.sep.match(/(\/|\.|\\)/) || ' ')[0];
 
   return p;
 };
@@ -76,38 +74,59 @@ Parth.prototype.tokenize = function(path, opts){
 // ## parse path
 //  > parse the path using previous tokens
 //----
-Parth.prototype.parse = function(path, opts){
-  var p = this.tokenize(path, opts);
-  if(!p){ return null; }
+Parth.prototype.parse = function(path, opt){
+  path = (type(path).string || '').trim();
+  if(!path){ return null; }
 
-  // space as invariant token, trim sep right
-  p.regexp = p.parsed = p.path
-    .replace(p.tokens, ' ')
-    .replace(/[ ]+$/g);
+  var p = { };
+  p.input = path;  p.path = path;
+  opt = type(opt).plainObject || { };
+  opt.sep = type(opt.sep).regexp || /[\\\/\.]+/g;
+  opt.param = type(opt.group).regexp || /(\:\w+)(\(.+?\))?/g;
 
-  // params
-  p.regexp.replace(/\:(\S+)/g,
-    function($0, label){
-      var param = label.split(':');
-      p.parsed = p.parsed.replace($0, ':' + param[0]);
-      if(!param[1]){ param[1] = '\\S+'; }
-      else { p.hasRE = p.hasRE || true; }
-      p.regexp = p.regexp.replace($0,
-        '(' + param[1].replace(/^\(|\)$/g,'') + ')'
-      );
-    });
+  var index = p.path.indexOf('?');
+  if( index > -1 ){
+    p.query = p.path.substring(index);
+    p.path = p.path.substring(0, index);
+  }
 
-  // regexp
-  p.regexp += (p.sep.trim() ? '\\' + p.sep : '<s>');
-  p.regexp = '^' + p.regexp + '?';
+  p.parsed = p.path
+    .replace(/\(.+?\)/g, '')
+    // stripped regexes
+    .replace(opt.sep, ' ')
+    // choose space as invariant sep token
+    .replace(/[ ]+/g, ' ')
+    // replace maybe repeated spaces
+    .trim();
+    // not interesed on leftovers today
 
-  p.path.match(p.tokens).forEach(function(token){
-    token = token.replace(/[ ]+/, '<s>').replace(/[\/\\]/, '\\$&');
-    p.regexp = p.regexp.replace(/[ ]/, token);
-  });
+  // find path depth so it can be classified
+  p.depth = p.parsed.split(/[ ]+/).length;
 
-  if(p.sep === ' '){  p.regexp = p.regexp.replace(/(<s>|<s>\W+)$/, '');  }
-  p.regexp = new RegExp(p.regexp.replace(/<s>/g, '[ ]+'), 'i');
+  var param = { };
+  var sepRE = new RegExp(opt.sep.source);
+  var sepEndRE = new RegExp(opt.sep.source+'$', 'g');
+  p.regexp = p.path
+    .replace(opt.param,
+      function($0, $1, $2){
+        param[$1] = $2 || '(\\S+)'; return $1;
+      })
+    // fetched those parameter's regexes
+    .replace(/\S+[ ]+|\S+/g,
+      function($0){
+        var sep = $0.match(sepRE);
+        if( !sep ){ return $0.trim() + '[ ]+'; }
+        return $0.replace(sepEndRE, '') + sep[0];
+      })
+    // found & added separation token at the end of each path
+    .replace(opt.sep, '\\$&')
+    // escaped separation tokens
+    .replace(/\:\w+/g, function($0){ return param[$0]; });
+    // plugged in parameter regexes of the parameter
+
+  p.regexp = new RegExp('^' + p.regexp + '?', 'i');
+
+  console.log(p);
 
   return p;
 };
@@ -134,8 +153,7 @@ Parth.prototype.set = function(path, opts){
   if(p.raw){
     cache.raws[p.depth].push(p.path);
     return this;
-  }
-
+  } else{ return this; }
   // parameter cache
   var method = 'push';
   if( p.hasRE ){ method = 'unshift'; }
