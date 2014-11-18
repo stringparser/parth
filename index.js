@@ -78,21 +78,30 @@ Parth.prototype.parse = function(path, opt){
   path = (type(path).string || '').trim();
   if(!path){ return null; }
 
-  var p = { };
+  var index, p = { };
   p.input = path;  p.path = path;
   opt = type(opt).plainObject || { };
   opt.sep = type(opt.sep).regexp || /[\\\/\.]+/g;
   opt.param = type(opt.group).regexp || /(\:\w+)(\(.+?\))?/g;
 
-  var index = p.path.indexOf('?');
+  // get hash
+  index = p.path.indexOf('#');
+  if( index > -1 ){
+    p.hash = p.path.substring(index);
+    p.path = p.path.substring(0, index);
+  }
+
+  // get query
+  index = p.path.indexOf('?');
   if( index > -1 ){
     p.query = p.path.substring(index);
     p.path = p.path.substring(0, index);
   }
 
-  p.parsed = p.path
-    .replace(/\(.+?\)/g, '')
+  p.path = p.parsed = p.path.replace(/\(.+?\)/g, '');
     // stripped regexes
+    
+  p.parsed = p.parsed
     .replace(opt.sep, ' ')
     // choose space as invariant sep token
     .replace(/[ ]+/g, ' ')
