@@ -36,10 +36,6 @@ Parth.prototype.tokenize = function(path, opt){
   opt = type(opt).plainObject || { };
   opt.sep = type(opt.sep).regexp || /[\\\/\.]+/g;
 
-  // cleanup regexes
-  p.path = p.path
-    .replace(/\(.+?\)/g, '');
-
   // get hash
   index = p.path.indexOf('#');
   if( index > -1 ){
