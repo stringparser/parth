@@ -14,12 +14,4 @@ module.exports = function(Parth, util){
     should(result.input).be.eql('hey string person');
     should(result.path).be.eql('hey :there :you');
   });
-  use = 'array args';
-  it('should handle '+use, function(){
-    args = ['hey', 'array', 'thing'];
-    result = parth.set(input).get(args);
-    should(result.path).be.eql('hey :there :you');
-    should(result.argv).be.eql(args);
-    should(result.input).be.eql(args.join(' '));
-  });
 };
