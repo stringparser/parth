@@ -31,7 +31,8 @@ function Parth(cache){
 //----
 
 Parth.prototype.tokenize = function(path, opt){
-  var p = { input : (type(path).string || '').trim() };
+  var p = type(path).plainObject
+    || { input : (type(path).string || '').trim() };
   // return early
   if(!p.input){ return null; } if(p.argv){ return p; }
 
@@ -45,15 +46,15 @@ Parth.prototype.tokenize = function(path, opt){
   if((url = p.input.match(/\/\S+/))){
     url = Url.parse(url[0]);
     if(url.hash){ p.hash = url.hash; }
-    if(url.query){ p.query = url.query; }
+    if(url.query){ p.query = url.search; }
     p.path = p.input.replace(url.path, url.pathname);
   }
 
-  p.regexp = p.path = p.path
+  p.path = p.path
     .replace(new RegExp(opt.sep.source+'$'), '').trim();
 
   // use space as invariant sep token
-  p.argv = p.regexp
+  p.argv = p.path
     .replace(/\S+/g, function($0){
       var sep = $0.match(/[\/]+/) || $0.match(/[\.]/);
       $0.replace(opt.param, function($0, label, regexp){
@@ -65,7 +66,7 @@ Parth.prototype.tokenize = function(path, opt){
     }).trim().replace(/[ ]+/g, ' ');
 
   p.depth = p.argv.split(/[ ]/).length;
-  
+
   // wipe
   url = null;
   return p;
@@ -76,19 +77,35 @@ Parth.prototype.tokenize = function(path, opt){
 //----
 Parth.prototype.parse = function(path, opt){
   var p = this.tokenize(path, (opt = opt || { }));
-  if(!p.path){ return null; } if(p.raw){ return p; }
+  if(!p){ return null; }
 
-  opt.flag = type(opt.flag).string || 'i';
+  // parse regexp
+  if(!p.regexp){
 
-  p.regexp = p.regexp
-    .replace(/\(.+?\)/, '')
-    .replace(/\S+$/,
-      function($0){ return $0 + ($0.match(opt.sep) || [' '])[0]; })
-    .replace(opt.sep, '\\$&')
-    .replace(/[ ]+/g, '[ ]+').replace(/\+$/,'')
-    .replace(/\:(\w+)/g, function($0, label){ return p.params[label]; });
+    opt.flag = type(opt.flag).string || 'i';
+    p.regexp = p.path
+      .replace(/\(.+?\)/, '')
+      .replace(/\S+$/,
+        function($0){ return $0 + ($0.match(opt.sep) || [' '])[0]; })
+      .replace(opt.sep, '\\$&')
+      .replace(/[ ]+/g, '[ ]+').replace(/\+$/,'')
+      .replace(/\:(\w+)/g, function($0, label){ return p.params[label]; });
+    p.regexp = new RegExp('^' + p.regexp + '?', opt.flag);
+    return p;
+  }
 
-  p.regexp = new RegExp('^' + p.regexp + '?', opt.flag);
+  // parse params for this.get
+  p.params = { };
+  
+  var index = 0;
+  var params = p.input
+    .replace(p.query, '')
+    .match(p.regexp).slice(1);
+
+  p.path.replace(/\:(\w+)/g,
+    function($0, label){
+      return (p.params[label] = params[index++]);
+    });
 
   return p;
 };
@@ -143,35 +160,27 @@ Parth.prototype.get = function(path, opt_){
   var p = this.tokenize(path, (opt = opt_ || { }));
   if(!p.path){ return null; }
 
-  var regexp, fallback = true;
+  var fallback = true;
   var index = 0, depth = p.depth;
 
   while(fallback){
-    regexp = this.cache.masterRE[depth];
-    fallback = !regexp && (this.cache.fallback || opt.fallback);
-    if(!regexp || !regexp.test(p.path)){
+    p.regexp = this.cache.masterRE[depth];
+    fallback = !p.regexp && (this.cache.fallback || opt.fallback);
+    if(!p.regexp || !p.regexp.test(p.input)){
       if(!fallback){ return null; }
       depth--; p.fallback = true;
     }
     if(depth < 0){ return null; }
   }
 
-  regexp = this.cache.regexp[depth];
-  while( !regexp[index].test(p.path) ){ index++; }
-  regexp = this.cache.regexp[depth][index];
-  var params = p.path.match(regexp).slice(1);
+  p.regexp = this.cache.regexp[depth];
+  while( !p.regexp[index].test(p.path) ){ index++; }
+  p.regexp = this.cache.regexp[depth][index];
   p.path = this.cache.paths[depth][index];
-  if( !(/\:\w/).test(p.path) ){ return p; }
 
-  index = 0;
-  p.params = { };
-  p.regexp = regexp;
-  p.path.replace(/\:(\w+)/g,
-    function($0, label){
-      return (p.params[label] = params[index++]);
-    });
 
   // wipe
-  index = depth = regexp = params = null;
-  return p;
+  depth = null;
+  console.log('get p', p);
+  return this.parse(p, opt);
 };
