@@ -104,14 +104,14 @@ Same as **path.set**.
 
 ### parth.set(path, opts)
 
-Chainable method. Set a new path so it can be set / matched
+Set a new path. Chainable method.
 
 - `path`: string or array with the path to be set.
-- `opts`: object that will override property defaults for: `sep` or `tokens`.
+- `opts`: object that will override internal regexes for `sep` or `params`.
 
-Any alphanumeric character starting with a colon, i.e. `:my-parameter`, qualifies as parameter. After it a custom regular expression can be given to match a parameter. The regular expression **must start and end with parenthesis**.
+Any **word** statring with a colon, i.e. `:myParameter`, qualifies as parameter. After it a regular expression can be given to match a parameter. The regular expression **must start and end with parenthesis**.
 
-Examples of valid regular expressions next to parameters
+Examples of input
 ```js
 parth.set('myObject.:method.:property(\\w+)');
 parth.set(':method:get|post|put|delete :page(\\w+?).data /page/:view(\\d)/some');
@@ -132,9 +132,9 @@ Returns an object with the following properties
 
 - `input`: the input
 - `path`: the path that matches the imput
-- `query`: if path contains an url, will hold the query including without '?'
+- `query`: if path contains an url, will hold the query without '?'
 - `regexp`: the regexp used to match a path with `parth.get`
-- `params`: the previously set `:paramateters` on the path
+- `params`: the previously set `:paramaters` on the path
 - `argv`: an array of with all the non token strings of the input
 - `depth` : `argv.length`
 - `fallback`: whether or not the path has fallen back from another
