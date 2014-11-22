@@ -96,7 +96,7 @@ Parth.prototype.parse = function(path, opt){
 
   // parse params for this.get
   p.params = { };
-  
+
   var index = 0;
   var params = p.input
     .replace(p.query, '')
@@ -147,7 +147,8 @@ Parth.prototype.set = function(path, opt){
     .join('|'),
   opt.flag);
 
-  p = method = index = null; // wipe
+  // wipe
+  p = method = index = null; 
   return this;
 };
 
@@ -178,9 +179,7 @@ Parth.prototype.get = function(path, opt_){
   p.regexp = this.cache.regexp[depth][index];
   p.path = this.cache.paths[depth][index];
 
-
   // wipe
-  depth = null;
-  console.log('get p', p);
+  fallback = index = depth = null;
   return this.parse(p, opt);
 };
