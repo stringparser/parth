@@ -10,24 +10,16 @@ result = parth
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
 
-use = 'unix paths';
+use = 'unix paths or urls';
 result = parth
   .set('/hello/:there/:you')
-  .get('/hello/awesome/human');
-console.log('\n -- \n', use, '\n -- ');
-console.log(result);
-
-use = 'url paths';
-result = parth
-  .set('/hello/:there/:you(\\w+)/?query')
   .get('/hello/awesome/human/?you=matter');
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
 
-use = 'windows paths';
+use = 'fallback';
 result = parth
-  .set('\\hello\\:there\\:you')
-  .get('\\hello\\awesome\\human');
+  .get('/hello/there/you/awesome', { fallback : true });
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
 
@@ -38,32 +30,11 @@ result = parth
 console.log('\n ', use, '\n -- ');
 console.log(result);
 
-use = 'be specific';
-result = parth
-  .set('/hello/:one/:two?you')
-  .get('/hello/there/awesome/?you');
-console.log('\n -- \n', use, '\n -- ');
-console.log(result);
-
 use = 'mix';
 result = parth
   .set(':method(get|put|delete|post) :model.data /hello/:one/:two?something')
   .get('get retail.data /hello/there/awesome?page=10');
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
-
-use = 'controvert';
-result = parth
-  .set(
-    'Come to :here(Granada|Berlin|NY) ' +
-    'we have :something(paella|beer|awesomeness) '+
-    'for :you'
-  ).get(
-   'Come to granada ' +
-   'we have paella '+
-   'for everyone'
-  );
-console.log('\n -- \n', use, '\n -- ');
-console.log(result);
-
+console.log();
 console.log(parth.cache);
