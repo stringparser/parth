@@ -25,13 +25,10 @@ function Parth(cache){
   return parth;
 }
 
-/**
- * Tokenize a path (almost like parsing)
- *
- * @param  {String} path
- * @param  {Object} opt
- * @return {String}
- */
+//----
+// ## tokenize path
+//  > use / and . to tokenize a path to an invariant
+//----
 
 Parth.prototype.tokenize = function(path, opt){
   var p = { input : (type(path).string || '').trim() };
@@ -52,7 +49,7 @@ Parth.prototype.tokenize = function(path, opt){
     p.path = p.input.replace(url.path, url.pathname);
   }
 
-  p.regexp = p.path
+  p.regexp = p.path = p.path
     .replace(new RegExp(opt.sep.source+'$'), '').trim();
 
   // use space as invariant sep token
@@ -65,7 +62,7 @@ Parth.prototype.tokenize = function(path, opt){
       });
       if(!sep){ return $0; }  sep = '\\' + sep[0];
       return $0.replace(new RegExp(sep,'g'), ' ');
-    }).trim();
+    }).replace(/[ ]+/, ' ').trim();
 
   p.depth = p.argv.split(/[ ]+/).length;
   // wipe
@@ -114,7 +111,7 @@ Parth.prototype.set = function(path, opt){
     }
   }
 
-  // already in cache
+  // already in cache?
   if(cache.paths[p.depth].indexOf(p.path) > -1){
     p = method = index = null; // wipe
     return this;
@@ -162,12 +159,12 @@ Parth.prototype.get = function(path, opt_){
   while( !regexp[index].test(p.path) ){ index++; }
   regexp = this.cache.regexp[depth][index];
   var params = p.path.match(regexp).slice(1);
-
-  p.params = { };
   p.path = this.cache.paths[depth][index];
-  p.regexp = regexp;
+  if( !(/\:\w/).test(p.path) ){ return p; }
 
   index = 0;
+  p.params = { };
+  p.regexp = regexp;
   p.path.replace(/\:(\w+)/g,
     function($0, label){
       return (p.params[label] = params[index++]);
