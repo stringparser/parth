@@ -52,8 +52,6 @@ Parth.prototype.tokenize = function(path, opt){
     p.path = p.input.replace(url.path, url.pathname);
   }
 
-  // strip last sep token,
-  // making paths /url/path == /url/path/ are the same
   p.regexp = p.path
     .replace(new RegExp(opt.sep.source+'$'), '').trim();
 
