@@ -136,8 +136,9 @@ Parth.prototype.set = function(path, opt){
     return this;
   }
 
-  // prepend for custom regexp, append for default
-  var method = !(/\(.+?\)/).test(p.input) ? 'unshift' : 'push';
+  // prepend for custom regexp or raw, append for default
+  var method = ((/\(.+?\)/).test(p.input) || !(/\:\w+/).test(p.input))
+    ? 'unshift' : 'push';
   cache.paths[p.depth][method](p.path);
   cache.regexp[p.depth][method](p.regexp);
 
