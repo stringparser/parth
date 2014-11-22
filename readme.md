@@ -10,7 +10,7 @@
 </p>
 <br><br>
 
-path madness not only for an url
+path regex madness not only for an url
 
 ## usage
 

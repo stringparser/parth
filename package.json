@@ -1,7 +1,7 @@
 {
   "name": "parth",
   "main": "index.js",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -10,7 +10,7 @@
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
-  "description": "tamed path madness",
+  "description": "path regex madness not only for an url",
   "repository": "stringparser/node-parth",
   "homepage": "https://github.com/stringparser/node-parth",
   "bugs": {
@@ -31,12 +31,8 @@
     "path",
     "regex",
     "regexp",
-    "tokens",
-    "string",
-    "array",
-    "params",
-    "args",
-    "argv"
+    "tokenize",
+    "params"
   ],
   "license": "MIT"
 }
