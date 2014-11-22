@@ -8,7 +8,7 @@
   <a href="#why">why</a> |
   <a href="#todo">todo</a>  
 </p>
-<br><br>
+<br>
 
 path regex madness not only for an url
 

@@ -71,10 +71,12 @@ Parth.prototype.tokenize = function(path, opt){
   url = null;
   return p;
 };
+
 //----
 // ## parse path
 //  > parse the path using previous tokens
 //----
+
 Parth.prototype.parse = function(path, opt){
   var p = this.tokenize(path, (opt = opt || { }));
   if(!p){ return null; }
@@ -117,9 +119,7 @@ Parth.prototype.set = function(path, opt){
   var p = this.parse(path, (opt = opt || { }));
   if(!p){ return this; }
 
-  var index;
-  var cache = this.cache;
-
+  var index, cache = this.cache;
   // check + prepare paths and regexes
   if(cache.regexp.length < p.depth+1){
     index = cache.regexp.length;
@@ -136,8 +136,8 @@ Parth.prototype.set = function(path, opt){
     return this;
   }
 
-  // parameter cache
-  var method = !(/\:w+/).test(p.input) ? 'unshift' : 'push';
+  // prepend for custom regexp, append for default
+  var method = !(/\(.+?\)/).test(p.input) ? 'unshift' : 'push';
   cache.paths[p.depth][method](p.path);
   cache.regexp[p.depth][method](p.regexp);
 
@@ -158,9 +158,8 @@ Parth.prototype.set = function(path, opt){
 // ## get a previously set path
 //
 
-Parth.prototype.get = function(path, opt_){
-  var opt;
-  var p = this.tokenize(path, (opt = opt_ || { }));
+Parth.prototype.get = function(path, opt){
+  var p = this.tokenize(path, (opt = opt || { }));
   if(!p.path){ return null; }
 
   var fallback = true;
