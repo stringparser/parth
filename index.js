@@ -90,6 +90,7 @@ Parth.prototype.parse = function(path, opt){
       .replace(opt.sep, '\\$&')
       .replace(/[ ]+/g, '[ ]+').replace(/\+$/,'')
       .replace(/\:(\w+)/g, function($0, label){ return p.params[label]; });
+
     p.regexp = new RegExp('^' + p.regexp + '?', opt.flag);
     return p;
   }
@@ -136,19 +137,20 @@ Parth.prototype.set = function(path, opt){
   }
 
   // parameter cache
-  var method = !(/\:w+/).test(p.input) || (/\(.+?\)/g).test(p.input)
-    ? 'unshift' : 'push';
+  var method = !(/\:w+/).test(p.input) ? 'unshift' : 'push';
   cache.paths[p.depth][method](p.path);
   cache.regexp[p.depth][method](p.regexp);
 
   // adjust masterRE
-  cache.masterRE[p.depth] = new RegExp(cache.regexp[p.depth]
-    .map(function(regexp){ return regexp.source; })
-    .join('|'),
-  opt.flag);
+  cache.masterRE[p.depth] =
+    new RegExp(
+      cache.regexp[p.depth]
+        .map(function(regexp){ return regexp.source; })
+        .join('|'),
+    opt.flag);
 
   // wipe
-  p = method = index = null; 
+  p = method = index = null;
   return this;
 };
 
