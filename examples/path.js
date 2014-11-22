@@ -33,7 +33,7 @@ console.log(result);
 use = 'mix';
 result = parth
   .set(':method(get|put|delete|post) :model.data /hello/:one/:two?something')
-  .get('get retail.data /hello/there/awesome?page=10');
+  .get('get page.data /hello/there/awesome.json?page=10');
 console.log('\n -- \n', use, '\n -- ');
 console.log(result);
 console.log();

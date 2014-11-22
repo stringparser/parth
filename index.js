@@ -13,7 +13,7 @@ function Parth(cache){
   }
 
   function parth(path, opts){
-    return parth.get(path, opts);
+    return parth.set(path, opts);
   }
   merge(parth, this);
 
@@ -62,9 +62,10 @@ Parth.prototype.tokenize = function(path, opt){
       });
       if(!sep){ return $0; }  sep = '\\' + sep[0];
       return $0.replace(new RegExp(sep,'g'), ' ');
-    }).replace(/[ ]+/, ' ').trim();
+    }).trim().replace(/[ ]+/g, ' ');
 
-  p.depth = p.argv.split(/[ ]+/).length;
+  p.depth = p.argv.split(/[ ]/).length;
+  
   // wipe
   url = null;
   return p;
