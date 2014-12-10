@@ -30,8 +30,7 @@ function Parth(){
 // ## set a path
 //
 Parth.prototype.set = function(path, o){
-  o = util.type(o).plainObject || { };
-  return this.parse('#set')(path, o);
+  return this.parse('#set')(path, { });
 };
 
 //
@@ -39,8 +38,7 @@ Parth.prototype.set = function(path, o){
 //
 
 Parth.prototype.get = function(path, o){
-  o = util.type(o).plainObject || { };
-  return this.parse('#get')(path, o);
+  return this.parse('#get')(path, { });
 };
 
 // ## Parth.boil
