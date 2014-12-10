@@ -31,8 +31,6 @@ function Parth(){
 //
 Parth.prototype.set = function(path, o){
   o = util.type(o).plainObject || { };
-  var p = this.boil('#set')(path, o);
-  if(!p){ o = null; return this; }
   return this.parse('#set')(path, o);
 };
 
@@ -42,8 +40,6 @@ Parth.prototype.set = function(path, o){
 
 Parth.prototype.get = function(path, o){
   o = util.type(o).plainObject || { };
-  var p = this.boil('#get')(path, o);
-  if(!p){ o = null; return this; }
   return this.parse('#get')(path, o);
 };
 
@@ -72,7 +68,6 @@ Parth.prototype.boil = function(prop, boiler){
 
   var self = this;
   this.method.boil[prop] = function(stems, opts){
-    stems = util.boil(stems, opts);
     stems = boiler.call(self, stems, opts);
     if(!stems){ return null; }
     if(util.type(stems).array){ return stems; }
