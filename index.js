@@ -24,16 +24,16 @@ function Parth(){
 //
 // ## set a path
 //
-Parth.prototype.set = function(path){
-  return this.parse('#set')(path, { });
+Parth.prototype.set = function(path, opt){
+  return this.parse('#set')(path, opt || { });
 };
 
 //
 // ## get a previously set path
 //
 
-Parth.prototype.get = function(path){
-  return this.parse('#get')(path, { });
+Parth.prototype.get = function(path, opt){
+  return this.parse('#get')(path, opt || { });
 };
 
 // ## Parth.boil
@@ -66,7 +66,7 @@ Parth.prototype.boil = function(prop, boiler){
     if(util.type(stems).array){ return stems; }
     throw new util.Error(
       ' While boiling `'+prop+'` with boiler(stems, opts):\n'+
-      ' > a boiler should return an array');
+      ' > a boiler should return an array a falsy value');
   };
 
   return this;
@@ -102,7 +102,7 @@ Parth.prototype.parse = function(prop, parser){
     throw new util.Error(
       ' While parsing `'+prop+'` \n'+
       ' parser.apply(self, arguments):\n'+
-      ' > a parser should return an object');
+      ' > a parser should return an object or a falsy value');
   };
 
   return this;
