@@ -13,7 +13,7 @@ module.exports = function(Parth, util){
     input = '/hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
+    should(result.stems).be.eql(input);
     should(result.params).be.eql({
       there : 'awesome',
       you: 'human'

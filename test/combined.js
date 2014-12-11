@@ -13,9 +13,9 @@ module.exports = function(Parth, util){
     input = ':method(get) /hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
-    should(result.querystring).be.eql('?query');
-    should(result.hash).be.eql('#hash');
+    should(result.stems).be.eql(input);
+    should(result.url.query).be.eql('query');
+    should(result.url.hash).be.eql('#hash');
     should(result.params).be.eql({
       method: 'get',
       there: 'awesome',
@@ -31,7 +31,7 @@ module.exports = function(Parth, util){
     input = ':method(get) /hello/:there/:you page.:data';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
+    should(result.stems).be.eql(input);
     should(result.params).be.eql({
       method: 'get',
       there: 'awesome',

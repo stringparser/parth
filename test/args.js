@@ -13,7 +13,7 @@ module.exports = function(Parth, util){
     args = 'hey string person';
     result = parth.set(input).get(args);
     should(result.input).be.eql('hey string person');
-    should(result.path).be.eql('hey :there :you');
+    should(result.stems).be.eql('hey :there :you');
     should(result.params).be.eql({
       there : 'string',
       you: 'person'
@@ -26,7 +26,7 @@ module.exports = function(Parth, util){
     args = 'hey human string'.split(/[ ]+/);
     result = parth.set(input).get(args);
     should(result.input).be.eql('hey human string');
-    should(result.path).be.eql('hey :there :you');
+    should(result.stems).be.eql('hey :there :you');
     should(result.params).be.eql({
       there : 'human',
       you: 'string'
@@ -39,7 +39,7 @@ module.exports = function(Parth, util){
     args = 'hey string robot';
     result = parth.set(input).get(args);
     should(result.input).be.eql('hey string robot');
-    should(result.path).be.eql('hey :there :you');
+    should(result.stems).be.eql('hey :there :you');
     should(result.params).be.eql({
       there : 'string',
       you: 'robot'
@@ -52,7 +52,7 @@ module.exports = function(Parth, util){
     args = 'hey array bat'.split(/[ ]+/);
     result = parth.set(input).get(args);
     should(result.input).be.eql('hey array bat');
-    should(result.path).be.eql('hey :there :you');
+    should(result.stems).be.eql('hey :there :you');
     should(result.params).be.eql({
       there : 'array',
       you: 'bat'

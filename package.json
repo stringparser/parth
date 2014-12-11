@@ -32,7 +32,6 @@
     "path",
     "regex",
     "regexp",
-    "tokenize",
     "params"
   ],
   "license": "MIT"

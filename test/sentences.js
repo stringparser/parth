@@ -12,7 +12,7 @@ module.exports = function(Parth, util){
     input = 'you are an :there :you';
     result = parth.set(input).get(args);
     should(result.input).be.eql('you are an awesome human');
-    should(result.path).be.eql('you are an :there :you');
+    should(result.stems).be.eql('you are an :there :you');
     should(result.params).be.eql({
       there : 'awesome',
       you: 'human'
