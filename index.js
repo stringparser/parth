@@ -29,7 +29,7 @@ function Parth(){
 //
 // ## set a path
 //
-Parth.prototype.set = function(path, o){
+Parth.prototype.set = function(path){
   return this.parse('#set')(path, { });
 };
 
@@ -37,7 +37,7 @@ Parth.prototype.set = function(path, o){
 // ## get a previously set path
 //
 
-Parth.prototype.get = function(path, o){
+Parth.prototype.get = function(path){
   return this.parse('#get')(path, { });
 };
 
