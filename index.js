@@ -15,11 +15,6 @@ function Parth(){
   this.cache = { paths: [ ], regexp: [ ], masterRE: [ ]  };
   this.method = { _: {boil:[], parse:[]}, boil:{}, parse:{} };
 
-  // default boilers
-  util.boil._.forEach(function(method){
-    this.boil('#' + method, util.boil[method]);
-  }, this);
-
   // default parsers
   util.parse._.forEach(function(method){
     this.parse('#' + method, util.parse[method]);
