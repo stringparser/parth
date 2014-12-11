@@ -14,4 +14,12 @@ module.exports = function(Parth, util){
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
   });
+
+  it('should handle object paths with regexes', function(){
+    args = 'hello.1.human';
+    input = 'hello.:there(\\d+).:you';
+    result = parth.set(input).get(args);
+    should(result.input).be.eql(args);
+    should(result.path).be.eql(input);
+  });
 };
