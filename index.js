@@ -23,10 +23,11 @@ function Parth(){
 
 // ## Parth.set
 // > premise: set is way to usual method for a prototype
+// > its more likely to be overriden, proxy it instead
 //
 // arguments
-// `path` type `string` or `array`
-// `opt` type `object` optional
+//  - `path` type `string` or `array`
+//  - `opt` type `object` optional
 //
 // return
 //  - `this` so the method is chainable
@@ -37,10 +38,11 @@ Parth.prototype.set = function(path, opt){
 
 // ## Parth.get
 // > premise: get is way to usual method for a prototype
+// > its more likely to be overriden, proxy it instead
 //
 // arguments
-// `path` type `string` or `array`
-// `opt` type `object` optional
+//  - `path` type `string` or `array`
+//  - `opt` type `object` optional
 //
 // return
 //  - `output` type `object` with useful propeties
@@ -90,8 +92,8 @@ Parth.prototype.boil = function(prop, boiler){
 // > have all extra information on opts
 //
 // arguments
-// `prop` type `string`
-// `parser` type `function` optional
+//  - `prop` type `string`
+//  - `parser` type `function` optional
 //
 // return
 //  - `parser` function if arguments < 2
