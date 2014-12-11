@@ -13,4 +13,4 @@ console.log(parth.get('get /url'));
 console.log('got ');
 console.log(parth.get('get /url/page'));
 console.log('got ');
-console.log(parth.get('get /url/page/data?some=query#hash'));
+console.log(parth.get('get /url/page/data?some=query#hash something.else'));
