@@ -21,17 +21,30 @@ function Parth(){
   }, this);
 }
 
+// ## Parth.set
+// > premise: set is way to usual method for a prototype
 //
-// ## set a path
+// arguments
+// `path` type `string` or `array`
+// `opt` type `object` optional
+//
+// return
+//  - `this` so the method is chainable
 //
 Parth.prototype.set = function(path, opt){
   return this.parse('#set')(path, opt || { });
 };
 
+// ## Parth.get
+// > premise: get is way to usual method for a prototype
 //
-// ## get a previously set path
+// arguments
+// `path` type `string` or `array`
+// `opt` type `object` optional
 //
-
+// return
+//  - `output` type `object` with useful propeties
+//
 Parth.prototype.get = function(path, opt){
   return this.parse('#get')(path, opt || { });
 };
@@ -74,6 +87,7 @@ Parth.prototype.boil = function(prop, boiler){
 
 // ## Parth.parse
 // > premise: transform output to an object
+// > have all extra information on opts
 //
 // arguments
 // `prop` type `string`
