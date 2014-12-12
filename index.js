@@ -63,7 +63,7 @@ Parth.prototype.boil = function (path, o){
 //  - `this` so the method is chainable
 //
 
-util.paramRE = /\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g;
+util.paramRE = /(^|\W)\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
   this.boil(path, (o = o || { }));
@@ -88,13 +88,14 @@ Parth.prototype.set = function(path, o){
   o.regexp = o.path
     .replace(/\S+/g, function(stem){
       o.sep = (/\//).test(stem) ? '\\/\\#\\?' : '\\.';
-      return stem.replace(util.paramRE, function($0, $1, $2){
+      return stem.replace(util.paramRE, function($0, $1, $2, $3){
         o.params = o.params || { };
-        o.params[$1] = $2 || '([^' + o.sep + '^]+)';
-        return ':' + $1;
+        o.params[$2] = $3 || '([^' + o.sep + '^]+)';
+        return $1 + ':' + $2;
       });
     }).replace(/[\/\.\?\#]+/g, '\\$&')
-      .replace(util.paramRE, function($0, $1){ return o.params[$1]; });
+      .replace(util.paramRE,
+          function($0, $1, $2){ return $1 + o.params[$2]; });
 
   if(o.url && o.url.pathname.length > 1){
     o.regexp = o.regexp.replace(/\/\S+/, '$&\\/?');
@@ -136,7 +137,10 @@ Parth.prototype.get = function(path, o){
     } else if(!o.index){ o.depth = null; }
     o.index--;
   }
-  if(o.depth === null){ return null; }
+  if(o.depth === null){
+    o.notFound = true;
+    return null;
+  }
 
   o.index = 0;
   o.regexp = cache.regexp[o.depth];
@@ -147,14 +151,14 @@ Parth.prototype.get = function(path, o){
 
   o.index = 0;
   o.notFound = false; o.params = {};
-  var params = o.found.match(o.regexp).slice(1);
+  var par = o.found.match(o.regexp).slice(1);
   o.notFound = !(/[ ]+/).test(
       o.found.replace(
-          o.path.replace(util.paramRE, function($0, $1){
-            var par = params[o.index++];
-            return (o.params[$1] = Number(par) || par);
+          o.path.replace(util.paramRE, function($0, $1, $2){
+            var p = par[o.index++];
+            return $1 + (o.params[$2] = Number(p) || p);
           }), '')[0] || ' ');
 
-  params = null; delete o.index; delete o.found; // wipe
+  par = null; delete o.index; delete o.found; // wipe
   return o;
 };

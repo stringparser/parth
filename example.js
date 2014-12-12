@@ -1,6 +1,6 @@
 'use strict';
 
-var set, input, got;
+var set, input, got, op = { };
 var parth = require('./.')();
 
 set = 'hello.:there(\\w+).:you';
@@ -14,6 +14,12 @@ input = '/hello/awesome/human/?you=matter';
 got = parth.set(set).get(input);
 console.log('\n set = %s \n input = %s \n got =>\n', set, input);
 console.log(got);
+
+parth
+  .set(':number(\\d+) paths on fire')
+  .get('my paths on fire', op);
+// => null
+console.log('\n op \n', op);
 
 //
 // lets get serious <:)

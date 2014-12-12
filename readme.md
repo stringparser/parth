@@ -140,10 +140,13 @@ arguments
 return
 - `this` so the method can be chained
 
-`path` can contain any parameters in the form `:param-label$thing(regexp)` either if the path was given as a string or an array. Any string matching the regular expression below qualifies as a parameter
+`path` can contain any parameters in the form `:param-label$thing(regexp)`
+either if the path was given as a string or an array.
+
+Any string matching the regular expression below qualifies as a parameter
 
 ````js
-util.paramRE = /\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g
+util.paramRE = /(^|\W)\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g;
 ````
 [Go to regexpr](http://regexr.com/) and test it out.
 
@@ -176,10 +179,13 @@ These same properties are attached to `opts` of `path.get(path[, opts])`.
 If the `path` does not match any of the defined null is returned. All properties, including the regexp used for matching are at `opts`.
 
 ```js
+var op = { };
+
 parth
   .set(':number(\\d+) paths on fire')
-  .get('my paths on fire')
+  .get('my paths on fire', op)
 // => null
+console.log(op);
 ```
 
 ### parth.cache
