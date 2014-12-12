@@ -17,7 +17,7 @@ function Parth(){
 //
 // arguments
 //  - `path` type `string` or `array`
-//  - `opt` type `object` optional
+//  - `opt` type `object` optional holding all extra information
 //
 // return
 //  - `this` so the method is chainable
@@ -26,8 +26,9 @@ Parth.prototype.set = function(path, o){
   util.boil(path, (o = o || { }));
 
   o.found = this.cache.paths[o.depth];
-  if(o.found && o.found.indexOf(o.path) > -1){
-    o = null; return this;
+  if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
+    o.regexp = o.found[o.index];
+    return this;
   }
 
   var cache = this.cache;
@@ -61,9 +62,8 @@ Parth.prototype.set = function(path, o){
 
   cache.paths[o.depth][o.method](o.path);
   cache.regexp[o.depth][o.method](o.regexp);
-
   cache.masterRE[o.depth] = new RegExp(cache.regexp[o.depth]
-    .map(function(regex){ return regex.source; }).join('|'), 'i');
+  .map(function(re){ return re.source.replace(/[\(\)]+/g,''); }).join('|'), 'i');
 
   return this;
 };
