@@ -56,7 +56,7 @@ Parth.prototype.boil = function (path, o){
 //
 // arguments
 //  - `path` type `string` or `array`
-//  - `opt` type `object` optional holding all extra information
+//  - `o` type `object` optional holding all extra information
 //
 // return
 //  - `this` so the method is chainable
@@ -84,13 +84,13 @@ Parth.prototype.set = function(path, o){
   o.regexp = o.path
     .replace(/\S+/g, function(stem){
       o.sep = (/\//).test(stem) ? '\\/\\#\\?' : '\\.';
-      return stem.replace(/(\:\w+)(\(.+?\))?/g, function($0, $1, $2){
+      return stem.replace(/(\:[^\/\\\?\#\.\( ]+)(\(.+?\))?/g, function($0, $1, $2){
         o.params = o.params || { };
         o.params[$1] = $2 || '([^' + o.sep + '^]+)';
         return $1;
       });
     }).replace(/[\/\.\?\#]+/g, '\\$&')
-      .replace(/\:\w+/g, function($0){ return o.params[$0]; });
+      .replace(/\:[^\/\\\?\#\.\( ]+/g, function($0){ return o.params[$0]; });
 
   if(o.url && o.url.pathname.length > 1){
     o.regexp = o.regexp.replace(/\/\S+/, '$&\\/?');
@@ -109,14 +109,14 @@ Parth.prototype.set = function(path, o){
 
 
 // ## Parth.get
-// > premise: get a string or array path
+// > premise: get a string or array path, return an object
 //
 // arguments
 //  - `path` type `string` or `array`
-//  - `opt` type `object` optional
+//  - `o` type `object` optional holding all extra information
 //
 // return
-//  - `output` type `object` with useful propeties
+//  - `o` type `object`
 //
 Parth.prototype.get = function(path, o){
   this.boil(path, (o = o || { }));
@@ -144,10 +144,11 @@ Parth.prototype.get = function(path, o){
 
   o.notFound = !(/[ ]+/).test(
       o.path.replace(
-          o.stems.replace(/\:(\w+)(\(.+?\))?/g, function($0, $1){
-            return (o.params[$1] = param[o.index++]);
+          o.stems.replace(/\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g, function($0, $1){
+            var par = param[o.index++];
+            return (o.params[$1] = Number(par) || par);
           }), '')[0] || ' ');
 
-  param = null; delete o.index; delete o.depth; // wipe
+  param = null; delete o.index; // wipe
   return o;
 };
