@@ -60,7 +60,7 @@ parth
 
 ````js
 parth
-  .get('/hello/there/you/awesome', { fallback : true });
+  .get('/hello/there/you/awesome');
  // =>
 { input: '/hello/there/you/awesome',
   path: '/hello/there/you/awesome',
