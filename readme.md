@@ -126,7 +126,9 @@ arguments
 return
 - `opts.stems` array with the normalized path
 
-After the function call, all properties are available at the object passed to `opts`. See [parth.get](#parthgetpath, opts) `opts` properties.
+After the function call, all properties are available at the object passed to `opts`.
+
+See [parth.get](#parthgetpath-opts) `opts` properties.
 
 ### parth.set(path[, opts])
 
@@ -169,6 +171,8 @@ return
 - `regexp`: regexp used to match a path and obtain the parameters
 - `notFound`: does the input match but does not correspond to a path set?
 - `params`: parameters object with the parameters set previously, numbers are parsed.
+
+These same properties are attached to `opts` of `path.get(path[, opts])`.
 
 If the `path` does not match any of the defined null is returned. All properties, including the regexp used for matching are at `opts`.
 
