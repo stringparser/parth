@@ -22,7 +22,7 @@ function Parth(){
 //  - `this` so the method is chainable
 //
 
-var boilRE = /((?:\/|\?|\#)[^\/\?\# ]+|[^\. ]+\.)/g;
+util.boilRE = /((?:\/|\?|\#)[^\/\?\# ]+|[^\. ]+\.)/g;
 
 Parth.prototype.boil = function (path, o){
   o = o || { };  var stem = util.type(path);
@@ -45,7 +45,7 @@ Parth.prototype.boil = function (path, o){
       o.url.pathname.replace(/[\/]+$/, '') || '/');
   }
 
-  o.stems = o.path.replace(boilRE, '$& ').trim().split(/[ ]+/);
+  o.stems = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
   o.index = o.depth = o.stems.length-1;
   return o.stems;
 };
@@ -61,6 +61,9 @@ Parth.prototype.boil = function (path, o){
 // return
 //  - `this` so the method is chainable
 //
+
+util.paramRE = /\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g;
+
 Parth.prototype.set = function(path, o){
   this.boil(path, (o = o || { }));
 
@@ -84,13 +87,13 @@ Parth.prototype.set = function(path, o){
   o.regexp = o.path
     .replace(/\S+/g, function(stem){
       o.sep = (/\//).test(stem) ? '\\/\\#\\?' : '\\.';
-      return stem.replace(/(\:[^\/\\\?\#\.\( ]+)(\(.+?\))?/g, function($0, $1, $2){
+      return stem.replace(util.paramRE, function($0, $1, $2){
         o.params = o.params || { };
         o.params[$1] = $2 || '([^' + o.sep + '^]+)';
-        return $1;
+        return ':' + $1;
       });
     }).replace(/[\/\.\?\#]+/g, '\\$&')
-      .replace(/\:[^\/\\\?\#\.\( ]+/g, function($0){ return o.params[$0]; });
+      .replace(util.paramRE, function($0, $1){ return o.params[$1]; });
 
   if(o.url && o.url.pathname.length > 1){
     o.regexp = o.regexp.replace(/\/\S+/, '$&\\/?');
@@ -102,7 +105,8 @@ Parth.prototype.set = function(path, o){
   cache.paths[o.depth][o.method](o.path);
   cache.regexp[o.depth][o.method](o.regexp);
   cache.masterRE[o.depth] = new RegExp(cache.regexp[o.depth]
-  .map(function(re){ return re.source.replace(/[\(\)]+/g,''); }).join('|'), 'i');
+    .map(function(re){
+      return re.source.replace(/[\(\)]+/g,''); }).join('|'), 'i');
 
   return this;
 };
@@ -121,16 +125,18 @@ Parth.prototype.set = function(path, o){
 Parth.prototype.get = function(path, o){
   this.boil(path, (o = o || { }));
 
-  var cache = this.cache, found = cache.masterRE;
-  if(o.depth > found.length-1){ o.index = o.depth = found.length-1; }
+  var cache = this.cache;
+  o.found = cache.masterRE;
+  if(o.depth > o.found.length-1){ o.index = o.depth = o.found.length-1; }
 
   while(o.index > -1){
-    if(found[o.index] && found[o.index].test(o.path)){
+    if(o.found[o.index] && o.found[o.index].test(o.path)){
       o.depth = o.index; o.index = 0;
     } else if(!o.index){ o.depth = null; }
     o.index--;
   }
   if(o.depth === null){ return null; }
+  delete o.found;
 
   o.index = 0;
   o.regexp = cache.regexp[o.depth];
@@ -144,7 +150,7 @@ Parth.prototype.get = function(path, o){
 
   o.notFound = !(/[ ]+/).test(
       o.path.replace(
-          o.stems.replace(/\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g, function($0, $1){
+          o.stems.replace(util.paramRE, function($0, $1){
             var par = param[o.index++];
             return (o.params[$1] = Number(par) || par);
           }), '')[0] || ' ');
