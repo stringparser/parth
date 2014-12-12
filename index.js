@@ -63,7 +63,7 @@ Parth.prototype.boil = function (path, o){
 //  - `this` so the method is chainable
 //
 
-util.paramRE = /(^|\W)\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g;
+util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
   this.boil(path, (o = o || { }));
@@ -87,15 +87,11 @@ Parth.prototype.set = function(path, o){
 
   o.regexp = o.path
     .replace(/\S+/g, function(stem){
-      o.sep = (/\//).test(stem) ? '\\/\\#\\?' : '\\.';
+      o.sep = (/\//).test(stem) ? '/#?' : '.';
       return stem.replace(util.paramRE, function($0, $1, $2, $3){
-        o.params = o.params || { };
-        o.params[$2] = $3 || '([^' + o.sep + '^]+)';
-        return $1 + ':' + $2;
+        return $1 + ($3 || '([^' + o.sep + '^]+)');
       });
-    }).replace(/[\/\.\?\#]+/g, '\\$&')
-      .replace(util.paramRE,
-          function($0, $1, $2){ return $1 + o.params[$2]; });
+    }).replace(/[\/\.]/g, '\\$&');
 
   if(o.url && o.url.pathname.length > 1){
     o.regexp = o.regexp.replace(/\/\S+/, '$&\\/?');
@@ -150,15 +146,16 @@ Parth.prototype.get = function(path, o){
   o.regexp = cache.regexp[o.depth][o.index];
 
   o.index = 0;
-  o.notFound = false; o.params = {};
-  var par = o.found.match(o.regexp).slice(1);
-  o.notFound = !(/[ ]+/).test(
-      o.found.replace(
-          o.path.replace(util.paramRE, function($0, $1, $2){
-            var p = par[o.index++];
-            return $1 + (o.params[$2] = Number(p) || p);
-          }), '')[0] || ' ');
+  o.notFound = false; o.params = { };
+  var params = o.found.match(o.regexp).slice(1);
+  o.notFound =
+    !Boolean(
+      o.path.replace(util.paramRE, function($0, $1, $2){
+        var p = params[o.index++];
+        return $1 + (o.params[$2] = Number(p) || p);
+      })[0] || 0);
 
-  par = null; delete o.index; delete o.found; // wipe
+
+  params = null; delete o.index; delete o.found; // wipe
   return o;
 };
