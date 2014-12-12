@@ -142,14 +142,12 @@ Parth.prototype.get = function(path, o){
   o.notFound = false; o.params = {};
   var param = o.path.match(o.regexp).slice(1);
 
-  o.notFound =
-    !(/[ \.]+/).test(
+  o.notFound = !(/[ ]+/).test(
       o.path.replace(
           o.stems.replace(/\:(\w+)(\(.+?\))?/g, function($0, $1){
             return (o.params[$1] = param[o.index++]);
           }), '')[0] || ' ');
 
-  // wipe
-  param = null; delete o.index; delete o.depth;
+  param = null; delete o.index; delete o.depth; // wipe
   return o;
 };
