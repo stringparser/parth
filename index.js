@@ -30,7 +30,7 @@ Parth.prototype.boil = function (path, o){
 
   o.input = (stem.string || util.fold(stem.array.join(' ')));
   o.path = o.input.replace(/[ ]+/g, ' ');
-  o.stems = '';
+  o.argv = '';
 
   var url;
   if((url = o.path.match(/\/\S+/))){
@@ -46,9 +46,9 @@ Parth.prototype.boil = function (path, o){
     o.path = o.path.replace(o.url.href, o.url.pathname || '/');
   }
 
-  o.stems = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
-  o.index = o.depth = o.stems.length-1;
-  return o.stems;
+  o.argv = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
+  o.index = o.depth = o.argv.length-1;
+  return o.argv;
 };
 
 // ## Parth.set

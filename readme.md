@@ -27,7 +27,7 @@ parth
 // =>
 { input: '/hello/awesome/10.10/?you=matter',
   path: '/hello/:there/:you(\\d+)',
-  stems: ['/hello', '/awesome','/10.10'],
+  argv: ['/hello', '/awesome','/10.10'],
   url:
    { href: '/hello/awesome/10.10/?you=matter',
      hash: null,
@@ -49,7 +49,7 @@ parth
 // =>
 { input: 'hello.awesome.human',
   path: 'hello.:there(\\w+).:you',
-  stems: ['hello.', 'awesome.', 'human'],
+  argv: ['hello.', 'awesome.', 'human'],
   depth: 2,
   regexp: /^hello\.(\w+)\.([^\. ]+)/i,
   notFound: false,
@@ -64,7 +64,7 @@ parth
  // =>
 { input: '/hello/there/you/awesome',
   path: '/hello/:there/:you(\\w+)',
-  stems: ['/hello', '/there', '/you', '/awesome'],
+  argv: ['/hello', '/there', '/you', '/awesome'],
   url:
    { href: '/hello/there/you/awesome',
      hash: null,
@@ -85,7 +85,7 @@ parth
 // =>
 { input: 'get page.data /hello/there/awesome.json?page=10',
   path: ':method(get|put|delete|post) :model.data /hello/:one/:two',
-  stems: ['get', 'page.', 'data', '/hello', '/there', '/awesome.json'],
+  argv: ['get', 'page.', 'data', '/hello', '/there', '/awesome.json'],
   url:
    { href: '/hello/there/awesome.json?page=10',
      hash: null,
@@ -123,7 +123,7 @@ arguments
 - `opts` type `object` holding all extra information
 
 return
-- `opts.stems` array with the normalized path
+- `opts.argv` array with the normalized path
 
 After the function call, all properties are available at the object passed to `opts`.
 
@@ -164,7 +164,7 @@ return
   object with properties below
 - `input`: the given input
 - `path`: normalized path set (no querystring or hash and sanitized)
-- `stems`: `array` version of the normalized path
+- `argv`: `array` version of the normalized path
 - `url`: url contained in the matched path, object with properties
   - href: complete path
   - query: querystring without the '?' sign
@@ -188,7 +188,7 @@ parth
 console.log(op);
  { input: 'my paths on fire',
   path: 'my paths on fire',
-  stems: [ 'my', 'paths', 'on', 'fire' ],
+  argv: [ 'my', 'paths', 'on', 'fire' ],
   depth: null,
   index: -1,
   found:
