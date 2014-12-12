@@ -205,7 +205,7 @@ I need it for what is becoming an awesome, simple and complete [runtime](https:/
 
 ### examples
 
- Run the [`examples.js`](example.js) file.
+ Run the [`example.js`](example.js) file.
 
 ### todo
 
