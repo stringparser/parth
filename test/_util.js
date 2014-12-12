@@ -14,6 +14,7 @@ module.exports = {
       'unix-paths.js'
     ];
     var last = [
+      'url.js',
       'combined.js',
       'params.js'
     ];
