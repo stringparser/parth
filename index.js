@@ -53,7 +53,7 @@ Parth.prototype.set = function(path, o){
     }).replace(/[\/\.\?\#]+/g, '\\$&')
       .replace(/\:\w+/g, function($0){ return o.params[$0]; });
 
-  if(o.url && o.url.path.length > 1){
+  if(o.url && o.url.pathname.length > 1){
     o.regexp = o.regexp.replace(/\/\S+/, '$&\\/?');
   }
   o.regexp = o.regexp.replace(/\^\]\+/g, ' ]+');
