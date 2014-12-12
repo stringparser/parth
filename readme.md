@@ -160,8 +160,8 @@ arguments
 return
   object with properties below
 - `input`: the given input
-- `path`: normalized path (no querystring or hash and sanitized)
-- `stems`: `string` with the normalized path
+- `path`: normalized path set (no querystring or hash and sanitized)
+- `stems`: `array` version of the normalized path
 - `url`: url contained in the matched path, object with properties
   - href: complete path
   - query: querystring without the '?' sign

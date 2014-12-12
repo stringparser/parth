@@ -141,21 +141,21 @@ Parth.prototype.get = function(path, o){
   o.index = 0;
   o.regexp = cache.regexp[o.depth];
   while(!o.regexp[o.index].test(o.path)){ o.index++; }
-  o.found = cache.paths[o.depth][o.index];
+  o.found = o.path;
+  o.path = cache.paths[o.depth][o.index];
   o.regexp = cache.regexp[o.depth][o.index];
 
   o.index = 0;
   o.notFound = false; o.params = {};
-  var params = o.path.match(o.regexp).slice(1);
+  var params = o.found.match(o.regexp).slice(1);
   o.notFound = !(/[ ]+/).test(
-      o.path.replace(
-          o.found.replace(util.paramRE, function($0, $1){
+      o.found.replace(
+          o.path.replace(util.paramRE, function($0, $1){
             var par = params[o.index++];
             return (o.params[$1] = Number(par) || par);
           }), '')[0] || ' ');
 
-  o.path = o.found;
   params = null; delete o.index; delete o.found; // wipe
-  console.log(o);
+
   return o;
 };
