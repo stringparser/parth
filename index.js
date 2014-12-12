@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('./lib/util');
-util.boil = require('./lib/boil');
+util.fold = require('./lib/fold');
 
 exports = module.exports = Parth;
 
@@ -10,6 +10,45 @@ function Parth(){
   if(!(this instanceof Parth)){ return new Parth(); }
   this.cache = { paths: [ ], regexp: [ ], masterRE: [ ]  };
 }
+
+// ## Parth.boil(path [, o])
+// > premise: normalize a path, obtain its depth so one can classify it
+//
+// arguments
+//  - `path` type `string` or `array`
+//  - `o` type `object` holding all extra information
+//
+// return
+//  - `this` so the method is chainable
+//
+
+var boilRE = /((?:\/|\?|\#)[^\/\?\# ]+|[^\. ]+\.)/g;
+
+Parth.prototype.boil = function (path, o){
+  o = o || { };  var stem = util.type(path);
+  if(!stem.string && !stem.array){ return null; }
+
+  o.input = (stem.string || util.fold(stem.array.join(' ')));
+  o.path = o.input.replace(/[ ]+/g, ' ');
+  o.stems = '';
+
+  var url;
+  if((url = o.path.match(/\/\S+/))){
+    o.url = util.url.parse(url = url[0]);
+    o.url = {
+      href: url,
+      hash: o.url.hash,
+      query: o.url.query,
+      pathname: url.replace(o.url.search + o.url.hash, ''),
+    };
+    o.path = o.path.replace(o.url.href,
+      o.url.pathname.replace(/[\/]+$/, '') || '/');
+  }
+
+  o.stems = o.path.replace(boilRE, '$& ').trim().split(/[ ]+/);
+  o.index = o.depth = o.stems.length-1;
+  return o.stems;
+};
 
 // ## Parth.set
 // > premise: set a string, array path or regexp path
@@ -23,7 +62,7 @@ function Parth(){
 //  - `this` so the method is chainable
 //
 Parth.prototype.set = function(path, o){
-  util.boil(path, (o = o || { }));
+  this.boil(path, (o = o || { }));
 
   o.found = this.cache.paths[o.depth];
   if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
@@ -80,7 +119,7 @@ Parth.prototype.set = function(path, o){
 //  - `output` type `object` with useful propeties
 //
 Parth.prototype.get = function(path, o){
-  util.boil(path, (o = o || { }));
+  this.boil(path, (o = o || { }));
 
   var cache = this.cache, found = cache.masterRE;
   if(o.depth > found.length-1){ o.index = o.depth = found.length-1; }
