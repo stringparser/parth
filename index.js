@@ -83,11 +83,11 @@ Parth.prototype.get = function(path, o){
   util.boil(path, (o = o || { }));
 
   var cache = this.cache, found = cache.masterRE;
-  if(o.index > found.length-1){ o.index = o.depth = found.length-1; }
+  if(o.depth > found.length-1){ o.index = o.depth = found.length-1; }
 
   while(o.index > -1){
     if(found[o.index] && found[o.index].test(o.path)){
-      o.depth = o.index; o.index = -1;
+      o.depth = o.index; o.index = 0;
     } else if(!o.index){ o.depth = null; }
     o.index--;
   }
