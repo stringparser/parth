@@ -1,4 +1,4 @@
-# node-parth 
+# node-parth
 [<img alt="build" src="http://img.shields.io/travis/stringparser/node-parth/master.svg?style=flat-square" align="left"/>](https://travis-ci.org/stringparser/node-parth/builds)
 [<img alt="NPM version" src="http://img.shields.io/npm/v/parth.svg?style=flat-square" align="right"/>](http://www.npmjs.org/package/parth)
 <p align="center">
@@ -27,7 +27,7 @@ parth
 // =>
 { input: '/hello/awesome/10.10/?you=matter',
   path: '/hello/awesome/10.10',
-  stems: '/hello/:there/:you(\\w+)',
+  stems: '/hello/:there/:you(\\d+)',
   url:
    { href: '/hello/awesome/10.10/?you=matter',
      hash: null,
