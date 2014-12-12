@@ -149,13 +149,14 @@ Parth.prototype.get = function(path, o){
   o.notFound = false; o.params = { };
   var params = o.found.match(o.regexp).slice(1);
   o.notFound =
-    !Boolean(
-      o.path.replace(util.paramRE, function($0, $1, $2){
-        var p = params[o.index++];
-        return $1 + (o.params[$2] = Number(p) || p);
-      })[0] || 0);
+    o.path.replace(util.paramRE, function($0, $1, $2){
+      var p = params[o.index++];
+      return $1 + (o.params[$2] = Number(p) || p);
+    });
 
+  o.notFound = !(/[ ]+/).test(
+    o.found.replace(o.notFound, '')[0] || ' ');
 
-  params = null; delete o.index; delete o.found; // wipe
+  params = null; delete o.index;
   return o;
 };
