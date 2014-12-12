@@ -3,11 +3,11 @@
 var should = require('should');
 var use, input, args, result;
 
-module.exports = function(Parth, util){
-  should.exists(util);
-  var parth = Parth();
+module.exports = function(Parth){
+  var parth = new Parth();
 
   use = 'string args for #set and #get';
+  
   it('should handle '+use, function(){
     input = 'hey :there :you';
     args = 'hey string person';

@@ -3,9 +3,9 @@
 var should = require('should');
 var use, input, args, result;
 
-module.exports = function(Parth, util){
-  should.exists(util);
-  var parth = Parth();
+module.exports = function(Parth){
+  var parth = new Parth();
+
   use = 'object paths';
   it('should handle object paths', function(){
     args = 'hello.awesome.human';
