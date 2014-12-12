@@ -6,8 +6,6 @@
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "lodash.clone": "^2.4.1",
-    "utils-merge": "^1.0.0",
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
