@@ -26,8 +26,8 @@ parth
   .get('/hello/awesome/10.10/?you=matter');
 // =>
 { input: '/hello/awesome/10.10/?you=matter',
-  path: '/hello/awesome/10.10',
-  stems: '/hello/:there/:you(\\d+)',
+  path: '/hello/:there/:you(\\d+)',
+  stems: ['/hello', '/awesome','/10.10'],
   url:
    { href: '/hello/awesome/10.10/?you=matter',
      hash: null,
@@ -48,8 +48,8 @@ parth
   .get('hello.awesome.human');
 // =>
 { input: 'hello.awesome.human',
-  path: 'hello.awesome.human',
-  stems: 'hello.:there(\\w+).:you',
+  path: 'hello.:there(\\w+).:you',
+  stems: ['hello.', 'awesome.', 'human'],
   depth: 2,
   regexp: /^hello\.(\w+)\.([^\. ]+)/i,
   notFound: false,
@@ -63,8 +63,8 @@ parth
   .get('/hello/there/you/awesome');
  // =>
 { input: '/hello/there/you/awesome',
-  path: '/hello/there/you/awesome',
-  stems: '/hello/:there/:you(\\w+)',
+  path: '/hello/:there/:you(\\w+)',
+  stems: ['/hello', '/there', '/you', '/awesome'],
   url:
    { href: '/hello/there/you/awesome',
      hash: null,
@@ -84,8 +84,8 @@ parth
   .get('get page.data /hello/there/awesome.json?page=10');
 // =>
 { input: 'get page.data /hello/there/awesome.json?page=10',
-  path: 'get page.data /hello/there/awesome.json',
-  stems: ':method(get|put|delete|post) :model.data /hello/:one/:two',
+  path: ':method(get|put|delete|post) :model.data /hello/:one/:two',
+  stems: ['get', 'page.', 'data', '/hello', '/there', '/awesome.json'],
   url:
    { href: '/hello/there/awesome.json?page=10',
      hash: null,
@@ -161,7 +161,7 @@ return
   object with properties below
 - `input`: the given input
 - `path`: normalized path (no querystring or hash and sanitized)
-- `stems`: `string` for `parth.get` with the original path set. `array` for `parth.set` with the normalized path.
+- `stems`: `string` with the normalized path
 - `url`: url contained in the matched path, object with properties
   - href: complete path
   - query: querystring without the '?' sign

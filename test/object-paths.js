@@ -12,7 +12,7 @@ module.exports = function(Parth){
     input = 'hello.:there.:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.stems).be.eql(input);
+    should(result.path).be.eql(input);
   });
 
   it('should handle object paths with regexes', function(){
@@ -20,6 +20,6 @@ module.exports = function(Parth){
     input = 'hello.:there(\\d+).:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.stems).be.eql(input);
+    should(result.path).be.eql(input);
   });
 };

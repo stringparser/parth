@@ -12,7 +12,7 @@ module.exports = function(Parth){
     input = ':method(get|post) /hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.stems).be.eql(input);
+    should(result.path).be.eql(input);
 
     should(result.params).be.eql({
       method: 'post',
@@ -29,7 +29,7 @@ module.exports = function(Parth){
     input = ':method(post|get) /hello/:there/:you page.:data';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.stems).be.eql(input);
+    should(result.path).be.eql(input);
     should(result.params).be.eql({
       method: 'post',
       there: 'awesome',

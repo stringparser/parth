@@ -102,7 +102,7 @@ Parth.prototype.set = function(path, o){
   o.regexp = o.regexp.replace(/\^\]\+/g, ' ]+');
   o.regexp = new RegExp('^' + o.regexp, o.strict ? '' : 'i');
   o.method = (/\(.+?\)/).test(o.path) ? 'unshift' : 'push';
-  
+
   cache.paths[o.depth][o.method](o.path);
   cache.regexp[o.depth][o.method](o.regexp);
   cache.masterRE[o.depth] = new RegExp(cache.regexp[o.depth]
@@ -137,12 +137,11 @@ Parth.prototype.get = function(path, o){
     o.index--;
   }
   if(o.depth === null){ return null; }
-  delete o.found;
 
   o.index = 0;
   o.regexp = cache.regexp[o.depth];
   while(!o.regexp[o.index].test(o.path)){ o.index++; }
-  o.stems = cache.paths[o.depth][o.index];
+  o.found = cache.paths[o.depth][o.index];
   o.regexp = cache.regexp[o.depth][o.index];
 
   o.index = 0;
@@ -150,11 +149,13 @@ Parth.prototype.get = function(path, o){
   var params = o.path.match(o.regexp).slice(1);
   o.notFound = !(/[ ]+/).test(
       o.path.replace(
-          o.stems.replace(util.paramRE, function($0, $1){
+          o.found.replace(util.paramRE, function($0, $1){
             var par = params[o.index++];
             return (o.params[$1] = Number(par) || par);
           }), '')[0] || ' ');
 
-  params = null; delete o.index; // wipe
+  o.path = o.found;
+  params = null; delete o.index; delete o.found; // wipe
+  console.log(o);
   return o;
 };

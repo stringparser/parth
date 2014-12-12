@@ -12,7 +12,7 @@ module.exports = function(Parth){
     input = ':method(get) /hello/:there';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.stems).be.eql(input);
+    should(result.path).be.eql(input);
     should(result.notFound).be.eql(true);
   });
 
@@ -22,7 +22,7 @@ module.exports = function(Parth){
     input = ':method(get|post) /hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.stems).be.eql(input);
+    should(result.path).be.eql(input);
     should(result.notFound).be.eql(false);
 
     args = args.replace(/^post/, 'delete');
@@ -35,7 +35,7 @@ module.exports = function(Parth){
     input = ':method(get|post) /go';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
-    should(result.stems).be.eql(input);
+    should(result.path).be.eql(input);
     should(result.notFound).be.eql(true);
 
     args = args.replace(/^post/, 'delete');
