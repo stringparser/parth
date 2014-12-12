@@ -1,6 +1,7 @@
 'use strict';
 
 var util = require('./lib/util');
+util.boil = require('./lib/boil');
 
 exports = module.exports = Parth;
 
@@ -10,46 +11,9 @@ function Parth(){
   this.cache = { paths: [ ], regexp: [ ], masterRE: [ ]  };
 }
 
-// ## Parth.boil
-// > premise: obtain a "normalized" array
-//
-// arguments
-//  - `stem` type `string` or `array`
-//  - `o` type `object` optional, will contain all extra information
-//
-// return
-//  - `this` so the method is chainable
-//
-var boilRE = /((?:\/|\?|\#)[^\/\?\# ]+|[^\. ]+\.)/g;
-Parth.prototype.boil = function (stem, o){
-  var s = util.type(stem);
-  if(!s.string && !s.array){ return null; }
-
-  o = o || { };
-  o.input = (s.string || util.fold(s.array.join(' ')));
-  o.path = o.input.replace(/[ ]+/g, ' ');
-  o.stems = '';
-
-  var url;
-  if((url = o.path.match(/\/\S+/))){
-    o.url = util.url.parse(url = url[0]);
-    o.url = {
-      href: url,
-      hash: o.url.hash,
-      query: o.url.query,
-      pathname: url.replace(o.url.search + o.url.hash, '')
-    };
-    o.path = o.path.replace(
-      o.url.href, o.url.pathname.replace(/[\/]+$/, '') || '/');
-  }
-
-  o.stems = o.path.replace(boilRE, '$& ').trim().split(/[ ]+/);
-  o.index = o.depth = o.stems.length-1;
-  return o.stems;
-};
-
 // ## Parth.set
-// > premise: set a string or array path (regexp pending)
+// > premise: set a string, array path or regexp path
+// > TODO: regexp is not implemented yet
 //
 // arguments
 //  - `path` type `string` or `array`
@@ -59,7 +23,7 @@ Parth.prototype.boil = function (stem, o){
 //  - `this` so the method is chainable
 //
 Parth.prototype.set = function(path, o){
-  this.boil(path, (o = o || { }));
+  util.boil(path, (o = o || { }));
 
   o.found = this.cache.paths[o.depth];
   if(o.found && o.found.indexOf(o.path) > -1){
@@ -116,13 +80,10 @@ Parth.prototype.set = function(path, o){
 //  - `output` type `object` with useful propeties
 //
 Parth.prototype.get = function(path, o){
-  this.boil(path, (o = o || { }));
+  util.boil(path, (o = o || { }));
 
   var cache = this.cache, found = cache.masterRE;
-
-  if(o.index > found.length-1){
-    o.index = o.depth = found.length-1;
-  }
+  if(o.index > found.length-1){ o.index = o.depth = found.length-1; }
 
   while(o.index > -1){
     if(found[o.index] && found[o.index].test(o.path)){
@@ -130,10 +91,7 @@ Parth.prototype.get = function(path, o){
     } else if(!o.index){ o.depth = null; }
     o.index--;
   }
-
-  if(o.depth === null){
-    return null;
-  }
+  if(o.depth === null){ return null; }
 
   o.index = 0;
   o.regexp = cache.regexp[o.depth];
