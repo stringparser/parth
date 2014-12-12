@@ -39,7 +39,8 @@ Parth.prototype.boil = function (path, o){
       href: url,
       hash: o.url.hash,
       query: o.url.query,
-      pathname: url.replace(o.url.search + o.url.hash, ''),
+      pathname: url.replace(
+        (o.url.search || '') + (o.url.hash || ''), ''),
     };
     o.path = o.path.replace(o.url.href,
       o.url.pathname.replace(/[\/]+$/, '') || '/');
@@ -146,15 +147,14 @@ Parth.prototype.get = function(path, o){
 
   o.index = 0;
   o.notFound = false; o.params = {};
-  var param = o.path.match(o.regexp).slice(1);
-
+  var params = o.path.match(o.regexp).slice(1);
   o.notFound = !(/[ ]+/).test(
       o.path.replace(
           o.stems.replace(util.paramRE, function($0, $1){
-            var par = param[o.index++];
+            var par = params[o.index++];
             return (o.params[$1] = Number(par) || par);
           }), '')[0] || ' ');
 
-  param = null; delete o.index; // wipe
+  params = null; delete o.index; // wipe
   return o;
 };

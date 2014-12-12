@@ -8,37 +8,36 @@ module.exports = function(Parth){
 
   use = 'urls and spaces';
   it('should handle '+use, function(){
-    args = 'get /hello/awesome/human?query#hash';
-    input = ':method(get) /hello/:there/:you';
+    args = 'post /hello/awesome/10/?query#hash';
+    input = ':method(get|post) /hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.stems).be.eql(input);
-    should(result.url.query).be.eql('query');
-    should(result.url.hash).be.eql('#hash');
+
     should(result.params).be.eql({
-      method: 'get',
+      method: 'post',
       there: 'awesome',
-      you: 'human'
+      you: 10
     });
 
-    args = args.replace(/^get/, 'delete');
+    args = args.replace(/^post/, 'delete');
     should(parth.get(args)).be.eql(null);
   });
   use = 'urls spaces and object paths';
   it('should handle '+use, function(){
-    args = 'get /hello/awesome/human page.user';
-    input = ':method(get) /hello/:there/:you page.:data';
+    args = 'post /hello/awesome/10.10 page.user';
+    input = ':method(post|get) /hello/:there/:you page.:data';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.stems).be.eql(input);
     should(result.params).be.eql({
-      method: 'get',
+      method: 'post',
       there: 'awesome',
-      you: 'human',
+      you: 10.1,
       data: 'user'
     });
 
-    args = args.replace(/^get/, 'delete');
+    args = args.replace(/^post/, 'delete');
     should(parth.get(args)).be.eql(null);
   });
 };
