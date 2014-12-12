@@ -40,10 +40,10 @@ Parth.prototype.boil = function (path, o){
       hash: o.url.hash,
       query: o.url.query,
       pathname: url.replace(
-        (o.url.search || '') + (o.url.hash || ''), ''),
+        (o.url.search || '') + (o.url.hash || ''), '')
+        .replace(/\/+$/, ''),
     };
-    o.path = o.path.replace(o.url.href,
-      o.url.pathname.replace(/[\/]+$/, '') || '/');
+    o.path = o.path.replace(o.url.href, o.url.pathname || '/');
   }
 
   o.stems = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);

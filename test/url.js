@@ -13,12 +13,11 @@ module.exports = function(Parth){
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.stems).be.eql(input);
-    should(result.url.query).be.eql('query');
-    should(result.url.hash).be.eql('#hash');
-    should(result.params).be.eql({
-      method: 'get',
-      there: 'awesome',
-      you: 'human'
+    should(result.url).be.eql({
+      href : '/hello/awesome/human?query#hash',
+      hash: '#hash',
+      query: 'query',
+      pathname: '/hello/awesome/human'
     });
 
     args = args.replace(/^get/, 'delete');
@@ -26,19 +25,19 @@ module.exports = function(Parth){
   });
   use = 'urls spaces and object paths';
   it('should handle '+use, function(){
-    args = 'get /hello/awesome/human page.user';
-    input = ':method(get) /hello/:there/:you page.:data';
+    args = 'post /hello/awesome/human/?query=and#hash-here page.user';
+    input = ':method(get|post) /hello/:there/:you page.:data';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.stems).be.eql(input);
-    should(result.params).be.eql({
-      method: 'get',
-      there: 'awesome',
-      you: 'human',
-      data: 'user'
+    should(result.url).be.eql({
+      href : '/hello/awesome/human/?query=and#hash-here',
+      hash: '#hash-here',
+      query: 'query=and',
+      pathname: '/hello/awesome/human'
     });
 
-    args = args.replace(/^get/, 'delete');
+    args = args.replace(/^post/, 'delete');
     should(parth.get(args)).be.eql(null);
   });
 };
