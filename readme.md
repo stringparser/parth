@@ -6,18 +6,42 @@
   <a href="#install">install</a> |
   <a href="#documentation">documentation</a> |
   <a href="#why">why</a> |
-  <a href="#todo">todo</a>  
+  <a href="#examples">examples</a> |
+  <a href="#todo">todo</a>
 </p>
 <br>
 
-path regex madness not only for an url
+path to regexp madness not only for an url
 
 ## usage
 
 ```js
 var parth = new require('parth')();
 ```
-#### object path
+
+#### url paths
+
+```js
+parth
+  .set('/hello/:there/:you(\\d+)')
+  .get('/hello/awesome/10.10/?you=matter');
+// =>
+{ input: '/hello/awesome/10.10/?you=matter',
+  path: '/hello/awesome/10.10',
+  stems: '/hello/:there/:you(\\w+)',
+  url:
+   { href: '/hello/awesome/10.10/?you=matter',
+     hash: null,
+     query: 'you=matter',
+     pathname: '/hello/awesome/human' },
+  depth: 2,
+  regexp: /^\/hello\/([^\/\#\? ]+)\/(\w+)\/?/i,
+  notFound: false,
+  params: { there: 'awesome', you: 10.10 } }
+
+```
+
+#### object paths
 
 ```js
 parth
@@ -25,46 +49,35 @@ parth
   .get('hello.awesome.human');
 // =>
 { input: 'hello.awesome.human',
-  path: 'hello.:there(\\w+).:you',
-  regexp: /^hello\.(\w+)\.([^\. ]+)\.?/i,
-  argv: 'hello awesome human',
-  depth: 3,
+  path: 'hello.awesome.human',
+  stems: 'hello.:there(\\w+).:you',
+  depth: 2,
+  regexp: /^hello\.(\w+)\.([^\. ]+)/i,
+  notFound: false,
   params: { there: 'awesome', you: 'human' } }
 ```
 
-#### unix/url paths
-
-```js
-parth
-  .set('/hello/:there/:you(\\w+)')
-  .get('/hello/awesome/human/?you=matter');
-// =>
-{ input: '/hello/awesome/human/?you=matter',
-  path: '/hello/:there/:you',
-  query: 'you=matter',
-  regexp: /^\/hello\/([^\/ ]+)\/([^\/ ]+)\/?/i,
-  argv: 'hello awesome human',
-  depth: 3,
-  params: { there: 'awesome', you: 'human' } }
-
-```
-
-#### fallbacks
+#### not found!
 
 ````js
 parth
   .get('/hello/there/you/awesome', { fallback : true });
  // =>
 { input: '/hello/there/you/awesome',
-  path: '/hello/:there/:you',
-  regexp: /^\/hello\/([^\/ ]+)\/([^\/ ]+)\/?/i,
-  argv: 'hello there you awesome',
-  depth: 4,
-  fallback: true,
+  path: '/hello/there/you/awesome',
+  stems: '/hello/:there/:you(\\w+)',
+  url:
+   { href: '/hello/there/you/awesome',
+     hash: null,
+     query: null,
+     pathname: '/hello/there/you/awesome' },
+  depth: 2,
+  regexp: /^\/hello\/([^\/\#\? ]+)\/(\w+)\/?/i,
+  notFound: true,
   params: { there: 'there', you: 'you' } }
 ````
 
-#### mixing them up
+#### mix'em up
 
 ```js
 parth
@@ -72,11 +85,16 @@ parth
   .get('get page.data /hello/there/awesome.json?page=10');
 // =>
 { input: 'get page.data /hello/there/awesome.json?page=10',
-  path: ':method(get|put|delete|post) :model.data /hello/:one/:two',
-  query: 'page=10',
-  regexp: /^(get|put|delete|post)[ ]+([^\. ]+)\.data[ ]+\/hello\/([^\/ ]+)\/([^\/ ]+)\/?/i,
-  argv: 'get page data hello there awesome.json',
-  depth: 6,
+  path: 'get page.data /hello/there/awesome.json',
+  stems: ':method(get|put|delete|post) :model.data /hello/:one/:two',
+  url:
+   { href: '/hello/there/awesome.json?page=10',
+     hash: null,
+     query: 'page=10',
+     pathname: '/hello/there/awesome.json' },
+  depth: 5,
+  regexp: /^(get|put|delete|post) ([^\. ]+)\.data \/hello\/([^\/\#\? ]+)\/([^\/\#\? ]+)\/?/i,
+  notFound: false,
   params:
    { method: 'get',
      model: 'page',
@@ -89,57 +107,70 @@ parth
 
 ````js
 var Parth = require('parth');
-var parth = new Parth(/* your cache */)
 ````
 
-### var parth = Parth([cache])
+`Parth` constructor. Takes no arguments.
 
-Constructor of `parths`.
-
-Takes one optional argument. The `parth` instance `cache` that will be created.
-
-### parth(path, opts)
-
-Same as **path.set**.
-
-### parth.set(path, opts)
-
-Set a new path. Chainable method.
-
-- `path`: string or array with the path to be set.
-- `opts`: object that will override internal regexes for `sep` or `params`.
-
-Any **word** statring with a colon, i.e. `:myParameter`, qualifies as parameter. After it a regular expression can be given to match a parameter. The regular expression **must start and end with parenthesis**.
-
-Examples of input
 ```js
-parth.set('myObject.:method.:property(\\w+)');
-parth.set(':method:get|post|put|delete :page(\\w+?).data /page/:view(\\d)/some');
-parth.set(
-  'Come to :here:Granada|Berlin|NY, ' +
-  'we have :something:paella|beer|awesomeness '+
-  'for :you(\\w+|everyone)');
+var parth = new Parth();
 ```
 
-### parth.get(path, opts)
+### parth.boil(path[, opts])
 
-Obtain a path previously saved with `parth.set`
+Normalize a path returning an array.
 
-- `path`: string or array with the path to be get.
-- `opts`: object that will override property defaults for internal `sep` and `params` regexes.
+arguments
+- `path` type `string` or `array`
+- `opts` type `object` holding all extra information
 
-Returns an object with the following properties
+return
+- `opts.stems` array with the normalized path
 
-- `input`: the input
-- `path`: the path that matches the imput
-- `query`: if path contains an url, will hold the query without '?'
-- `regexp`: the regexp used to match a path with `parth.get`
-- `params`: the previously set `:paramaters` on the path
-- `argv`: an array of with all the non token strings of the input
-- `depth` : `argv.length`
-- `fallback`: whether or not the path has fallen back from another
+After the function call, all properties are available at the object passed to `opts`. See [parth.get](#parthgetpath, opts) `opts` properties.
 
-if the `path` is not defined, or doesn't match, `null` is returned
+### parth.set(path[, opts])
+
+Set a string or array path using its normalized form from `parth.boil`
+
+arguments
+- `path` type `string` or `array`
+- `o` type `object` optional holding all extra information
+
+return
+- `this` so the method can be chained
+
+`path` can contain any parameters in the form `:param-label$thing(regexp)` either if the path was given as a string or an array. Any string matching the regular expression below qualifies as a parameter
+
+````js
+util.paramRE = /\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g
+````
+[Go to regexpr](http://regexr.com/) and test it out.
+
+NOTE: there is no overwrite of previous normalized paths, returning early if the path was set previously.
+
+### parth.get(path[, opts])
+
+Obtain a path match previously set with `parth.set`
+
+arguments
+- `path` type `string` or `array`
+- `opts` type `object` holding all extra information
+
+return
+  object with properties below
+- `input`: the given input
+- `path`: normalized path (no querystring or hash and sanitized)
+- `stems`: `string` for `parth.get` with the original path set. `array` for `parth.set` with the normalized path.
+- `url`: url contained in the matched path, object with properties
+  - href: complete path
+  - query: querystring without the '?' sign
+  - hash: hash including the pound sign
+- `depth`: depth of the normalized path
+- `regexp`: regexp used to match a path and obtain the parameters
+- `notFound`: does the input match but does not correspond to a path set?
+- `params`: parameters object with the parameters set previously, numbers are parsed.
+
+If the `path` does not match any of the defined null is returned. All properties, including the regexp used for matching are at `opts`.
 
 ```js
 parth
@@ -153,16 +184,12 @@ parth
 The `parth` instance cache. Has 3 properties
 
  - `masterRE` : array containing a regular expression for each depth.
- - `regexps`: a matrix of one column and one row for each path depth set.
- - `paths`: same as `regexps` but for the paths set.
-
-### note mixed parths
-
-Mixed paths are based on space being the "separator" of them. As long as space is used as a separator alls good.
+ - `regexp`: a matrix of one column and one row for each path depth set.
+ - `paths`: same as `regexp` but for the paths set. Used at the begining of `parth.set` to see if the path was previosly set.
 
 ## why
 
-I need it for [runtime](https://github.com/stringparser/runtime) module.
+I need it for what is becoming an awesome, simple and complete [runtime](https://github.com/stringparser/runtime) module.
 
 ## install
 
@@ -172,9 +199,14 @@ I need it for [runtime](https://github.com/stringparser/runtime) module.
 
     $ npm test
 
+### examples
+
+ Run the [`examples.js`](examples.js) file.
+
 ### todo
 
- - [ ] admit a regexp as input
+ - [ ] implement regexp paths
+ - [ ] provide more examples
 
 ### license
 

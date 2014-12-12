@@ -102,7 +102,7 @@ Parth.prototype.set = function(path, o){
   o.regexp = o.regexp.replace(/\^\]\+/g, ' ]+');
   o.regexp = new RegExp('^' + o.regexp, o.strict ? '' : 'i');
   o.method = (/\(.+?\)/).test(o.path) ? 'unshift' : 'push';
-
+  
   cache.paths[o.depth][o.method](o.path);
   cache.regexp[o.depth][o.method](o.regexp);
   cache.masterRE[o.depth] = new RegExp(cache.regexp[o.depth]
