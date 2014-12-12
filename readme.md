@@ -71,7 +71,7 @@ parth
      query: null,
      pathname: '/hello/there/you/awesome' },
   depth: 2,
-  regexp: /^\/hello\/([^\/\#\? ]+)\/(\w+)\/?/i,
+  regexp: /^\/hello\/([^\/\#\? ]+)\/(\d+)\/?/i,
   notFound: true,
   params: { there: 'there', you: 'you' } }
 ````
