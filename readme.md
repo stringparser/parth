@@ -186,6 +186,18 @@ parth
   .get('my paths on fire', op)
 // => null
 console.log(op);
+ { input: 'my paths on fire',
+  path: 'my paths on fire',
+  stems: [ 'my', 'paths', 'on', 'fire' ],
+  depth: null,
+  index: -1,
+  found:
+   [ null,
+     null,
+     /^\/hello\/[^\/\#\? ]+\/\w+\/?|^hello\.\w+\.[^\. ]+/i,
+     /^\d+ paths on fire/i ],
+  notFound: true }
+
 ```
 
 ### parth.cache
