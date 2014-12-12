@@ -15,6 +15,7 @@ module.exports = function(Parth){
     should(result.stems).be.eql(input);
     should(result.notFound).be.eql(true);
   });
+
   use = 'urls spaces and object paths';
   it('should handle '+use, function(){
     args = 'post /hello/awesome/human/?query=and#hash-here page.user';
@@ -23,6 +24,19 @@ module.exports = function(Parth){
     should(result.input).be.eql(args);
     should(result.stems).be.eql(input);
     should(result.notFound).be.eql(false);
+
+    args = args.replace(/^post/, 'delete');
+    should(parth.get(args)).be.eql(null);
+  });
+
+  use = 'urls spaces and object paths';
+  it('should handle '+use, function(){
+    args = 'post /go/awesome/human/?query=and#hash-here page.user';
+    input = ':method(get|post) /go';
+    result = parth.set(input).get(args);
+    should(result.input).be.eql(args);
+    should(result.stems).be.eql(input);
+    should(result.notFound).be.eql(true);
 
     args = args.replace(/^post/, 'delete');
     should(parth.get(args)).be.eql(null);
