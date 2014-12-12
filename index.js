@@ -156,6 +156,5 @@ Parth.prototype.get = function(path, o){
           }), '')[0] || ' ');
 
   params = null; delete o.index; delete o.found; // wipe
-
   return o;
 };
