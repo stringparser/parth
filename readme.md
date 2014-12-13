@@ -199,7 +199,7 @@ parth
   .get('get /10/things?something=here#hash')
 // =>
 { input: 'get /10/things?something=here#hash'
-  path: 'get /:page(\\d+)/view',
+  path: 'get /:page(\\d+)',
   url:
    { href: '/10/things?something=here#hash',
      hash: '#hash',
