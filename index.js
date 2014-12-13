@@ -25,9 +25,9 @@ function Parth(){
 util.boilRE = /((?:\/|\?|\#)[^\/\?\# ]+|[^\. ]+\.)/g;
 
 Parth.prototype.boil = function (path, o){
-  var wipe = !o;
-  o = o || { };  var stem = util.type(path);
-  if(!stem.string && !stem.array){ return null; }
+  var stem = util.type(path);
+  if(!stem.string && !stem.array){ return (wipe = null); }
+  var wipe = !o; o = o || { };
 
   o.input = (stem.string || util.fold(stem.array.join(' ')));
   o.path = o.input.replace(/[ ]+/g, ' ');
@@ -49,7 +49,7 @@ Parth.prototype.boil = function (path, o){
 
   var stems = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
   o.index = o.depth = stems.length-1;
-  if(wipe){ o = null; }
+  if(wipe){ wipe = o = null; }
   return stems;
 };
 
@@ -68,7 +68,7 @@ Parth.prototype.boil = function (path, o){
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  this.boil(path, (o = o || { }));
+  var wipe = !o; this.boil(path, (o = o || { }));
 
   o.found = this.cache.paths[o.depth];
   if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
@@ -108,6 +108,7 @@ Parth.prototype.set = function(path, o){
     .map(function(re){
       return re.source.replace(/[\(\)]+/g,''); }).join('|'), 'i');
 
+  if(wipe){ wipe = o = null; }
   return this;
 };
 
@@ -131,8 +132,7 @@ Parth.prototype.get = function(path, o){
 
   while(o.index > -1){
     if(o.found[o.index] && o.found[o.index].test(o.path)){
-      o.depth = o.index; o.index = 0;
-      o.found = o.path;
+      o.depth = o.index; o.index = 0; o.found = o.path;
     } else if(!o.index){
       o.depth = null; o.notFound = true;
       return null;
