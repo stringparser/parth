@@ -25,6 +25,7 @@ function Parth(){
 util.boilRE = /((?:\/|\?|\#)[^\/\?\# ]+|[^\. ]+\.)/g;
 
 Parth.prototype.boil = function (path, o){
+  var wipe = !o;
   o = o || { };  var stem = util.type(path);
   if(!stem.string && !stem.array){ return null; }
 
@@ -48,6 +49,7 @@ Parth.prototype.boil = function (path, o){
 
   var stems = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
   o.index = o.depth = stems.length-1;
+  if(wipe){ o = null; }
   return stems;
 };
 
