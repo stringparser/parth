@@ -115,11 +115,11 @@ var parth = new Parth();
 
 ### parth.set(path[, o])
 
-Set a string or array path using its normalized form from `parth.boil`
+Set a string or array path (sanitized by a [boil function](./lib/boil.js))
 
 arguments
-- `o` type `object`. Holds all extra information.
 - `path` type `string` or `array`
+- `o` type `object` holding all extra information
 
 return
 - `this` so the method can be chained
@@ -140,13 +140,13 @@ NOTES:
  - You should escape characters inside your regexp
  - Previously set path are not overwritten, paths should be set once.
 
-### parth.get(path[, opts])
+### parth.get(path[, o])
 
-Obtain a path match previously set with `parth.set`
+Obtain a path matching what was previously set
 
 arguments
 - `path` type `string` or `array`
-- `opts` type `object` holding all extra information
+- `o` type `object` holding all extra information
 
 return
   object with properties below
@@ -161,9 +161,10 @@ return
 - `notFound`: does the input match but does not correspond to a path set?
 - `params`: parameters object with the parameters set previously, numbers are parsed.
 
-These same properties are attached to `opts` of `path.get(path[, opts])`.
+These same properties are attached to `o` of `path.get(path[, o])`.
 
-If the `path` does not match any of the defined null is returned. All properties, including the regexp used for matching are at `opts`.
+If the `path` does not match any of the defined null is returned.
+All properties, including the `regexp` used for matching are at `o`.
 
 ```js
 var op = { };
@@ -223,7 +224,7 @@ The `parth` instance cache. Has 3 properties
 
 ## why
 
-I need it for what is becoming an awesome, simple and complete [runtime](https://github.com/stringparser/runtime) module.
+I need it for the [runtime](https://github.com/stringparser/runtime) module.
 
 ## install
 
@@ -239,8 +240,8 @@ I need it for what is becoming an awesome, simple and complete [runtime](https:/
 
 ### todo
 
- - [ ] implement regexp paths
- - [ ] provide more examples
+ - [ ] more examples
+ - [ ] add support for regexp input
 
 ### license
 
