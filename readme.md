@@ -194,18 +194,19 @@ an empty string on the sanitized version of the input path so we know if
 the path obtained was set on the first place. Or putting it simply:
 
 ````js
-parth.set('get /:page(\\d+)/view') // say its the only path set on this instance
-parth.get('get /10?something=here#hash')
+parth
+  .set('get /:page(\\d+)') // say its the only path set on this instance
+  .get('get /10/things?something=here#hash')
 // =>
-{ input: 'get /10?something=here#hash'
+{ input: 'get /10/things?something=here#hash'
   path: 'get /:page(\\d+)/view',
   url:
-   { href: '/10?something=here#hash',
+   { href: '/10/things?something=here#hash',
      hash: '#hash',
      query: 'something=here',
-     pathname: '/10' },
+     pathname: '/10/things' },
   depth: 2,
-  regexp: /^get \/(\d+)\/view\/?/i,
+  regexp: /^get \/(\d+)\/?/i,
   notFound: true,
   params: { page: 10 } }
 ````
