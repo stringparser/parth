@@ -41,14 +41,14 @@ Parth.prototype.boil = function (path, o){
       query: o.url.query,
       pathname: url.replace(
         (o.url.search || '') + (o.url.hash || ''), '')
-        .replace(/\/+$/, ''),
+        .replace(/\/+$/, '') || '/',
     };
-    o.path = o.path.replace(o.url.href, o.url.pathname || '/');
+    o.path = o.path.replace(o.url.href, o.url.pathname);
   }
 
-  o.argv = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
-  o.index = o.depth = o.argv.length-1;
-  return o.argv;
+  var stems = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
+  o.index = o.depth = stems.length-1;
+  return stems;
 };
 
 // ## Parth.set
@@ -130,32 +130,27 @@ Parth.prototype.get = function(path, o){
   while(o.index > -1){
     if(o.found[o.index] && o.found[o.index].test(o.path)){
       o.depth = o.index; o.index = 0;
-    } else if(!o.index){ o.depth = null; }
+      o.found = o.path;
+    } else if(!o.index){
+      o.depth = null; o.notFound = true;
+      return null;
+    }
     o.index--;
   }
-  if(o.depth === null){
-    o.notFound = true;
-    return null;
-  }
 
-  o.index = 0;
-  o.regexp = cache.regexp[o.depth];
+  o.index = 0; o.regexp = cache.regexp[o.depth];
   while(!o.regexp[o.index].test(o.path)){ o.index++; }
-  o.found = o.path;
   o.path = cache.paths[o.depth][o.index];
   o.regexp = cache.regexp[o.depth][o.index];
 
-  o.index = 0;
-  o.notFound = false; o.params = { };
+  o.params = { };
   var params = o.found.match(o.regexp).slice(1);
-  o.notFound =
-    o.path.replace(util.paramRE, function($0, $1, $2){
-      var p = params[o.index++];
-      return $1 + (o.params[$2] = Number(p) || p);
-    });
-
   o.notFound = !(/[ ]+/).test(
-    o.found.replace(o.notFound, '')[0] || ' ');
+    o.found.replace(
+      o.path.replace(util.paramRE, function($0, $1, $2){
+        var p = params[o.index++];
+        return $1 + (o.params[$2] = Number(p) || p);
+      }), '')[0] || ' ');
 
   params = null; delete o.index;
   return o;
