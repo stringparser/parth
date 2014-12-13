@@ -9,7 +9,7 @@
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
-  "description": "path to regex madness not only for an url",
+  "description": "path to regex madness",
   "repository": "stringparser/node-parth",
   "homepage": "https://github.com/stringparser/node-parth",
   "bugs": {
@@ -26,10 +26,13 @@
     "jshint": "*"
   },
   "keywords": [
+    "url",
     "path",
-    "utils",
+    "array",
+    "object",
     "regexp",
-    "params"
+    "params",
+    "cached"
   ],
   "license": "MIT"
 }
