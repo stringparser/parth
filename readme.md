@@ -27,7 +27,6 @@ parth
 // =>
 { input: '/hello/awesome/10.10/?you=matter',
   path: '/hello/:there/:you(\\d+)',
-  argv: ['/hello', '/awesome','/10.10'],
   url:
    { href: '/hello/awesome/10.10/?you=matter',
      hash: null,
@@ -49,7 +48,6 @@ parth
 // =>
 { input: 'hello.awesome.human',
   path: 'hello.:there(\\w+).:you',
-  argv: ['hello.', 'awesome.', 'human'],
   depth: 2,
   regexp: /^hello\.(\w+)\.([^\. ]+)/i,
   notFound: false,
@@ -78,6 +76,8 @@ parth
 
 #### mix'em up
 
+Lets get serious
+
 ```js
 parth
   .set(':method(get|put|delete|post) :model.data /hello/:one/:two?something')
@@ -85,7 +85,6 @@ parth
 // =>
 { input: 'get page.data /hello/there/awesome.json?page=10',
   path: ':method(get|put|delete|post) :model.data /hello/:one/:two',
-  argv: ['get', 'page.', 'data', '/hello', '/there', '/awesome.json'],
   url:
    { href: '/hello/there/awesome.json?page=10',
      hash: null,
@@ -114,18 +113,18 @@ var Parth = require('parth');
 var parth = new Parth();
 ```
 
-### parth.set(path[, opts])
+### parth.set(path[, o])
 
 Set a string or array path using its normalized form from `parth.boil`
 
 arguments
+- `o` type `object`. Holds all extra information.
 - `path` type `string` or `array`
-- `o` type `object` optional holding all extra information
 
 return
 - `this` so the method can be chained
 
-`path` can contain any parameters in the form `:param-label$thing(regexp)`
+`path` can contain parameters in the form `:param-label$what~not(optional\\regexp)`
 either if the path was given as a string or an array.
 
 Any string matching the regular expression below qualifies as a parameter
@@ -133,9 +132,13 @@ Any string matching the regular expression below qualifies as a parameter
 ````js
 util.paramRE = /(^|\W)\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g;
 ````
+
 [Go to regexpr](http://regexr.com/) and test it out.
 
-NOTE: there is no overwrite of previous normalized paths, returning early if the path was set previously.
+NOTES:
+ -
+ - You should escape characters inside your regexp
+ - Previously set path are not overwritten, paths should be set once.
 
 ### parth.get(path[, opts])
 
@@ -172,7 +175,6 @@ parth
 console.log(op);
  { input: 'my paths on fire',
   path: 'my paths on fire',
-  argv: [ 'my', 'paths', 'on', 'fire' ],
   depth: null,
   index: -1,
   found:
@@ -183,6 +185,33 @@ console.log(op);
   notFound: true }
 
 ```
+
+## `o.notFound` property
+
+After the path is matched and parameters are obtained path is replaced by
+an empty string on the sanitized version of the input path so we know if
+the path obtained was set on the first place. Or putting it simply:
+
+````js
+parth.set('get /:page(\\d+)/view') // say its the only path set on this instance
+parth.get('get /10?something=here#hash')
+// =>
+{ input: 'get /10?something=here#hash'
+  path: 'get /:page(\\d+)/view',
+  url:
+   { href: '/10?something=here#hash',
+     hash: '#hash',
+     query: 'something=here',
+     pathname: '/10' },
+  depth: 2,
+  regexp: /^get \/(\d+)\/view\/?/i,
+  notFound: true,
+  params: { page: 10 } }
+````
+
+Indeed, it is a partial match of the regular expression, so the path
+was no registered i.e. `404`. The reason for making this on the first place
+is to gather information of the routes instead of returning `null`.
 
 ### parth.cache
 
