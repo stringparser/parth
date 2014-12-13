@@ -114,21 +114,6 @@ var Parth = require('parth');
 var parth = new Parth();
 ```
 
-### parth.boil(path[, opts])
-
-Normalize a path returning an array.
-
-arguments
-- `path` type `string` or `array`
-- `opts` type `object` holding all extra information
-
-return
-- `opts.argv` array with the normalized path
-
-After the function call, all properties are available at the object passed to `opts`.
-
-See [parth.get](#parthgetpath-opts) `opts` properties.
-
 ### parth.set(path[, opts])
 
 Set a string or array path using its normalized form from `parth.boil`
@@ -164,7 +149,6 @@ return
   object with properties below
 - `input`: the given input
 - `path`: normalized path set (no querystring or hash and sanitized)
-- `argv`: `array` version of the normalized path
 - `url`: url contained in the matched path, object with properties
   - href: complete path
   - query: querystring without the '?' sign

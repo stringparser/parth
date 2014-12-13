@@ -2,56 +2,14 @@
 
 var util = require('./lib/util');
 util.fold = require('./lib/fold');
+util.boil = require('./lib/boil');
 
 exports = module.exports = Parth;
 
 function Parth(){
-
   if(!(this instanceof Parth)){ return new Parth(); }
   this.cache = { paths: [ ], regexp: [ ], masterRE: [ ]  };
 }
-
-// ## Parth.boil(path [, o])
-// > premise: normalize a path, obtain its depth so one can classify it
-//
-// arguments
-//  - `path` type `string` or `array`
-//  - `o` type `object` holding all extra information
-//
-// return
-//  - `this` so the method is chainable
-//
-
-util.boilRE = /((?:\/|\?|\#)[^\/\?\# ]+|[^\. ]+\.)/g;
-
-Parth.prototype.boil = function (path, o){
-  var stem = util.type(path);
-  if(!stem.string && !stem.array){ return (wipe = null); }
-  var wipe = !o; o = o || { };
-
-  o.input = (stem.string || util.fold(stem.array.join(' ')));
-  o.path = o.input.replace(/[ ]+/g, ' ');
-  o.argv = '';
-
-  var url;
-  if((url = o.path.match(/\/\S+/))){
-    o.url = util.url.parse(url = url[0]);
-    o.url = {
-      href: url,
-      hash: o.url.hash,
-      query: o.url.query,
-      pathname: url.replace(
-        (o.url.search || '') + (o.url.hash || ''), '')
-        .replace(/\/+$/, '') || '/',
-    };
-    o.path = o.path.replace(o.url.href, o.url.pathname);
-  }
-
-  var stems = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
-  o.index = o.depth = stems.length-1;
-  if(wipe){ wipe = o = null; }
-  return stems;
-};
 
 // ## Parth.set
 // > premise: set a string, array path or regexp path
@@ -68,7 +26,7 @@ Parth.prototype.boil = function (path, o){
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  var wipe = !o; this.boil(path, (o = o || { }));
+  var wipe = !o; util.boil(path, (o = o || { }));
 
   o.found = this.cache.paths[o.depth];
   if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
@@ -124,7 +82,7 @@ Parth.prototype.set = function(path, o){
 //  - `o` type `object`
 //
 Parth.prototype.get = function(path, o){
-  this.boil(path, (o = o || { }));
+  util.boil(path, (o = o || { }));
 
   var cache = this.cache;
   o.found = cache.masterRE;
