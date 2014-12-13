@@ -26,7 +26,9 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  var wipe = !o; util.boil(path, (o = o || { }));
+  var wipe = !o; o = o || { };
+  if(!util.boil(path, o)){ return null; } // not a string or array
+
 
   o.found = this.cache.paths[o.depth];
   if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
@@ -82,7 +84,7 @@ Parth.prototype.set = function(path, o){
 //  - `o` type `object`
 //
 Parth.prototype.get = function(path, o){
-  util.boil(path, (o = o || { }));
+  o = o || { }; if(!util.boil(path, o)){ return null; } // not a string or array
 
   var cache = this.cache;
   o.found = cache.masterRE;
