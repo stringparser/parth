@@ -1,8 +1,8 @@
 'use strict';
 
 var util = require('./lib/util');
-util.fold = require('./lib/fold');
 util.boil = require('./lib/boil');
+util.fold = require('./lib/fold');
 
 exports = module.exports = Parth;
 
@@ -76,8 +76,7 @@ Parth.prototype.set = function(path, o){
 //  - `path` type `string` or `array`
 //  - `o` type `object` optional holding all extra information
 //
-// return
-//  - `o` type `object`
+// return `o`
 //
 Parth.prototype.get = function(path, o){
   o = o || { }; var cache = this.cache;
