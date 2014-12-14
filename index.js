@@ -8,12 +8,12 @@ exports = module.exports = Parth;
 
 function Parth(){
   if(!(this instanceof Parth)){ return new Parth(); }
-  this.cache = { paths: [ ], regexp: [ ], masterRE: [ ]  };
+  this.cache = {paths: [ ], regexp: [ ], masterRE: [ ]};
 }
 
 // ## Parth.set
-// > premise: set a string, array path or regexp path
-// > TODO: implement regexp input, not done yet!
+// > premise: set a string, array path or regexp path (pending)
+// > TODO: implement regexp input
 //
 // arguments
 //  - `path` type `string` or `array`
