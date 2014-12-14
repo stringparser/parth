@@ -2,7 +2,6 @@
 
 var util = require('./lib/util');
 util.boil = require('./lib/boil');
-util.fold = require('./lib/fold');
 
 exports = module.exports = Parth;
 
