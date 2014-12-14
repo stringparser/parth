@@ -26,18 +26,17 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  var wipe = !o; o = o || { };
-  if(!util.boil(path, o)){ return null; } // `path` not a string or array
+  o = o || { };
+  // `path` not a string or array
+  if(!util.boil(path, o)){ return null; }
 
-  // already defined
-  o.found = this.cache.paths[o.depth];
+  var cache = this.cache;
+  o.found = cache.paths[o.depth]; // already defined
   if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
-    if(wipe){ wipe = o = null; }
-    else { o.regexp = o.found[o.index]; }
+    o.regexp = o.found[o.index]; // give the regexp
     return this;
   }
 
-  var cache = this.cache;
   if(cache.regexp.length < o.depth + 1){ // prepare cache arrays
     o.index = cache.regexp.length;
     while(o.index < o.depth + 1){
@@ -47,29 +46,25 @@ Parth.prototype.set = function(path, o){
     }
   }
 
-  o.regexp = o.path
-    .replace(/\S+/g, function(stem){
+  o.regexp = '^' + o.path.replace(/\S+/g, function(stem){
       o.sep = (/\//).test(stem) ? '/#?' : '.';
       return stem.replace(util.paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^' + o.sep + '^]+)');
       });
-    }).replace(/[\/\.]/g, '\\$&');
+    }).replace(/[\/\.]/g, '\\$&').replace(/\/\S+/, '$&\\/?')
+      .replace(/\^\]\+/g, ' ]+');
 
-  if(o.url && o.url.pathname.length > 1){
-    o.regexp = o.regexp.replace(/\/\S+/, '$&\\/?');
-  }
-
-  o.regexp = o.regexp.replace(/\^\]\+/g, ' ]+');
-  o.regexp = new RegExp('^' + o.regexp, o.strict ? '' : 'i');
-  o.method = (/\(.+?\)/).test(o.path) ? 'unshift' : 'push';
+  o.method = 'push';
+  if(/\(.+?\)/.test(o.path)){ o.method = 'unshift'; }
 
   cache.paths[o.depth][o.method](o.path);
-  cache.regexp[o.depth][o.method](o.regexp);
-  cache.masterRE[o.depth] = new RegExp(cache.regexp[o.depth]
-    .map(function(re){
-      return re.source.replace(/[\(\)]+/g,''); }).join('|'), 'i');
+  cache.regexp[o.depth][o.method](new RegExp(o.regexp, 'i'));
 
-  if(wipe){ wipe = o = null; }
+  cache.masterRE[o.depth] =
+    new RegExp(cache.regexp[o.depth]
+      .map(function(re){ return re.source; }).join('|')
+      .replace(/[\(\)]+/g,''), 'i');
+
   return this;
 };
 
@@ -85,9 +80,9 @@ Parth.prototype.set = function(path, o){
 //  - `o` type `object`
 //
 Parth.prototype.get = function(path, o){
-  var cache = this.cache; o = o || { };
+  o = o || { }; var cache = this.cache;
 
-  o.notFound = true;
+  o.notFound = true; // start as not found
   if(!util.boil(path, o)){ return null; } // not a string or array
 
   o.found = cache.masterRE;
