@@ -13,7 +13,7 @@ function Parth(){
 
 // ## Parth.set
 // > premise: set a string, array path or regexp path
-// > TODO: implement regexp input, not done yet :D
+// > TODO: implement regexp input, not done yet!
 //
 // arguments
 //  - `path` type `string` or `array`
@@ -27,18 +27,18 @@ util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
   var wipe = !o; o = o || { };
-  if(!util.boil(path, o)){ return null; } // not a string or array
+  if(!util.boil(path, o)){ return null; } // `path` not a string or array
 
-
+  // already defined
   o.found = this.cache.paths[o.depth];
   if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
-    o.regexp = o.found[o.index];
+    if(wipe){ wipe = o = null; }
+    else { o.regexp = o.found[o.index]; }
     return this;
   }
 
   var cache = this.cache;
-  // prepare paths, regexp and masterRE arrays
-  if(cache.regexp.length < o.depth + 1){
+  if(cache.regexp.length < o.depth + 1){ // prepare cache arrays
     o.index = cache.regexp.length;
     while(o.index < o.depth + 1){
       cache.paths.push([ ]);
@@ -58,6 +58,7 @@ Parth.prototype.set = function(path, o){
   if(o.url && o.url.pathname.length > 1){
     o.regexp = o.regexp.replace(/\/\S+/, '$&\\/?');
   }
+
   o.regexp = o.regexp.replace(/\^\]\+/g, ' ]+');
   o.regexp = new RegExp('^' + o.regexp, o.strict ? '' : 'i');
   o.method = (/\(.+?\)/).test(o.path) ? 'unshift' : 'push';
@@ -84,9 +85,11 @@ Parth.prototype.set = function(path, o){
 //  - `o` type `object`
 //
 Parth.prototype.get = function(path, o){
-  o = o || { }; if(!util.boil(path, o)){ return null; } // not a string or array
+  var cache = this.cache; o = o || { };
 
-  var cache = this.cache;
+  o.notFound = true;
+  if(!util.boil(path, o)){ return null; } // not a string or array
+
   o.found = cache.masterRE;
   if(o.depth > o.found.length-1){ o.index = o.depth = o.found.length-1; }
 

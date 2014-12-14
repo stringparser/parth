@@ -24,7 +24,7 @@ module.exports = function(Parth){
   it('should handle '+use, function(){
     input = 'hey :there :you'.split(/[ ]+/);
     args = 'hey human string'.split(/[ ]+/);
-    result = parth.set(input).get(args);
+    result = parth.set([input]).get(args);
     should(result.input).be.eql('hey human string');
     should(result.path).be.eql('hey :there :you');
     should(result.params).be.eql({
@@ -37,7 +37,7 @@ module.exports = function(Parth){
   it('should handle '+use, function(){
     input = 'hey :there :you'.split(/[ ]+/);
     args = 'hey string robot';
-    result = parth.set(input).get(args);
+    result = parth.set([input]).get(args);
     should(result.input).be.eql('hey string robot');
     should(result.path).be.eql('hey :there :you');
     should(result.params).be.eql({

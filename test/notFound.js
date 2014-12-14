@@ -1,44 +1,50 @@
 'use strict';
 
 var should = require('should');
-var use, input, args, result;
+var use, path, stems, ret, o;
 
 module.exports = function(Parth){
   var parth = new Parth();
 
   use = 'urls and spaces';
   it('should handle '+use, function(){
-    args = 'get /hello/awesome/human?query#hash';
-    input = ':method(get) /hello/:there';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
-    should(result.notFound).be.eql(true);
+    stems = ':method(get) /hello/:there';
+    path = 'get /hello/awesome/human?query#hash';
+    ret = parth.set(stems).get(path, (o = { }));
+
+    ret.should.not.be.eql(null);
+    o.path.should.be.eql(stems);
+    o.input.should.be.eql(path);
+    o.notFound.should.be.eql(true);
   });
 
   use = 'urls spaces and object paths';
   it('should handle '+use, function(){
-    args = 'post /hello/awesome/human/?query=and#hash-here page.user';
-    input = ':method(get|post) /hello/:there/:you';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
-    should(result.notFound).be.eql(false);
+    stems = ':method(get|post) /hello/:there/:you';
+    path = 'post /hello/awesome/human/?query=and#hash-here page.user';
+    ret = parth.set(stems).get(path, (o = { }));
 
-    args = args.replace(/^post/, 'delete');
-    should(parth.get(args)).be.eql(null);
+    ret.should.not.be.eql(null);
+    o.path.should.be.eql(stems);
+    o.input.should.be.eql(path);
+    o.notFound.should.be.eql(false);
+    
+    path = path.replace(/^post/, 'put');
+    should(parth.get(path)).be.eql(null);
   });
 
   use = 'urls spaces and object paths';
   it('should handle '+use, function(){
-    args = 'post /go/awesome/human/?query=and#hash-here page.user';
-    input = ':method(get|post) /go';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
-    should(result.notFound).be.eql(true);
+    stems = ':method(get|post) /go';
+    path = 'post /go/awesome/human/?query=and#hash-here page.user';
+    ret = parth.set(stems).get(path, (o = { }));
 
-    args = args.replace(/^post/, 'delete');
-    should(parth.get(args)).be.eql(null);
+    ret.should.not.be.eql(null);
+    o.path.should.be.eql(stems);
+    o.input.should.be.eql(path);
+    o.notFound.should.be.eql(true);
+
+    path = path.replace(/^post/, 'put');
+    should(parth.get(path)).be.eql(null);
   });
 };
