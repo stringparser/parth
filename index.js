@@ -97,7 +97,7 @@ Parth.prototype.get = function(path, o){
     o.index--;
   }
 
-  o.index = 0; o.regexp = cache.regexp[o.depth];
+  o.index = 0; o.regexp = cache.regexp[o.depth] || /^$/;
   while(!o.regexp[o.index].test(o.path)){ o.index++; }
   o.path = cache.paths[o.depth][o.index];
   o.regexp = cache.regexp[o.depth][o.index];
