@@ -15,6 +15,7 @@ module.exports = function(Parth){
     should(result.path).be.eql(input);
 
     should(result.params).be.eql({
+      _ : ['post', 'awesome', 10],
       method: 'post',
       there: 'awesome',
       you: 10
@@ -31,6 +32,7 @@ module.exports = function(Parth){
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
     should(result.params).be.eql({
+      _ : ['post', 'awesome', 10.10, 'user'],
       method: 'post',
       there: 'awesome',
       you: 10.1,

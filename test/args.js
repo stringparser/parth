@@ -15,6 +15,7 @@ module.exports = function(Parth){
     should(result.input).be.eql('hey string person');
     should(result.path).be.eql('hey :there :you');
     should(result.params).be.eql({
+      _ : ['string', 'person'],
       there : 'string',
       you: 'person'
     });
@@ -28,6 +29,7 @@ module.exports = function(Parth){
     should(result.input).be.eql('hey human string');
     should(result.path).be.eql('hey :there :you');
     should(result.params).be.eql({
+      _ : ['human', 'string'],
       there : 'human',
       you: 'string'
     });
@@ -41,6 +43,7 @@ module.exports = function(Parth){
     should(result.input).be.eql('hey string robot');
     should(result.path).be.eql('hey :there :you');
     should(result.params).be.eql({
+      _ : ['string', 'robot'],
       there : 'string',
       you: 'robot'
     });
@@ -54,6 +57,7 @@ module.exports = function(Parth){
     should(result.input).be.eql('hey array bat');
     should(result.path).be.eql('hey :there :you');
     should(result.params).be.eql({
+      _ : ['array', 'bat'],
       there : 'array',
       you: 'bat'
     });

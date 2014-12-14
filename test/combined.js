@@ -13,9 +13,10 @@ module.exports = function(Parth){
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
-    should(result.url.query).be.eql('query');
+    should(result.url.query).be.eql('?query');
     should(result.url.hash).be.eql('#hash');
     should(result.params).be.eql({
+      _ : ['get', 'awesome', 'human'],
       method: 'get',
       there: 'awesome',
       you: 'human'
@@ -32,6 +33,7 @@ module.exports = function(Parth){
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
     should(result.params).be.eql({
+      _ : ['get', 'awesome', 'human', 'user'],
       method: 'get',
       there: 'awesome',
       you: 'human',

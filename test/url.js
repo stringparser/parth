@@ -16,7 +16,7 @@ module.exports = function(Parth){
     should(result.url).be.eql({
       href : '/hello/awesome/human?query#hash',
       hash: '#hash',
-      query: 'query',
+      query: '?query',
       pathname: '/hello/awesome/human'
     });
 
@@ -33,7 +33,7 @@ module.exports = function(Parth){
     should(result.url).be.eql({
       href : '/hello/awesome/human/?query=and#hash-here',
       hash: '#hash-here',
-      query: 'query=and',
+      query: '?query=and',
       pathname: '/hello/awesome/human'
     });
 

@@ -154,8 +154,8 @@ return
 - `path`: normalized path set (no querystring or hash and sanitized)
 - `url`: url contained in the matched path, object with properties
   - href: complete path
-  - query: querystring without the '?' sign
-  - hash: hash including the pound sign
+  - query: querystring including the '?' sign
+  - hash: hash including the pound '#' sign
 - `depth`: depth of the normalized path
 - `regexp`: regexp used to match a path and obtain the parameters
 - `notFound`: does the input match but does not correspond to a path set?

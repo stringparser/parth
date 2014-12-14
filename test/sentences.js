@@ -14,6 +14,7 @@ module.exports = function(Parth){
     should(result.input).be.eql('you are an awesome human');
     should(result.path).be.eql('you are an :there :you');
     should(result.params).be.eql({
+      _ : ['awesome', 'human'],
       there : 'awesome',
       you: 'human'
     });
