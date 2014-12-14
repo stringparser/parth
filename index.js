@@ -25,19 +25,19 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  o = o || { }; // `path` not a string or array
+  o = o || { };
   if(!util.boil(path, o)){ return null; }
 
   var cache = this.cache;
   o.found = cache.paths[o.depth]; // already defined
   if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
-    o.regexp = o.found[o.index]; // give the regexp
+    o.regexp = o.found[o.index]; // provide the regexp
     return this;
   }
 
-  if(cache.regexp.length < o.depth + 1){ // prepare cache arrays
+  if(cache.regexp.length < o.depth + 1){
     o.index = cache.regexp.length;
-    while(o.index < o.depth + 1){
+    while(o.index < o.depth + 1){ // prepare cache arrays
       cache.paths.push([ ]);
       cache.regexp.push([ ]);
       o.index = cache.masterRE.push(null);
@@ -49,7 +49,8 @@ Parth.prototype.set = function(path, o){
       return stem.replace(util.paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^' + o.sep + '^]+)');
       });
-    }).replace(/[\/\.]/g, '\\$&').replace(/\/\S+/, '$&\\/?')
+    }).replace(/[\/\.]/g, '\\$&')
+      .replace(/\/\S+/, '$&\\/?')
       .replace(/\^\]\+/g, ' ]+');
 
   o.method = 'push';
@@ -97,8 +98,9 @@ Parth.prototype.get = function(path, o){
 
   o.index = 0; o.regexp = this.cache.regexp[o.depth];
   while(!o.regexp[o.index].test(o.path)){ o.index++; }
+
+  o.regexp = o.regexp[o.index];
   o.path = this.cache.paths[o.depth][o.index];
-  o.regexp = this.cache.regexp[o.depth][o.index];
   o.params = { _: o.found.match(o.regexp).slice(1) };
 
   o.notFound = !(/[ ]+/).test(
