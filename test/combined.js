@@ -8,12 +8,12 @@ module.exports = function(Parth){
 
   use = 'urls and spaces';
   it('should handle '+use, function(){
-    args = 'get /hello/awesome/human?query#hash';
+    args = 'get /hello/awesome/human?query=here#hash';
     input = ':method(get) /hello/:there/:you';
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
-    should(result.url.query).be.eql('?query');
+    should(result.url.query).be.eql('query=here');
     should(result.url.hash).be.eql('#hash');
     should(result.params).be.eql({
       _ : ['get', 'awesome', 'human'],

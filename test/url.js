@@ -13,10 +13,10 @@ module.exports = function(Parth){
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
-    should(result.url).be.eql({
+    should(result.url).have.properties({
       href : '/hello/awesome/human?query#hash',
       hash: '#hash',
-      query: '?query',
+      query: 'query',
       pathname: '/hello/awesome/human'
     });
 
@@ -30,10 +30,10 @@ module.exports = function(Parth){
     result = parth.set(input).get(args);
     should(result.input).be.eql(args);
     should(result.path).be.eql(input);
-    should(result.url).be.eql({
+    should(result.url).have.properties({
       href : '/hello/awesome/human/?query=and#hash-here',
       hash: '#hash-here',
-      query: '?query=and',
+      query: 'query=and',
       pathname: '/hello/awesome/human'
     });
 

@@ -25,8 +25,7 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  o = o || { };
-  // `path` not a string or array
+  o = o || { }; // `path` not a string or array
   if(!util.boil(path, o)){ return null; }
 
   var cache = this.cache;
