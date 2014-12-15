@@ -39,8 +39,8 @@ module.exports = function(Parth){
     path = 'post /go/awesome/human/?query=and#hash-here page.user';
     ret = parth.set(stems).get(path, (o = { }));
 
-    should(ret).be.eql(null);
-    o.path.should.be.eql('post /go/awesome/human page.user');
+    should(ret).not.be.eql(null);
+    o.path.should.be.eql(stems);
     o.input.should.be.eql(path);
     o.notFound.should.be.eql(true);
 

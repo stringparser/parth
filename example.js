@@ -35,7 +35,7 @@ parth.set('/');
 parth.set('get /');
 parth.set('get /url/:with');
 parth.set('get /url/:with/data/');
-parth.set('get /:page(\\d+)/:with/data/ something.:here');
+parth.set('get /:page(\\d+)/:with/data/');
 parth.set('get /:page(\\d+)/:with/data/?some=query#hash something.:here');
 parth.set('get page.:model /:page/:url(\\w+)/with.json/');
 
@@ -49,7 +49,7 @@ got = parth.get(input, op);
 console.log('\n input = %s \n got =>\n', input, op.notFound);
 console.log(got ? got : op);
 
-input = 'get /10/page/something#hash';
+input = 'get /10/page/data#hash';
 got = parth.get(input, op);
 console.log('\n input = %s \n got =>\n', input, op.notFound);
 console.log(got ? got : op);
