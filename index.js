@@ -61,7 +61,6 @@ Parth.prototype.set = function(path, o){
   if(!cache.masterRE[o.depth]){
     cache.masterRE._.push(o.depth);
     cache.masterRE._ = cache.masterRE._.sort();
-    cache.masterRE.min = cache.masterRE._[0];
     cache.masterRE.depth = cache.regexp.length-1;
   }
 
