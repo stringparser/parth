@@ -29,38 +29,33 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  o = o || { }; o.notFound = !util.boil(path, o);
-  if(o.notFound){ return null; }
+  o = o || { }; if(!util.boil(path, o)){ return null; }
 
   var cache = this.cache;
-  o.found = cache.paths[o.depth]; // already defined
-  if(o.found && (o.index = o.found.indexOf(o.path)) > -1){
-    o.regex = o.found[o.index]; // provide the regexp
+  o.regex = cache.paths[o.depth]; // already defined
+  if(o.regex && (o.index = o.regex.indexOf(o.path)) > -1){
+    o.regex = cache.regex[o.depth][o.index]; // provide the regexp
     return this;
   }
 
-  if(!cache.paths[o.depth]){
-    cache.paths[o.depth] = [ ];
-    cache.regex[o.depth] = [ ];
-  }
-
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
-      o.sep = (/\//).test(stem) ? '/#?' : '.';
       return stem.replace(util.paramRE, function($0, $1, $2, $3){
+        o.sep = (/\//).test(stem) ? '/#?' : '.';
         return $1 + ($3 || '([^' + o.sep + '^]+)');
       });
     }).replace(/[\/\.]/g, '\\$&')
       .replace(/\/\S+/, '$&\\/?')
       .replace(/\^\]\+/g, ' ]+');
 
-  o.method = 'push';
-  if(/\(.+?\)/.test(o.path)){ o.method = 'unshift'; }
-
   // update depths
   if(!cache.masterRE[o.depth]){
+    cache.paths[o.depth] = [ ];
+    cache.regex[o.depth] = [ ];
     cache.masterRE.length = cache.masterRE._.push(o.depth);
     cache.masterRE._ = cache.masterRE._.sort();
   }
+
+  o.method = o.sep ? 'unshift' : 'push';
 
   cache.paths[o.depth][o.method](o.path);
   cache.regex[o.depth][o.method](new RegExp(o.regex, 'i'));
@@ -84,9 +79,8 @@ Parth.prototype.set = function(path, o){
 // return `o`
 //
 Parth.prototype.get = function(path, o){
-  o = o || { };
-  o.notFound = !util.boil(path, o); // start as not found
-  if(o.notFound){ return null; }
+  o = o || { }; o.notFound = true;
+  if(!util.boil(path, o)){ return null; }
 
   o.found = this.cache.masterRE;
   o.index = o.depth = o.found.length;
