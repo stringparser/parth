@@ -41,17 +41,17 @@ parth.set('get page.:model /:page/:url(\\w+)/with.json/');
 
 input = 'get /url';
 got = parth.get(input, op);
-console.log('\n input = %s \n got =>\n', input, op.notFound);
+console.log('\n input = %s \n got =>\n', input);
 console.log(got ? got : op);
 
 input = 'get /url/page';
 got = parth.get(input, op);
-console.log('\n input = %s \n got =>\n', input, op.notFound);
+console.log('\n input = %s \n got =>\n', input);
 console.log(got ? got : op);
 
 input = 'get /10/page/data#hash';
 got = parth.get(input, op);
-console.log('\n input = %s \n got =>\n', input, op.notFound);
+console.log('\n input = %s \n got =>\n', input);
 console.log(got ? got : op);
 
 console.log('\n - parth.cache \n'); console.log(parth.cache);

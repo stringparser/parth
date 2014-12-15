@@ -26,23 +26,20 @@ function Parth(){
 //  `o.argv` array with the normalized path
 //
 
-util.boilRE = /((?:\/)[^\/ ]+|[^\. ]+\.)/g;
+util.boilRE = /((?:\/)[^\/]+|[^\. ]+\.)/g;
 
-Parth.prototype.boil = function (p, opt){
+Parth.prototype.boil = function (p, o){
   if(!p){ return null; } p = util.type(p);
   if(!p.match(/string|array/)){ return null; }
-  var o = opt || { };
-  o.input = util.fold(p.string || p.array.join(' '));
-  o.path = o.input.replace(/[ ]+/, ' ').trim();
+  o = o || { };
 
-  if((o.url = o.path.match(/\/\S+/))){
-    o.url = o.url[0];
-    o.path = o.path.replace(o.url, o.url.replace(/\/?\?[^ ]+/g, '') || '/');
-  }
+  o.path = o.input = util.fold(p.string || p.array.join(' '));
+  o.path = o.path.replace(o.path, o.path
+    .replace(/\/?[?#]+[^ ]+$|\/+$/g, '') || '/')
+      .replace(/[ ]+/, ' ').trim();
 
   o.argv = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
   o.depth = o.index = o.argv.length;
-
   return o.argv;
 };
 
@@ -86,11 +83,9 @@ Parth.prototype.set = function(p, opt){
     cache.masterRE._ = cache.masterRE._.sort();
   }
 
-  // map path to regexp
   cache._[o.regex] = o.path;
   cache._[o.path] = o.regex;
 
-  // make regex sortable
   o.regex = new RegExp(o.regex, 'i');
   o.regex.def = o.default;
   o.regex.cust = o.custom;
@@ -125,7 +120,7 @@ Parth.prototype.get = function(path, o){
 
   o.found = this.cache.masterRE;
   if(o.depth > o.found.depth){ o.depth = o.found.depth; }
-  console.log('\n -- path = %s ; depth = %s -- \n', o.path, o.depth);
+  //console.log('\n -- path = %s ; depth = %s -- \n', o.path, o.depth);
 
   while(o.index > -1){
     o.index = o.found._[o.depth];
@@ -156,7 +151,7 @@ Parth.prototype.get = function(path, o){
     o.argv = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
   }
 
-  this.cache._[o.input] = o;
+
   delete o.index; delete o.found;
   return o;
 };
