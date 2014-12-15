@@ -33,13 +33,25 @@ console.log(got);
 
 parth.set('/');
 parth.set('get /');
+parth.set('get /url/:with');
 parth.set('get /url/:with/data/');
 parth.set('get /:page(\\d+)/:with/data/ something.:here');
 parth.set('get /:page(\\d+)/:with/data/?some=query#hash something.:here');
 parth.set('get page.:model /:page/:url(\\w+)/with.json/');
 
-console.log('\n got =>'); console.log(parth.get('get /url'));
-console.log('\n got =>'); console.log(parth.get('get /url/page'));
-console.log('\n got =>'); console.log(parth.get('get /10/page/data/?some=query#hash something.else'));
+input = 'get /url';
+got = parth.get(input, op);
+console.log('\n input = %s \n got =>\n', input, op.notFound);
+console.log(got ? got : op);
+
+input = 'get /url/page';
+got = parth.get(input, op);
+console.log('\n input = %s \n got =>\n', input, op.notFound);
+console.log(got ? got : op);
+
+input = 'get /10/page/something#hash';
+got = parth.get(input, op);
+console.log('\n input = %s \n got =>\n', input, op.notFound);
+console.log(got ? got : op);
 
 console.log('\n - parth.cache \n'); console.log(parth.cache);
