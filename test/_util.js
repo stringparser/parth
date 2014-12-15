@@ -17,7 +17,6 @@ module.exports = {
     ];
 
     var last = [
-      'url.js',
       'combined.js',
       'params.js'
     ];

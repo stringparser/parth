@@ -7,7 +7,11 @@ exports = module.exports = Parth;
 
 function Parth(){
   if(!(this instanceof Parth)){ return new Parth(); }
-  this.cache = {paths: [ ], regexp: [ ], masterRE: [ ]};
+  this.cache = {
+    paths: [ ],
+    regexp: [ ],
+    masterRE: {_:[]}
+  };
 }
 
 // ## Parth.set
@@ -18,15 +22,13 @@ function Parth(){
 //  - `path` type `string` or `array`
 //  - `o` type `object` optional holding all extra information
 //
-// return
-//  - `this` so the method is chainable
+// return `this`
 //
 
 util.paramRE = /(^|\W)\:([^?#.(\/\\ ]+)(\(.+?\))?/g;
 
 Parth.prototype.set = function(path, o){
-  o = o || { };
-  if(!util.boil(path, o)){ return null; }
+  if(!util.boil(path, (o = o || { }))){ return null; }
 
   var cache = this.cache;
   o.found = cache.paths[o.depth]; // already defined
@@ -35,12 +37,11 @@ Parth.prototype.set = function(path, o){
     return this;
   }
 
-  if(cache.regexp.length < o.depth + 1){
-    o.index = cache.regexp.length;
-    while(o.index < o.depth + 1){ // prepare cache arrays
+  if(cache.paths.length < o.depth + 1){
+    o.index = cache.paths.length;
+    while(o.index++ < o.depth + 1){ // prepare cache arrays
       cache.paths.push([ ]);
-      cache.regexp.push([ ]);
-      o.index = cache.masterRE.push(null);
+      o.index = cache.regexp.push([ ]);
     }
   }
 
@@ -55,6 +56,14 @@ Parth.prototype.set = function(path, o){
 
   o.method = 'push';
   if(/\(.+?\)/.test(o.path)){ o.method = 'unshift'; }
+
+  // update depths
+  if(!cache.masterRE[o.depth]){
+    cache.masterRE._.push(o.depth);
+    cache.masterRE._ = cache.masterRE._.sort();
+    cache.masterRE.min = cache.masterRE._[0];
+    cache.masterRE.depth = cache.regexp.length-1;
+  }
 
   cache.paths[o.depth][o.method](o.path);
   cache.regexp[o.depth][o.method](new RegExp(o.regexp, 'i'));
@@ -79,24 +88,21 @@ Parth.prototype.set = function(path, o){
 //
 Parth.prototype.get = function(path, o){
   o = o || { }; o.notFound = true; // start as not found
-  if(!util.boil(path, o)){ return null; } // not a string or array
+  if(!util.boil(path, o)){ return null; } // path not valid
 
   o.found = this.cache.masterRE;
-  if(o.depth > o.found.length-1){
-    o.index = o.depth = o.found.length-1;
-  }
+  o.index = true; o.depth = o.found._.slice();
 
-  while(o.index > -1){
-    if(o.found[o.index] && o.found[o.index].test(o.path)){
-      o.depth = o.index; o.index = 0; o.found = o.path;
-    } else if(!o.index){
-      o.depth = null;
-      return null;
+  while(o.index){
+    o.index = o.depth.pop();
+    if(o.index && o.found[o.index].test(o.path)){
+      o.depth = o.index; o.found = o.path; o.index = null;
     }
-    o.index--;
   }
+  if(o.index !== null){ return null; }
 
-  o.index = 0; o.regexp = this.cache.regexp[o.depth];
+  o.index = 0;
+  o.regexp = this.cache.regexp[o.depth];
   while(!o.regexp[o.index].test(o.path)){ o.index++; }
 
   o.regexp = o.regexp[o.index];
@@ -106,10 +112,11 @@ Parth.prototype.get = function(path, o){
   o.notFound = !(/[ ]+/).test(
     o.found.replace(
       o.path.replace(util.paramRE, function($0, $1, $2){
-        var p = o.params._[o.index]; p = Number(p) || p;
-        return $1 + (o.params[$2] = o.params._[o.index++] = p);
+        var p = o.params._[o.index];
+        o.params[$2] = o.params._[o.index++] = Number(p) || p;
+        return $1 + p;
       }), '')[0] || ' ');
 
-  delete o.index;
+  delete o.depth; delete o.index; delete o.found;
   return o;
 };
