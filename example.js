@@ -39,7 +39,7 @@ parth.set('get /:page(\\d+)/:with/data/');
 parth.set('get /:page(\\d+)/:with/data/?some=query#hash something.:here');
 parth.set('get page.:model /:page/:url(\\w+)/with.json/');
 
-input = 'get /url';
+input = 'get /url something.else';
 got = parth.get(input, op);
 console.log('\n input = %s \n got =>\n', input);
 console.log(got ? got : op);
