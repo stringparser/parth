@@ -12,7 +12,7 @@ function Parth(){
     regex: Object.create(null),
     masterRE: Object.create(null),
   };
-  this.cache.masterRE._ = [ ];
+  this.cache.masterRE._ = [];
 }
 
 // ## Parth.boil(path [, o])
@@ -34,9 +34,9 @@ Parth.prototype.boil = function (p, o){
   o = o || { };
 
   o.path = o.input = util.fold(p.string || p.array.join(' '));
-  o.path = o.path.replace(o.path, o.path
-    .replace(/\/?[?#]+[^ ]+$|\/+$/g, '') || '/')
-      .replace(/[ ]+/, ' ').trim();
+  o.path = o.path.replace(o.path, o.path.replace(/\/\S+/, function($0){
+        return $0.replace(/\/?[?#]+[^ ]+$|\/+$/g, '') || '/';
+      })).replace(/[ ]+/g, ' ').trim();
 
   o.argv = o.path.replace(util.boilRE, '$& ').trim().split(/[ ]+/);
   o.depth = o.index = o.argv.length;
@@ -97,8 +97,9 @@ Parth.prototype.set = function(p, opt){
 
   cache.masterRE[o.depth] =
     new RegExp(cache.regex[o.depth]
-      .map(function(re){ return re.source; }).join('|')
-      .replace(/\((?=\?)/g, '(?:'), 'i');
+      .map(function(re){
+        return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')'; })
+      .join('|'), 'i');
 
   return this;
 };
@@ -116,16 +117,23 @@ Parth.prototype.set = function(p, opt){
 Parth.prototype.get = function(path, o){
   o = o || { }; o.notFound = true;
   if(!this.boil(path, o)){ return null; }
-  if(o.cached){ return o; }
+  if(this.cache._[o.input]){ return o.cache._[o.input]; }
 
   o.found = this.cache.masterRE;
   if(o.depth > o.found.depth){ o.depth = o.found.depth; }
-  //console.log('\n -- path = %s ; depth = %s -- \n', o.path, o.depth);
+  console.log('\n -- path = %s ; depth = %s -- \n', o.path, o.depth);
 
   while(o.index > -1){
     o.index = o.found._[o.depth];
     if(o.index === void 0){ return null; }
     if(o.found[o.index].test(o.path)){
+      console.log(o.index);
+      o.found = o.path.match(o.found[o.index]).slice(1);
+      console.log('match: %s ; index: %s ; path: %s',
+        o.found.join(''),
+        (o.depth = o.found.indexOf(o.found.join(''))),
+        this.cache._[this.cache.regex[o.index][o.depth].source]);
+
       o.depth = o.index; o.found = o.path; o.index = -1;
     } else { o.depth--; }
   }

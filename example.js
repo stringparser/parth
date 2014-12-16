@@ -49,7 +49,7 @@ got = parth.get(input, op);
 console.log('\n input = %s \n got =>\n', input);
 console.log(got ? got : op);
 
-input = 'get /10/page/data#hash';
+input = 'get /10/page/data/#hash';
 got = parth.get(input, op);
 console.log('\n input = %s \n got =>\n', input);
 console.log(got ? got : op);
