@@ -7,12 +7,12 @@ exports = module.exports = Parth;
 
 function Parth(){
   if(!(this instanceof Parth)){ return new Parth(); }
-  this.cache = {
+  this.store = {
     _ : Object.create(null),
     regex: Object.create(null),
     masterRE: Object.create(null),
   };
-  this.cache.masterRE._ = [];
+  this.store.masterRE._ = [];
 }
 
 // ## Parth.set(p[, o]) -> path, options
@@ -34,9 +34,9 @@ util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(.+?\))?/g;
 Parth.prototype.set = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return this; }
 
-  var cache = this.cache;
+  var store = this.store;
   // already defined ? give it
-  if(cache._[o.path]){ o = cache._[o.path]; return this; }
+  if(store._[o.path]){ o = store._[o.path]; return this; }
 
   o.custom = o.default = 0; // number of default and custom regex
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
@@ -50,10 +50,10 @@ Parth.prototype.set = function(p, o){
       .replace(/\^\]\+/g, ' ]+'); // default params
 
   // update depths
-  if(!cache.regex[o.depth]){
-    cache.regex[o.depth] = [ ];
-    cache.masterRE.depth = cache.masterRE._.push(o.depth)-1;
-    cache.masterRE._ = cache.masterRE._.sort();
+  if(!store.regex[o.depth]){
+    store.regex[o.depth] = [ ];
+    store.masterRE.depth = store.masterRE._.push(o.depth)-1;
+    store.masterRE._ = store.masterRE._.sort();
   }
 
   o.regex = new RegExp(o.regex, 'i');
@@ -62,14 +62,14 @@ Parth.prototype.set = function(p, o){
   o.regex.path = o.path;
   o.regex.argv = o.argv;
 
-  cache.regex[o.depth].push(o.regex);
-  cache.regex[o.depth] = cache.regex[o.depth].sort(function(a, b){
+  store.regex[o.depth].push(o.regex);
+  store.regex[o.depth] = store.regex[o.depth].sort(function(a, b){
     return (b.def - b.cust) - (a.def - a.cust);
   });
 
   // sum up all learned: void groups and make it one
-  cache.masterRE[o.depth] =
-    new RegExp(cache.regex[o.depth].map(function(re){
+  store.masterRE[o.depth] =
+    new RegExp(store.regex[o.depth].map(function(re){
       return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
     }).join('|'), 'i');
 
@@ -93,7 +93,7 @@ Parth.prototype.get = function(p, o){
   o = o || { }; o.notFound = true;
   if(!util.boil(p, o)){ return null; }
 
-  o.found = this.cache.masterRE;
+  o.found = this.store.masterRE;
   o.index = o.depth = o.found.depth;
 
   while(o.index > -1){
@@ -106,7 +106,7 @@ Parth.prototype.get = function(p, o){
   }
 
   o.index = o.found.indexOf(o.found.join(''));
-  o.regex = this.cache.regex[o.depth][o.index];
+  o.regex = this.store.regex[o.depth][o.index];
 
   o.index = 0;
   o.params = { _ : o.path.match(o.regex).slice(1) };
@@ -119,5 +119,5 @@ Parth.prototype.get = function(p, o){
 
   o.notFound = !(/^[ ]/).test(o.notFound);
   delete o.found; delete o.index; delete o.depth;
-  return o;
+  return o.regex.argv;
 };
