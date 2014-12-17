@@ -54,4 +54,4 @@ got = parth.get(input, op);
 console.log('\n input = %s \n got =>\n', input);
 console.log(got ? got : op);
 
-console.log('\n - parth.cache \n'); console.log(parth.cache);
+console.log('\n - parth.store \n'); console.log(parth.store);
