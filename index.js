@@ -12,7 +12,7 @@ function Parth(){
     regex: Object.create(null),
     masterRE: Object.create(null),
   };
-  this.store.masterRE._ = [];
+  this.store.masterRE._ = [ ];
 }
 
 // ## Parth.set(p[, o]) -> path, options
@@ -34,20 +34,19 @@ util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(.+?\))?/g;
 Parth.prototype.set = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return this; }
 
+  if(this.store._[o.path]){ return this; } // already defined
   var store = this.store;
-  // already defined ? give it
-  if(store._[o.path]){ o = store._[o.path]; return this; }
 
-  o.custom = o.default = 0; // number of default and custom regex
+  // number of default and custom regex
+  o.custom = o.default = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     o.sep = (/\//).test(stem) ? '/#?' : '.';
       return stem.replace(util.paramRE, function($0, $1, $2, $3){
-        if($3){ o.custom++; }
-         else { o.default++; }
+        if($3){ o.custom++; } else { o.default++; }
         return $1 + ($3 || '([^' + o.sep + '^]+)');
       });
-    }).replace(/[\/\.]/g, '\\$&')
-      .replace(/\/\S+/, '$&\\/?')
+    }).replace(/[\/\.]/g, '\\$&') // scape path tokens
+      .replace(/\/\S+/, '$&\\/?') // will not include /
       .replace(/\^\]\+/g, ' ]+'); // default params
 
   // update depths
@@ -57,12 +56,12 @@ Parth.prototype.set = function(p, o){
     store.masterRE._ = store.masterRE._.sort();
   }
 
+  // attach relevant info.
   o.regex = new RegExp(o.regex, 'i');
-  o.regex.path = o.path;
-  o.regex.argv = o.argv;
-  o.regex.def = o.default;
-  o.regex.cust = o.custom;
+  o.regex.path = o.path; o.regex.argv = o.argv;
+  o.regex.def = o.default; o.regex.cust = o.custom;
 
+  // reorder them
   store.regex[o.depth].push(o.regex);
   store.regex[o.depth] = store.regex[o.depth].sort(function(a, b){
     return (a.def - a.cust) - (b.def - b.cust);
@@ -74,6 +73,7 @@ Parth.prototype.set = function(p, o){
       return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
     }).join('|'), 'i');
 
+  store._[o.path] = true; // dont repeat
   return this;
 };
 
