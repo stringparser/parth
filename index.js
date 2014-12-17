@@ -42,7 +42,8 @@ Parth.prototype.set = function(p, o){
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     o.sep = (/\//).test(stem) ? '/#?' : '.';
       return stem.replace(util.paramRE, function($0, $1, $2, $3){
-        if($3){ o.custom++; } else { o.default++; }
+        if($3){ o.custom++; }
+         else { o.default++; }
         return $1 + ($3 || '([^' + o.sep + '^]+)');
       });
     }).replace(/[\/\.]/g, '\\$&')
@@ -57,14 +58,14 @@ Parth.prototype.set = function(p, o){
   }
 
   o.regex = new RegExp(o.regex, 'i');
-  o.regex.def = o.default;
-  o.regex.cust = o.custom;
   o.regex.path = o.path;
   o.regex.argv = o.argv;
+  o.regex.def = o.default;
+  o.regex.cust = o.custom;
 
   store.regex[o.depth].push(o.regex);
   store.regex[o.depth] = store.regex[o.depth].sort(function(a, b){
-    return (b.def - b.cust) - (a.def - a.cust);
+    return (a.def - a.cust) - (b.def - b.cust);
   });
 
   // sum up all learned: void groups and make it one
@@ -119,5 +120,5 @@ Parth.prototype.get = function(p, o){
 
   o.notFound = !(/^[ ]/).test(o.notFound);
   delete o.found; delete o.index; delete o.depth;
-  return o.regex.argv;
+  return o.regex;
 };
