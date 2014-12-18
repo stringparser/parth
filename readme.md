@@ -14,9 +14,13 @@ path to regexp madness not only for an url
 
 ## usage
 
-
 ```js
 var parth = new require('parth')();
+```
+
+_set_
+
+```js
 var path = 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
 
 parth.set(path) // =>
@@ -32,6 +36,8 @@ parth.set(path) // =>
   depth: 5
 }
 ```
+_get_
+
 ```js
 var extra = { };
 path = 'get /weekend/baby/?query=string#hash user.10.beers now';
