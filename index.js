@@ -31,8 +31,9 @@ function Parth(){
 
 util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 
-Parth.prototype.set = function(p, o){
-  o = o || { }; if(!util.boil(p, o)){ return this; }
+Parth.prototype.set = function(p){
+  var o = o || { }; 
+  if(!util.boil(p, o)){ return this; }
 
   if(this.store._[o.path]){ return this.store._[o.path].regex; } // already defined
   var store = this.store;
