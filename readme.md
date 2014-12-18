@@ -100,13 +100,12 @@ var Parth = require('parth');
 var parth = new Parth();
 ```
 
-### parth.set(path[, o])
+### parth.set(path)
 
 Set a string or array path
 
 _arguments_
 - `path` type `string` or `array`
-- `o` type `object` holding all extra information: optional
 
 _return_
   - `regex` object with properties below
