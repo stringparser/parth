@@ -14,23 +14,39 @@ path to regexp madness not only for an url
 
 ## usage
 
+
 ```js
 var parth = new require('parth')();
 var path = 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
 
 parth.set(path) // =>
 { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+  url: '/:page',
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  def: 2,
-  cust: 2 }
-
+  argv:
+  [ 'get',
+  '/:page(\\w+(?:end))',
+  '/baby',
+  'user.:data(\\d+).:drink',
+  ':when' ],
+  depth: 5
+}
+```
+```js
+var extra = { };
 path = 'get /weekend/baby/?query=string#hash user.10.beers now';
-var optional = { };
-parth.get(path, optional)
+parth.get(path, extra)
 // =>
-{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/
-  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+  notFound: false,
   url: '/weekend/baby?query=string#hash',
+  path: 'get /weekend/baby user.10.beers now',
+  argv:
+  [ 'get',
+  '/:page(\\w+(?:end))',
+  '/baby',
+  'user.:data(\\d+).:drink',
+  ':when' ],
   params: {
     _: [ 'weekend', 10, 'beers', 'now' ],
     page: 'weekend',
@@ -40,7 +56,7 @@ parth.get(path, optional)
   }
 }
 
-console.log(optional);
+console.log(extra);
 // =>
 { notFound: false,
   path: 'get /weekend/baby user.10.beers now',
@@ -48,17 +64,17 @@ console.log(optional);
   found: [ 'get /weekend/baby user.10.beers now' ],
   depth: 5,
   index: 4,
-  regex:
-{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
-  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  argv:
-  [ 'get',
-  '/:page(\\w+(?:end))',
-  '/baby',
-  'user.:data(\\d+).:drink',
-  ':when' ],
-  def: 2,
-  cust: 2 },
+  regex: { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+    path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+    argv:
+    [ 'get',
+    '/:page(\\w+(?:end))',
+    '/baby',
+    'user.:data(\\d+).:drink',
+    ':when' ],
+    def: 2,
+    cust: 2
+  },
   params: {
     _: [ 'weekend', 10, 'beers', 'now' ],
     page: 'weekend',
@@ -85,14 +101,16 @@ var parth = new Parth();
 
 Set a string or array path
 
-arguments
+_arguments_
 - `path` type `string` or `array`
 - `o` type `object` holding all extra information: optional
 
-return the path to `regex` object with properties below
-  - path: the input path sanitized
-  - url: if any, the url contained within the path
-  - def: number of
+_return_
+  - `regex` object with properties below
+    - url: if any, the url contained within the path
+    - path: the input path sanitized
+    - argv: normalized path vector
+    - depth: length of `argv`
 
 `path` can contain parameters in the form
 ```js
@@ -106,29 +124,27 @@ util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 
 [Go to regexpr](http://regexr.com/) and test it out.
 
-NOTES:
- - Characters should be escaped i.e. `\\w+`
- - For now, only one group per parameter is allowed
+> Characters should be escaped i.e. `\\w+` <br>
+> For now, only one group per parameter is allowed
 
 ### parth.get(path[, o])
 
 Obtain a path matching what was previously set.
 
-arguments
+_arguments_
 - `path` type `string` or `array`
 - `o` type `object` holding all extra information
 
-return
+_return_
   - `null` for no matches
   - `regex` object maching the path given, with properties:
    - notFound: wether or not the it was a complete match of the path given
-   - path: the `path` given as an input
    - url: if any, the url contained within the `path` given
+   - path: the `path` given as an input
+   - argv: normalized path vector
    - params: object with a map between labels and the path. Numbers are parsed.
 
-NOTES:
-
-Partial matching is allowed. Strict at the beginning, not at the end. Way useful `notFound` information rather than strict matches.
+> Partial matching is allowed. Strict at the beginning, not at the end. Strict matches give no useful information about `notFound` paths
 
 ### parth.store
 
@@ -137,9 +153,7 @@ The `parth` instance cache. Has 3 properties
  - `regexp`: an object with one key per `depth` of the path.
  - `masterRE` : array containing a regular expression for each `depth`.
 
-NOTES:
-
-When paths are set they are classified according to their `depth`, look at the `argv` array returned when giving two arguments.
+> When paths are set they are classified according to their `depth`
 
 ## why
 

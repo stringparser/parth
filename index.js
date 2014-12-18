@@ -64,7 +64,7 @@ Parth.prototype.set = function(p, o){
   // reorder them
   store.regex[o.depth].push(o.regex);
   store.regex[o.depth] = store.regex[o.depth].sort(function(a, b){
-    return ((a.def - a.cust) - (b.def - b.cust));
+    return ((a.def - a.cust) || -Infinity) - (b.def - b.cust);
   });
 
   // sum up all learned: void groups and make it one
@@ -75,7 +75,12 @@ Parth.prototype.set = function(p, o){
 
   delete o.sep; delete o.default; delete o.custom; delete o.argv;
   store._[o.path] = o; // dont repeat
-  return o.regex;
+  return util.merge(new RegExp(o.regex.source, 'i'), {
+    url: o.url,
+    path: o.regex.path,
+    argv: o.regex.argv,
+    depth: o.depth
+  });
 };
 
 
@@ -119,12 +124,13 @@ Parth.prototype.get = function(p, o){
     return $1 + p;
   });
 
+  // diff found and path to see if we got a 404
   o.notFound = Boolean(o.path.replace(found, '').trim());
-  return util.merge(new RegExp(o.regex.source), {
+  return util.merge(new RegExp(o.regex.source, 'i'), {
     notFound: o.notFound,
-     url: o.url,
-    path: o.regex.path,
-    argv: o.regex.argv.slice(),
+    url: o.url,
+    path: o.path,
+    argv: o.regex.argv,
     params: o.params
   });
 };
