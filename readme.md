@@ -10,7 +10,7 @@
 </p>
 <br>
 
-path to regexp madness not only for an url
+path to regexp madness not only for urls
 
 ## usage
 
@@ -21,9 +21,7 @@ var parth = new require('parth')();
 _set_
 
 ```js
-var path = 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
-
-parth.set(path) // =>
+parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when') // =>
 { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
   url: '/:page',
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
@@ -40,8 +38,7 @@ _get_
 
 ```js
 var extra = { };
-path = 'get /weekend/baby/?query=string#hash user.10.beers now';
-parth.get(path, extra)
+parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
 // =>
 { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
   notFound: false,
