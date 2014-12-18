@@ -1,36 +1,38 @@
 'use strict';
 
 var should = require('should');
-var use, input, args, result;
+var use, path, stems, o;
 
 module.exports = function(Parth){
   var parth = new Parth();
 
   use = 'urls and spaces';
   it('should handle '+use, function(){
-    args = 'get /hello/awesome/human?query=here#hash';
-    input = ':method(get) /hello/:there/:you';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
-    should(result.params).be.eql({
+    stems = ':method(get) /hello/:there/:you';
+    path = 'get /hello/awesome/human?query=here#hash';
+    parth.set(stems);
+    parth.get(path, (o = { }));
+    should(o.url).be.eql(path.match(/\/\S+/)[0]);
+    should(o.regex.path).be.eql(stems);
+    should(o.params).be.eql({
       _ : ['get', 'awesome', 'human'],
       method: 'get',
       there: 'awesome',
       you: 'human'
     });
 
-    args = args.replace(/^get/, 'delete');
-    should(parth.get(args)).be.eql(null);
+    path = path.replace(/^get/, 'delete');
+    should(parth.get(path)).be.eql(null);
   });
   use = 'urls spaces and object paths';
   it('should handle '+use, function(){
-    args = 'get /hello/awesome/human page.user';
-    input = ':method(get) /hello/:there/:you page.:data';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
-    should(result.params).be.eql({
+    stems = ':method(get) /hello/:there/:you page.:data';
+    path = 'get /hello/awesome/human page.user';
+    parth.set(stems);
+    parth.get(path, (o = { }));
+    should(o.url).be.eql(path.match(/\/\S+/)[0]);
+    should(o.regex.path).be.eql(stems);
+    should(o.params).be.eql({
       _ : ['get', 'awesome', 'human', 'user'],
       method: 'get',
       there: 'awesome',
@@ -38,7 +40,7 @@ module.exports = function(Parth){
       data: 'user'
     });
 
-    args = args.replace(/^get/, 'delete');
-    should(parth.get(args)).be.eql(null);
+    path = path.replace(/^get/, 'delete');
+    should(parth.get(path)).be.eql(null);
   });
 };

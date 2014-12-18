@@ -16,89 +16,57 @@ path to regexp madness not only for an url
 
 ```js
 var parth = new require('parth')();
-```
+var path = 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
 
-#### url paths
+parth.set(path) // =>
+{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  def: 2,
+  cust: 2 }
 
-```js
-parth
-  .set('/hello/:there/:you(\\d+)')
-  .get('/hello/awesome/10.10/?you=matter');
+path = 'get /weekend/baby/?query=string#hash user.10.beers now';
+var optional = { };
+parth.get(path, optional)
 // =>
-{ input: '/hello/awesome/10.10/?you=matter',
-  path: '/hello/:there/:you(\\d+)',
-  url:
-   { href: '/hello/awesome/10.10/?you=matter',
-     hash: null,
-     query: 'you=matter',
-     pathname: '/hello/awesome/human' },
-  depth: 2,
-  regexp: /^\/hello\/([^\/\#\? ]+)\/(\w+)\/?/i,
-  notFound: false,
-  params: { there: 'awesome', you: 10.10 } }
+{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/
+  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  url: '/weekend/baby?query=string#hash',
+  params: {
+    _: [ 'weekend', 10, 'beers', 'now' ],
+    page: 'weekend',
+    data: 10,
+    drink: 'beers',
+    when: 'now'
+  }
+}
 
-```
-
-#### object paths
-
-```js
-parth
-  .set('hello.:there(\\w+).:you')
-  .get('hello.awesome.human');
+console.log(optional);
 // =>
-{ input: 'hello.awesome.human',
-  path: 'hello.:there(\\w+).:you',
-  depth: 2,
-  regexp: /^hello\.(\w+)\.([^\. ]+)/i,
-  notFound: false,
-  params: { there: 'awesome', you: 'human' } }
-```
-
-#### not found!
-
-````js
-parth
-  .get('/hello/there/you/awesome');
- // =>
-{ input: '/hello/there/you/awesome',
-  path: '/hello/:there/:you(\\w+)',
-  argv: ['/hello', '/there', '/you', '/awesome'],
-  url:
-   { href: '/hello/there/you/awesome',
-     hash: null,
-     query: null,
-     pathname: '/hello/there/you/awesome' },
-  depth: 2,
-  regexp: /^\/hello\/([^\/\#\? ]+)\/(\d+)\/?/i,
-  notFound: true,
-  params: { there: 'there', you: 'you' } }
-````
-
-#### mix'em up
-
-Lets get serious
-
-```js
-parth
-  .set(':method(get|put|delete|post) :model.data /hello/:one/:two?something')
-  .get('get page.data /hello/there/awesome.json?page=10');
-// =>
-{ input: 'get page.data /hello/there/awesome.json?page=10',
-  path: ':method(get|put|delete|post) :model.data /hello/:one/:two',
-  url:
-   { href: '/hello/there/awesome.json?page=10',
-     hash: null,
-     query: 'page=10',
-     pathname: '/hello/there/awesome.json' },
+{ notFound: false,
+  path: 'get /weekend/baby user.10.beers now',
+  url: '/weekend/baby?query=string#hash',
+  found: [ 'get /weekend/baby user.10.beers now' ],
   depth: 5,
-  regexp: /^(get|put|delete|post) ([^\. ]+)\.data \/hello\/([^\/\#\? ]+)\/([^\/\#\? ]+)\/?/i,
-  notFound: false,
-  params:
-   { method: 'get',
-     model: 'page',
-     one: 'there',
-     two: 'awesome.json' } }
-
+  index: 4,
+  regex:
+{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  argv:
+  [ 'get',
+  '/:page(\\w+(?:end))',
+  '/baby',
+  'user.:data(\\d+).:drink',
+  ':when' ],
+  def: 2,
+  cust: 2 },
+  params: {
+    _: [ 'weekend', 10, 'beers', 'now' ],
+    page: 'weekend',
+    data: 10,
+    drink: 'beers',
+    when: 'now'
+  }
+}
 ```
 
 ## documentation
@@ -115,113 +83,63 @@ var parth = new Parth();
 
 ### parth.set(path[, o])
 
-Set a string or array path (sanitized by a [boil function](./lib/boil.js))
+Set a string or array path
 
 arguments
 - `path` type `string` or `array`
-- `o` type `object` holding all extra information
+- `o` type `object` holding all extra information: optional
 
-return
-- `this` so the method can be chained
+return the path to `regex` object with properties below
+  - path: the input path sanitized
+  - url: if any, the url contained within the path
+  - def: number of
 
-`path` can contain parameters in the form `:param-label$what~not(optional\\regexp)`
-either if the path was given as a string or an array.
-
-Any string matching the regular expression below qualifies as a parameter
+`path` can contain parameters in the form
+```js
+ :param-label(\\regexp(?:here))
+```
+That is, parameters should start with a colon. Any string matching the regular expression below qualifies as a parameter
 
 ````js
-util.paramRE = /(^|\W)\:([^\/\\\?\#\.\( ]+)(\(.+?\))?/g;
+util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 ````
 
 [Go to regexpr](http://regexr.com/) and test it out.
 
 NOTES:
- -
- - You should escape characters inside your regexp
- - Previously set path are not overwritten, paths should be set once.
+ - Characters should be escaped i.e. `\\w+`
+ - For now, only one group per parameter is allowed
 
 ### parth.get(path[, o])
 
-Obtain a path matching what was previously set
+Obtain a path matching what was previously set.
 
 arguments
 - `path` type `string` or `array`
 - `o` type `object` holding all extra information
 
 return
-  object with properties below
-- `input`: the given input
-- `path`: normalized path set (no querystring or hash and sanitized)
-- `url`: url contained in the matched path, object with properties
-  - href: complete path
-  - query: querystring including the '?' sign
-  - hash: hash including the pound '#' sign
-- `depth`: depth of the normalized path
-- `regexp`: regexp used to match a path and obtain the parameters
-- `notFound`: does the input match but does not correspond to a path set?
-- `params`: parameters object with the parameters set previously, numbers are parsed.
+  - `null` for no matches
+  - `regex` object maching the path given, with properties:
+   - notFound: wether or not the it was a complete match of the path given
+   - path: the `path` given as an input
+   - url: if any, the url contained within the `path` given
+   - params: object with a map between labels and the path. Numbers are parsed.
 
-These same properties are attached to `o` of `path.get(path[, o])`.
+NOTES:
 
-If the `path` does not match any of the defined null is returned.
-All properties, including the `regexp` used for matching are at `o`.
+Partial matching is allowed. Strict at the beginning, not at the end. Way useful `notFound` information rather than strict matches.
 
-```js
-var op = { };
-
-parth
-  .set(':number(\\d+) paths on fire')
-  .get('my paths on fire', op)
-// => null
-console.log(op);
- { input: 'my paths on fire',
-  path: 'my paths on fire',
-  depth: null,
-  index: -1,
-  found:
-   [ null,
-     null,
-     /^\/hello\/[^\/\#\? ]+\/\w+\/?|^hello\.\w+\.[^\. ]+/i,
-     /^\d+ paths on fire/i ],
-  notFound: true }
-
-```
-
-## `o.notFound` property
-
-After the path is matched and parameters are obtained path is replaced by
-an empty string on the sanitized version of the input path so we know if
-the path obtained was set on the first place. Or putting it simply:
-
-````js
-parth
-  .set('get /:page(\\d+)') // say its the only path set on this instance
-  .get('get /10/things?something=here#hash')
-// =>
-{ input: 'get /10/things?something=here#hash'
-  path: 'get /:page(\\d+)',
-  url:
-   { href: '/10/things?something=here#hash',
-     hash: '#hash',
-     query: 'something=here',
-     pathname: '/10/things' },
-  depth: 2,
-  regexp: /^get \/(\d+)\/?/i,
-  notFound: true,
-  params: { page: 10 } }
-````
-
-Indeed, it is a partial match of the regular expression, so the path
-was no registered i.e. `404`. The reason for making this on the first place
-is to gather information of the routes instead of returning `null`.
-
-### parth.cache
+### parth.store
 
 The `parth` instance cache. Has 3 properties
+ - `_`: all set paths are stored here
+ - `regexp`: an object with one key per `depth` of the path.
+ - `masterRE` : array containing a regular expression for each `depth`.
 
- - `masterRE` : array containing a regular expression for each depth.
- - `regexp`: a matrix of one column and one row for each path depth set.
- - `paths`: same as `regexp` but for the paths set. Used at the begining of `parth.set` to see if the path was previosly set.
+NOTES:
+
+When paths are set they are classified according to their `depth`, look at the `argv` array returned when giving two arguments.
 
 ## why
 
@@ -241,7 +159,6 @@ I need it for the [runtime](https://github.com/stringparser/runtime) module.
 
 ### todo
 
- - [ ] more examples
  - [ ] add support for regexp input
 
 ### license

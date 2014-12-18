@@ -1,18 +1,19 @@
 'use strict';
 
 var should = require('should');
-var use, input, args, result;
+var use, stems, path, result;
 
 module.exports = function(Parth){
   var parth = new Parth();
 
   use = 'unix paths';
   it('should handle '+use, function(){
-    args = '/hello/awesome/human';
-    input = '/hello/:there/:you';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
+    stems = '/hello/:there/:you';
+    path = '/hello/awesome/human';
+    parth.set(stems);
+    parth.get(path, (result = { }));
+    should(result.path).be.eql(path);
+    should(result.regex.path).be.eql(stems);
     should(result.params).be.eql({
       _: ['awesome', 'human'],
       there : 'awesome',

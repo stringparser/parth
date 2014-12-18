@@ -1,13 +1,17 @@
 'use strict';
 
-var input, path, regex, extra;
+var input, regex, extra;
 var parth = require('./.')();
 
 // #set
 input = [
-  'obj.path.here', 'obj.path.:here(\\w+)',
-  'obj.:path(\\d+).:here(\\w+)', ':obj.:path(\\w+).:here(\\d+)',
-  'get /page/view', 'get /:page(\\w+(?:end))/view', ':method(get|post) /:page/:view',
+  'obj.path.here',
+  'obj.path.:here(\\w+)',
+  'obj.:path(\\d+).:here(\\w+)',
+  ':obj.:path(\\w+).:here(\\d+)',
+  'get /page/view',
+  'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  ':method(get|post) /:page/:view',
 ];
 
 console.log('\n -- parth.set -- \n');
@@ -21,8 +25,13 @@ input.forEach(function(stem, index){
 
 // #get
 input = [
-  'obj.path.10', 'obj.10.prop', 'obj.10.10', 'array.method.prop',
-  'get /weekend/view?query', 'get /user/view/#hash', 'post /user/page/?query=name&path=tree#hash'
+  'obj.path.10',
+  'obj.10.prop',
+  'obj.10.10',
+  'array.method.prop',
+  'get /weekend/baby?query=string#hash user.10.beers now',
+  'get /user/view/#hash',
+  'post /user/page/?query=name&path=tree#hash'
 ];
 
 console.log('\n -- parth.get -- ');

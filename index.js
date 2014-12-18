@@ -29,7 +29,7 @@ function Parth(){
 // --
 //
 
-util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(.+?\))?/g;
+util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 
 Parth.prototype.set = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return this; }
@@ -38,11 +38,11 @@ Parth.prototype.set = function(p, o){
   var store = this.store;
 
   // number of default and custom regex
-  o.custom = o.default = o.depth;
+  o.custom = o.default = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     o.sep = (/\//).test(stem) ? '/#?' : '.';
       return stem.replace(util.paramRE, function($0, $1, $2, $3){
-        if($3){ o.custom--; } else { o.default--; }
+        if($3){ o.custom++; } else { o.default++; }
         return $1 + ($3 || '([^' + o.sep + '^]+)');
       });
     }).replace(/[\/\.]/g, '\\$&') // scape path tokens
@@ -64,7 +64,7 @@ Parth.prototype.set = function(p, o){
   // reorder them
   store.regex[o.depth].push(o.regex);
   store.regex[o.depth] = store.regex[o.depth].sort(function(a, b){
-    return ((a.def - 2*a.cust) + (b.def - 2*b.cust)) || -Infinity;
+    return ((a.def - a.cust) - (b.def - b.cust));
   });
 
   // sum up all learned: void groups and make it one
@@ -107,18 +107,24 @@ Parth.prototype.get = function(p, o){
     } else { o.depth--; }
   }
 
-  o.index = o.found.indexOf(o.found.join(''));
+  var found = o.found.join('');
+  o.index = o.found.indexOf(found);
   o.regex = this.store.regex[o.depth][o.index];
 
   o.index = 0;
   o.params = { _ : o.path.match(o.regex).slice(1) };
-  o.notFound = o.path.replace(
-    o.regex.path.replace(util.paramRE, function($0, $1, $2){
-      var p = o.params._[o.index];
-      o.params[$2] = o.params._[o.index++] = Number(p) || p;
-      return $1 + p;
-    }), '')[0] || ' ';
+  o.regex.path.replace(util.paramRE, function($0, $1, $2){
+    var p = o.params._[o.index];
+    o.params[$2] = o.params._[o.index++] = Number(p) || p;
+    return $1 + p;
+  });
 
-  o.notFound = !(/^[ ]/).test(o.notFound);
-  return o.regex;
+  o.notFound = Boolean(o.path.replace(found, '').trim());
+  return util.merge(new RegExp(o.regex.source), {
+    notFound: o.notFound,
+     url: o.url,
+    path: o.regex.path,
+    argv: o.regex.argv.slice(),
+    params: o.params
+  });
 };

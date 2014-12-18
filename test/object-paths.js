@@ -1,25 +1,26 @@
 'use strict';
 
 var should = require('should');
-var use, input, args, result;
+var stems, path, o;
 
 module.exports = function(Parth){
   var parth = new Parth();
 
-  use = 'object paths';
   it('should handle object paths', function(){
-    args = 'hello.awesome.human';
-    input = 'hello.:there.:you';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
+    path = 'hello.awesome.human';
+    stems = 'hello.:there.:you';
+    parth.set(stems);
+    parth.get(path, (o = { }));
+    should(o.path).be.eql(path);
+    should(o.regex.path).be.eql(stems);
   });
 
   it('should handle object paths with regexes', function(){
-    args = 'hello.1.human';
-    input = 'hello.:there(\\d+).:you';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql(args);
-    should(result.path).be.eql(input);
+    path = 'hello.1.human';
+    stems = 'hello.:there(\\d+).:you';
+    parth.set(stems);
+    parth.get(path, (o = { }));
+    should(o.path).be.eql(path);
+    should(o.regex.path).be.eql(stems);
   });
 };

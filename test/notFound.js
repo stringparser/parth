@@ -10,11 +10,12 @@ module.exports = function(Parth){
   it('should handle '+use, function(){
     stems = ':method(get) /hello/:there';
     path = 'get /hello/awesome/human?query#hash';
-    ret = parth.set(stems).get(path, (o = { }));
+    ret = parth.set(stems);
+    parth.get(path, (o = { }));
 
-    ret.should.not.be.eql(null);
-    o.path.should.be.eql(stems);
-    o.input.should.be.eql(path);
+    should(ret).not.be.eql(null);
+    o.regex.path.should.be.eql(stems);
+    o.url.should.be.eql(path.match(/\/\S+/)[0]);
     o.notFound.should.be.eql(true);
   });
 
@@ -22,12 +23,13 @@ module.exports = function(Parth){
   it('should handle '+use, function(){
     stems = ':method(get|post) /hello/:there/:you';
     path = 'post /hello/awesome/human/?query=and#hash-here page.user';
-    ret = parth.set(stems).get(path, (o = { }));
+    ret = parth.set(stems);
+    parth.get(path, (o = { }));
 
-    ret.should.not.be.eql(null);
-    o.path.should.be.eql(stems);
-    o.input.should.be.eql(path);
-    o.notFound.should.be.eql(false);
+    should(ret).not.be.eql(null);
+    o.regex.path.should.be.eql(stems);
+    o.url.should.be.eql(path.match(/\/\S+/)[0]);
+    o.notFound.should.be.eql(true);
 
     path = path.replace(/^post/, 'put');
     should(parth.get(path)).be.eql(null);
@@ -37,11 +39,12 @@ module.exports = function(Parth){
   it('should handle '+use, function(){
     stems = ':method(get|post) /go';
     path = 'post /go/awesome/human/?query=and#hash-here page.user';
-    ret = parth.set(stems).get(path, (o = { }));
+    ret = parth.set(stems);
+    parth.get(path, (o = { }));
 
     should(ret).not.be.eql(null);
-    o.path.should.be.eql(stems);
-    o.input.should.be.eql(path);
+    o.regex.path.should.be.eql(stems);
+    o.url.should.be.eql(path.match(/\/\S+/)[0]);
     o.notFound.should.be.eql(true);
 
     path = path.replace(/^post/, 'put');

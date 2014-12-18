@@ -1,7 +1,7 @@
 'use strict';
 
 var should = require('should');
-var use, input, args, result;
+var use, stems, path, result;
 
 module.exports = function(Parth){
   var parth = new Parth();
@@ -9,11 +9,12 @@ module.exports = function(Parth){
   use = 'string args for #set and #get';
 
   it('should handle '+use, function(){
-    input = 'hey :there :you';
-    args = 'hey string person';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql('hey string person');
-    should(result.path).be.eql('hey :there :you');
+    stems = 'hey :there :you';
+     path = 'hey string person';
+    parth.set(stems);
+    parth.get(path, (result = { }));
+    should(result.path).be.eql('hey string person');
+    should(result.regex.path).be.eql('hey :there :you');
     should(result.params).be.eql({
       _ : ['string', 'person'],
       there : 'string',
@@ -23,11 +24,12 @@ module.exports = function(Parth){
 
   use = 'array args for #set and #get';
   it('should handle '+use, function(){
-    input = 'hey :there :you'.split(/[ ]+/);
-    args = 'hey human string'.split(/[ ]+/);
-    result = parth.set(input).get(args);
-    should(result.input).be.eql('hey human string');
-    should(result.path).be.eql('hey :there :you');
+    stems = 'hey :there :you'.split(/[ ]+/);
+    path = 'hey human string'.split(/[ ]+/);
+    parth.set(stems);
+    parth.get(path, (result = { }));
+    should(result.path).be.eql('hey human string');
+    should(result.regex.path).be.eql('hey :there :you');
     should(result.params).be.eql({
       _ : ['human', 'string'],
       there : 'human',
@@ -37,11 +39,12 @@ module.exports = function(Parth){
 
   use = 'array args for #set string for #set';
   it('should handle '+use, function(){
-    input = 'hey :there :you'.split(/[ ]+/);
-    args = 'hey string robot';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql('hey string robot');
-    should(result.path).be.eql('hey :there :you');
+    stems = 'hey :there :you'.split(/[ ]+/);
+    path = 'hey string robot';
+    parth.set(stems);
+    parth.get(path, (result = { }));
+    should(result.path).be.eql('hey string robot');
+    should(result.regex.path).be.eql('hey :there :you');
     should(result.params).be.eql({
       _ : ['string', 'robot'],
       there : 'string',
@@ -51,11 +54,12 @@ module.exports = function(Parth){
 
   use = 'string args for #set array for #get';
   it('should handle '+use, function(){
-    input = 'hey :there :you';
-    args = 'hey array bat'.split(/[ ]+/);
-    result = parth.set(input).get(args);
-    should(result.input).be.eql('hey array bat');
-    should(result.path).be.eql('hey :there :you');
+    stems = 'hey :there :you';
+    path = 'hey array bat'.split(/[ ]+/);
+    parth.set(stems);
+    parth.get(path, (result = { }));
+    should(result.path).be.eql('hey array bat');
+    should(result.regex.path).be.eql('hey :there :you');
     should(result.params).be.eql({
       _ : ['array', 'bat'],
       there : 'array',

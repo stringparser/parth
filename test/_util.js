@@ -27,5 +27,6 @@ module.exports = {
     });
 
     return testFirst.concat(testSuite, last);
-  }
+  },
+  pack: require('../lib/util')
 };
