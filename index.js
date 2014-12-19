@@ -13,6 +13,7 @@ function Parth(){
     masterRE: Object.create(null),
   };
   this.store.masterRE._ = [ ];
+  this.store.masterRE.depth = 0;
 }
 
 // ## Parth.set(p[, o]) -> path, options
@@ -32,8 +33,7 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 
 Parth.prototype.set = function(p){
-  var o = o || { };
-  if(!util.boil(p, o)){ return this; }
+  var o = o || { }; if(!util.boil(p, o)){ return null; }
 
   if(this.store._[o.path]){ return this.store._[o.path].regex; } // already defined
   var store = this.store;
@@ -103,7 +103,6 @@ Parth.prototype.get = function(p, o){
 
   o.found = this.store.masterRE;
   o.index = o.depth = o.found.depth;
-
   while(o.index > -1){
     o.index = o.found._[o.depth];
     if(!o.index){ return null; } // depth starts at 1 :)
