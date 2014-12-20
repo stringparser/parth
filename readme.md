@@ -29,7 +29,9 @@ parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when') // =>
   [ 'get',
   '/:page(\\w+(?:end))',
   '/baby',
-  'user.:data(\\d+).:drink',
+  'user.',
+  ':data(\\d+).',
+  ':drink',
   ':when' ],
   depth: 5
 }
@@ -48,7 +50,9 @@ parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
   [ 'get',
   '/:page(\\w+(?:end))',
   '/baby',
-  'user.:data(\\d+).:drink',
+  'user.',
+  ':data(\\d+).',
+  ':drink',
   ':when' ],
   params: {
     _: [ 'weekend', 10, 'beers', 'now' ],
