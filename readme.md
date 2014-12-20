@@ -23,7 +23,7 @@ _set_
 ```js
 parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when') // =>
 { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
-  url: '/:page',
+  url: '/:page(\\w+(?:end))/baby',
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
   argv:
   [ 'get',
