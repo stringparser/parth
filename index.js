@@ -79,7 +79,7 @@ Parth.prototype.set = function(p){
   return util.merge(new RegExp(o.regex.source, 'i'), {
     url: o.url,
     path: o.regex.path,
-    argv: o.regex.argv,
+    argv: o.regex.argv.concat(),
     depth: o.depth
   });
 };
@@ -116,12 +116,11 @@ Parth.prototype.get = function(p, o){
   o.index = o.found.indexOf(found);
   o.regex = this.store.regex[o.depth][o.index];
 
-  o.index = 0;
+  var index = 0;
   o.params = { _ : o.path.match(o.regex).slice(1) };
   o.regex.path.replace(util.paramRE, function($0, $1, $2){
-    var p = o.params._[o.index];
-    o.params[$2] = o.params._[o.index++] = Number(p) || p;
-    return $1 + p;
+    var p = o.params._[index];
+    o.params[$2] = o.params._[index++] = Number(p) || p;
   });
 
   // diff found and path to see if we got a 404
@@ -130,7 +129,7 @@ Parth.prototype.get = function(p, o){
     notFound: o.notFound,
     url: o.url,
     path: o.path,
-    argv: o.regex.argv,
+    argv: o.regex.argv.concat(),
     params: o.params
   });
 };
