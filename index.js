@@ -8,12 +8,10 @@ exports = module.exports = Parth;
 function Parth(){
   if(!(this instanceof Parth)){ return new Parth(); }
   this.store = {
-    _ : Object.create(null),
+    cache: Object.create(null),
     regex: Object.create(null),
-    masterRE: Object.create(null),
+    masterRE: [ ],
   };
-  this.store.masterRE._ = [ ];
-  this.store.masterRE.depth = 0;
 }
 
 // ## Parth.set(p[, o]) -> path, options
@@ -35,8 +33,9 @@ util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 Parth.prototype.set = function(p){
   var o = o || { }; if(!util.boil(p, o)){ return null; }
 
-  if(this.store._[o.path]){ return this.store._[o.path].regex; } // already defined
-  var store = this.store;
+  var store = this.store.cache;
+  if(store[o.path]){ return store[o.path]; } // already defined
+  store = this.store;
 
   // number of default and custom regex
   o.custom = o.default = 0;
@@ -53,8 +52,9 @@ Parth.prototype.set = function(p){
   // update depths
   if(!store.regex[o.depth]){
     store.regex[o.depth] = [ ];
-    store.masterRE.depth = store.masterRE._.push(o.depth)-1;
-    store.masterRE._ = store.masterRE._.sort();
+    while(store.masterRE.length < o.depth){
+      store.masterRE.push(null);
+    }
   }
 
   // attach relevant info.
@@ -75,13 +75,8 @@ Parth.prototype.set = function(p){
     }).join('|'), 'i');
 
   delete o.sep; delete o.default; delete o.custom; delete o.argv;
-  store._[o.path] = o; // dont repeat
-  return util.merge(new RegExp(o.regex.source, 'i'), {
-    url: o.url,
-    path: o.regex.path,
-    argv: o.regex.argv.concat(),
-    depth: o.depth
-  });
+  store.cache[o.path] = o; // cache it
+  return o.regex;
 };
 
 
@@ -102,11 +97,11 @@ Parth.prototype.get = function(p, o){
   if(!util.boil(p, o)){ return null; }
 
   o.found = this.store.masterRE;
-  o.index = o.depth = o.found.depth;
+  o.index = o.depth = o.found.length;
   while(o.index > -1){
-    o.index = o.found._[o.depth];
+    o.index--;
     if(!o.index){ return null; } // depth starts at 1 :)
-    if(o.found[o.index].test(o.path)){
+    if(o.found[o.index] && o.found[o.index].test(o.path)){
       o.found = o.path.match(o.found[o.index]).slice(1);
       o.depth = o.index; o.index = -1;
     } else { o.depth--; }
@@ -125,6 +120,7 @@ Parth.prototype.get = function(p, o){
 
   // diff found and path to see if we got a 404
   o.notFound = Boolean(o.path.replace(found, '').trim());
+  // clone and augment o.regex for return value
   return util.merge(new RegExp(o.regex.source, 'i'), {
     notFound: o.notFound,
     url: o.url,
