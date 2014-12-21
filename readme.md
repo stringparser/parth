@@ -2,13 +2,11 @@
 [<img alt="build" src="http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square" align="left"/>](https://travis-ci.org/stringparser/parth/builds)
 [<img alt="NPM version" src="http://img.shields.io/npm/v/parth.svg?style=flat-square" align="right"/>](http://www.npmjs.org/package/parth)
 <p align="center">
-  <b>
   <a href="#documentation">documentation</a> -
   <a href="#examples">examples</a> -
   <a href="#install">install</a> -
   <a href="#todo">todo</a> -
   <a href="#why">why</a>
-  </b>
 </p>
 
 path to regexp madness not only for an url
@@ -177,7 +175,7 @@ parth
     ✓ should handle urls spaces and object paths
   object-paths
     ✓ should handle object paths
-    ✓ should handle object paths with regexes 
+    ✓ should handle object paths with regexes
   sentences
     ✓ should handle space separated strings
   combined
