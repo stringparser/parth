@@ -10,8 +10,9 @@ function Parth(){
   this.store = {
     cache: Object.create(null),
     regex: Object.create(null),
-    masterRE: [ ],
+    masterRE: Object.create(null),
   };
+  this.store.masterRE.length = 0;
 }
 
 // ## Parth.set(p[, o]) -> path, options
@@ -53,7 +54,7 @@ Parth.prototype.set = function(p){
   if(!store.regex[o.depth]){
     store.regex[o.depth] = [ ];
     while(store.masterRE.length < o.depth){
-      store.masterRE.push(null);
+      store.masterRE[++store.masterRE.length] = null;
     }
   }
 
@@ -97,14 +98,13 @@ Parth.prototype.get = function(p, o){
   if(!util.boil(p, o)){ return null; }
 
   o.found = this.store.masterRE;
-  o.index = o.depth = o.found.length;
+  o.index = o.found.length;
   while(o.index > -1){
-    o.index--;
-    if(!o.index){ return null; } // depth starts at 1 :)
     if(o.found[o.index] && o.found[o.index].test(o.path)){
       o.found = o.path.match(o.found[o.index]).slice(1);
       o.depth = o.index; o.index = -1;
-    } else { o.depth--; }
+    } else if(--o.index < 1){ return null; }
+    // ^ depth starts at 1 :), notFound
   }
 
   var found = o.found.join('');
