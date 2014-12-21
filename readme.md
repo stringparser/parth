@@ -2,15 +2,16 @@
 [<img alt="build" src="http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square" align="left"/>](https://travis-ci.org/stringparser/parth/builds)
 [<img alt="NPM version" src="http://img.shields.io/npm/v/parth.svg?style=flat-square" align="right"/>](http://www.npmjs.org/package/parth)
 <p align="center">
-  <a href="#install">install</a> |
-  <a href="#documentation">documentation</a> |
-  <a href="#why">why</a> |
-  <a href="#examples">examples</a> |
-  <a href="#todo">todo</a>
+  <b>
+  <a href="#documentation">documentation</a> -
+  <a href="#examples">examples</a> -
+  <a href="#install">install</a> -
+  <a href="#todo">todo</a> -
+  <a href="#why">why</a>
+  </b>
 </p>
-<br>
 
-path to regexp madness not only for urls
+path to regexp madness not only for an url
 
 ## usage
 
@@ -25,14 +26,8 @@ parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when') // =>
 { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
   url: '/:page(\\w+(?:end))/baby',
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  argv:
-  [ 'get',
-  '/:page(\\w+(?:end))',
-  '/baby',
-  'user.',
-  ':data(\\d+).',
-  ':drink',
-  ':when' ],
+  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
+           'user.', ':data(\\d+).', ':drink', ':when' ],
   depth: 5
 }
 ```
@@ -46,14 +41,8 @@ parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
   notFound: false,
   url: '/weekend/baby?query=string#hash',
   path: 'get /weekend/baby user.10.beers now',
-  argv:
-  [ 'get',
-  '/:page(\\w+(?:end))',
-  '/baby',
-  'user.',
-  ':data(\\d+).',
-  ':drink',
-  ':when' ],
+  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
+           'user.', ':data(\\d+).', ':drink', ':when' ],
   params: {
     _: [ 'weekend', 10, 'beers', 'now' ],
     page: 'weekend',
@@ -73,12 +62,8 @@ console.log(extra);
   index: 4,
   regex: { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
     path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-    argv:
-    [ 'get',
-    '/:page(\\w+(?:end))',
-    '/baby',
-    'user.:data(\\d+).:drink',
-    ':when' ],
+    argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
+             'user.', ':data(\\d+).', ':drink', ':when' ],
     def: 2,
     cust: 2
   },
@@ -113,16 +98,16 @@ _arguments_
 
 _return_
   - `regex` object with properties below
-    - url: if any, the url contained within the path
     - path: the input path sanitized
     - argv: normalized path vector
-    - depth: length of `argv`
+    - def: number of default regexes used to set
+    - cust: number of custom regexes parsed for set
 
-`path` can contain parameters in the form
+`path` can contain any number of parameters(regexes) in the form
 ```js
  :param-label(\\regexp(?:here))
 ```
-That is, parameters should start with a colon. Any string matching the regular expression below qualifies as a parameter
+Any string matching the regular expression below qualifies as a parameter
 
 ````js
 util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
@@ -150,14 +135,14 @@ _return_
    - argv: normalized path vector
    - params: object with a map between labels and the path. Numbers are parsed.
 
-> Partial matching is allowed. Strict at the beginning, not at the end. Strict matches give no useful information about `notFound` paths
+> All matches partial i.e. /^regex baby/i. Not being strict is useful for `notFound` paths
 
 ### parth.store
 
-The `parth` instance cache. Has 3 properties
- - `_`: all set paths are stored here
- - `regexp`: an object with one key per `depth` of the path.
- - `masterRE` : array containing a regular expression for each `depth`.
+The `parth` instance `store`. Has 3 properties
+ - `cache`: all previously set paths live here
+ - `regex`: object with one key per `depth`, each being an array.
+ - `masterRE` : array aggregating a regular expression for each `depth`.
 
 > When paths are set they are classified according to their `depth`
 
@@ -169,13 +154,41 @@ I need it for the [runtime](https://github.com/stringparser/runtime) module.
 
     $ npm install --save parth
 
+### examples
+ Run the [`example.js`](example.js) file.
+
 ### test
 
     $ npm test
 
-### examples
+```
+➜  node-parth (master) ✓ npm test
+parth
+  args
+    ✓ should handle string args for #set and #get
+    ✓ should handle array args for #set and #get
+    ✓ should handle array args for #set string for #set
+    ✓ should handle string args for #set array for #get
+  unix-paths
+    ✓ should handle unix paths
+  notFound
+    ✓ should handle urls and spaces
+    ✓ should handle urls spaces and object paths
+    ✓ should handle urls spaces and object paths
+  object-paths
+    ✓ should handle object paths
+    ✓ should handle object paths with regexes 
+  sentences
+    ✓ should handle space separated strings
+  combined
+    ✓ should handle urls and spaces
+    ✓ should handle urls spaces and object paths
+  params
+    ✓ should handle urls and spaces
+    ✓ should handle urls spaces and object paths
 
- Run the [`example.js`](example.js) file.
+15 passing (19ms)
+```
 
 ### todo
 
