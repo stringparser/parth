@@ -98,34 +98,29 @@ Parth.prototype.get = function(p, o){
   if(!util.boil(p, o)){ return null; }
 
   o.found = this.store.masterRE;
-  o.index = o.found.length;
-  while(o.index > -1){
-    if(o.found[o.index] && o.found[o.index].test(o.path)){
-      o.found = o.path.match(o.found[o.index]).slice(1);
-      o.depth = o.index; o.index = -1;
-    } else if(--o.index < 1){ return null; }
+  var index = o.found.length;
+  while(index > -1){
+    if(o.found[index] && o.found[index].test(o.path)){
+      o.found = o.path.match(o.found[index]).slice(1);
+      o.depth = index; index = -1;
+    } else if(--index < 1){ return null; }
     // ^ depth starts at 1 :), notFound
   }
 
-  var found = o.found.join('');
-  o.index = o.found.indexOf(found);
-  o.regex = this.store.regex[o.depth][o.index];
-
-  var index = 0;
+  var match = o.found.join('');
+  index = o.found.indexOf(match); o.found = match;
+  o.regex = this.store.regex[o.depth][index]; index = 0; // reset index
   o.params = { _ : o.path.match(o.regex).slice(1) };
   o.regex.path.replace(util.paramRE, function($0, $1, $2){
     var p = o.params._[index];
     o.params[$2] = o.params._[index++] = Number(p) || p;
   });
 
-  // diff found and path to see if we got a 404
-  o.notFound = Boolean(o.path.replace(found, '').trim());
+  o.notFound = !(/[ ]/).test(o.path.replace(o.found, '')[0] || ' ');
   // clone and augment o.regex for return value
   return util.merge(new RegExp(o.regex.source, 'i'), {
-    notFound: o.notFound,
     url: o.url,
     path: o.path,
-    argv: o.regex.argv.concat(),
-    params: o.params
+    argv: o.regex.argv.concat()
   });
 };

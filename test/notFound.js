@@ -29,7 +29,7 @@ module.exports = function(Parth){
     should(ret).not.be.eql(null);
     o.regex.path.should.be.eql(stems);
     o.url.should.be.eql(path.match(/\/\S+/)[0]);
-    o.notFound.should.be.eql(true);
+    o.notFound.should.be.eql(false);
 
     path = path.replace(/^post/, 'put');
     should(parth.get(path)).be.eql(null);
