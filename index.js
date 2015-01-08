@@ -8,20 +8,20 @@ exports = module.exports = Parth;
 function Parth(){
   if(!(this instanceof Parth)){ return new Parth(); }
   this.store = {
-    cache: Object.create(null),
     regex: Object.create(null),
     masterRE: Object.create(null),
   };
   this.store.masterRE.length = 0;
+  this.cache = Object.create(null);
 }
 
-// ## Parth.set(p[, o]) -> path, options
+// ## Parth.set(path[, opt])
 // > convert a string or array path to a regexp
 // > TODO: implement regexp input
 //
 // arguments
 //  - `path` type `string` or `array`
-//  - `o` type `object` optional holding all extra information
+//  - `opt` type `object` optional holding all extra information
 //
 // return `this`
 // --
@@ -32,27 +32,28 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 
 Parth.prototype.set = function(p){
-  var o = o || { };
+  var o = Object.create(null);
   if(!util.boil(p, o)){ return null; }
-  if(this.store.cache[o.path]){ return this.store.cache[o.path]; }
+  if(this.cache[o.path]){
+    o = this.cache[o.path];
+    return o.regex;
+  }
   // ^ already defined
 
-  var sep, store = this.store;
-  // number of default and custom regex
-  o.custom = o.default = 0;
+  // # of default and custom regex
+  var sep; o.custom = o.default = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     if((/\//).test(stem)){ sep = '/#?'; } else
-    if((/\./).test(stem)){ sep = '.';   } else { sep = ' '; }
+    if((/\./).test(stem)){ sep = '.';   } else { sep = ''; }
     return stem.replace(util.paramRE, function($0, $1, $2, $3){
       if($3){ o.custom++; } else { o.default++; }
       return $1 + ($3 || '([^' + sep + '^]+)');
-    }).replace(/([^\(]+)(\(.*?\))?/g, function($0, $1, $2){
-      return $1.replace(/[\/\.]/g, '\\$&') + ($2 || '');
     });
   }).replace(/\/\S*/, '$&\\/?(?:[^ ])?') // includes /
-    .replace(/\^\]\+/g, ' ]+'); // default params
+    .replace(/\^\]\+/g, ' ]+'); // default params;
 
   // update depths
+  var store = this.store;
   if(!store.regex[o.depth]){
     store.regex[o.depth] = [ ];
     while(store.masterRE.length < o.depth){
@@ -77,8 +78,9 @@ Parth.prototype.set = function(p){
       return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
     }).join('|'), 'i');
 
-  delete o.sep; delete o.default; delete o.custom; delete o.argv;
-  store.cache[o.path] = o; // cache it
+  // clean, save & return
+  delete o.default; delete o.custom;
+  this.cache[o.path] = o;
   return o.regex;
 };
 
@@ -98,31 +100,33 @@ Parth.prototype.set = function(p){
 Parth.prototype.get = function(p, o){
   o = o || { }; o.notFound = true;
   if(!util.boil(p, o)){ return null; }
+  if(this.cache[o.path]){
+    o = this.cache[o.path];
+    return regex;
+  }
 
-  o.found = this.store.masterRE;
-  var index = o.found.length;
+  var found = this.store.masterRE;
+  var index = found.length;
   while(index > -1){
-    if(o.found[index] && o.found[index].test(o.path)){
-      o.found = o.path.match(o.found[index]).slice(1);
+    if(found[index] && found[index].test(o.path)){
+      found = o.path.match(found[index]).slice(1);
       o.depth = index; index = -1;
     } else if(--index < 1){ return null; }
     // ^ depth starts at 1 :), notFound
   }
 
-  var match = o.found.join('');
-  index = o.found.indexOf(match); o.found = match;
-  o.regex = this.store.regex[o.depth][index]; index = 0; // reset index
-  o.params = { _ : o.path.match(o.regex).slice(1) };
-  o.regex.path.replace(util.paramRE, function($0, $1, $2){
+  o.match = found.join('');
+  index = found.indexOf(o.match);
+  var regex = this.store.regex[o.depth][index];
+  o.params = { _ : o.path.match(regex).slice(1) };
+
+  index = 0; // reset index
+  regex.path.replace(util.paramRE, function($0, $1, $2){
     var p = o.params._[index];
     o.params[$2] = o.params._[index++] = Number(p) || p;
   });
 
-  o.notFound = !(/[ ]/).test(o.path.replace(o.found, '')[0] || ' ');
-  // clone and augment o.regex for return value
-  return util.merge(new RegExp(o.regex.source, 'i'), {
-    url: o.url,
-    path: o.path,
-    argv: o.regex.argv.concat()
-  });
+  delete o.depth;
+  o.notFound = !(/[ ]/).test(o.path.replace(o.match, '')[0] || ' ');
+  return regex;
 };
