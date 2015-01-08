@@ -32,23 +32,25 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
 
 Parth.prototype.set = function(p){
-  var o = o || { }; if(!util.boil(p, o)){ return null; }
+  var o = o || { };
+  if(!util.boil(p, o)){ return null; }
+  if(this.store.cache[o.path]){ return this.store.cache[o.path]; }
+  // ^ already defined
 
-  var store = this.store.cache;
-  if(store[o.path]){ return store[o.path]; } // already defined
-  store = this.store;
-
+  var sep, store = this.store;
   // number of default and custom regex
   o.custom = o.default = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
-    o.sep = (/\//).test(stem) ? '/#?' : '.';
-      return stem.replace(util.paramRE, function($0, $1, $2, $3){
-        if($3){ o.custom++; } else { o.default++; }
-        return $1 + ($3 || '([^' + o.sep + '^]+)');
-      });
-    }).replace(/[\/\.]/g, '\\$&') // scape path tokens
-      .replace(/\/\S*/, '$&\\/?(?:[^ ])?') // includes /
-      .replace(/\^\]\+/g, ' ]+'); // default params
+    if((/\//).test(stem)){ sep = '/#?'; } else
+    if((/\./).test(stem)){ sep = '.';   } else { sep = ' '; }
+    return stem.replace(util.paramRE, function($0, $1, $2, $3){
+      if($3){ o.custom++; } else { o.default++; }
+      return $1 + ($3 || '([^' + sep + '^]+)');
+    }).replace(/([^\(]+)(\(.*?\))?/g, function($0, $1, $2){
+      return $1.replace(/[\/\.]/g, '\\$&') + ($2 || '');
+    });
+  }).replace(/\/\S*/, '$&\\/?(?:[^ ])?') // includes /
+    .replace(/\^\]\+/g, ' ]+'); // default params
 
   // update depths
   if(!store.regex[o.depth]){
