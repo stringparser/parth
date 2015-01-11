@@ -53,6 +53,7 @@ Parth.prototype.set = function(p){
     .replace(/\^\]\+/g, ' ]+'); // default params;
 
   // update depths
+  o.depth = o.argv.length;
   var store = this.store;
   if(!store.regex[o.depth]){
     store.regex[o.depth] = [ ];
@@ -120,10 +121,11 @@ Parth.prototype.get = function(p, o){
   var regex = this.store.regex[o.depth][index];
   o.params = { _ : o.path.match(regex).slice(1) };
 
-  index = 0; // reset index
+  index = 0;
   regex.path.replace(util.paramRE, function($0, $1, $2){
     var p = o.params._[index];
     o.params[$2] = o.params._[index++] = Number(p) || p;
+    o.params._[index-1] = $2;
   });
 
   delete o.depth;
