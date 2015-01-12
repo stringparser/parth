@@ -128,7 +128,6 @@ Parth.prototype.get = function(p, o){
     o.params._[index-1] = $2;
   });
 
-  delete o.depth;
   o.notFound = !(/[ ]/).test(o.path.replace(o.match, '')[0] || ' ');
   return regex;
 };
