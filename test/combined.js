@@ -1,7 +1,7 @@
 'use strict';
 
 var should = require('should');
-var use, path, stems, o;
+var use, path, stems, o, regex;
 
 module.exports = function(Parth){
   var parth = new Parth();
@@ -11,11 +11,11 @@ module.exports = function(Parth){
     stems = ':method(get) /hello/:there/:you';
     path = 'get /hello/awesome/human?query=here#hash';
     parth.set(stems);
-    parth.get(path, (o = { }));
+    regex = parth.get(path, (o = { }));
     should(o.url).be.eql(path.match(/\/\S+/)[0]);
-    should(o.regex.path).be.eql(stems);
+    should(regex.path).be.eql(stems);
     should(o.params).be.eql({
-      _ : ['get', 'awesome', 'human'],
+      _ : ['method', 'there', 'you'],
       method: 'get',
       there: 'awesome',
       you: 'human'
@@ -29,11 +29,11 @@ module.exports = function(Parth){
     stems = ':method(get) /hello/:there/:you page.:data';
     path = 'get /hello/awesome/human page.user';
     parth.set(stems);
-    parth.get(path, (o = { }));
+    regex = parth.get(path, (o = { }));
     should(o.url).be.eql(path.match(/\/\S+/)[0]);
-    should(o.regex.path).be.eql(stems);
+    should(regex.path).be.eql(stems);
     should(o.params).be.eql({
-      _ : ['get', 'awesome', 'human', 'user'],
+      _ : ['method', 'there', 'you', 'data'],
       method: 'get',
       there: 'awesome',
       you: 'human',

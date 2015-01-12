@@ -1,7 +1,7 @@
 'use strict';
 
 var should = require('should');
-var use, path, stems, ret, o;
+var use, path, stems, ret, o, regex;
 
 module.exports = function(Parth){
   var parth = new Parth();
@@ -10,11 +10,12 @@ module.exports = function(Parth){
   it('should handle '+use, function(){
     stems = ':method(get) /hello/:there';
     path = 'get /hello/awesome/human?query#hash';
-    ret = parth.set(stems);
-    parth.get(path, (o = { }));
 
+    ret = parth.set(stems);
     should(ret).not.be.eql(null);
-    o.regex.path.should.be.eql(stems);
+
+    regex = parth.get(path, (o = { }));
+    regex.path.should.be.eql(stems);
     o.url.should.be.eql(path.match(/\/\S+/)[0]);
     o.notFound.should.be.eql(true);
   });
@@ -24,10 +25,10 @@ module.exports = function(Parth){
     stems = ':method(get|post) /hello/:there/:you';
     path = 'post /hello/awesome/human/?query=and#hash-here page.user';
     ret = parth.set(stems);
-    parth.get(path, (o = { }));
+    regex = parth.get(path, (o = { }));
 
     should(ret).not.be.eql(null);
-    o.regex.path.should.be.eql(stems);
+    regex.path.should.be.eql(stems);
     o.url.should.be.eql(path.match(/\/\S+/)[0]);
     o.notFound.should.be.eql(false);
 
@@ -40,10 +41,10 @@ module.exports = function(Parth){
     stems = ':method(get|post) /go';
     path = 'post /go/awesome/human/?query=and#hash-here page.user';
     ret = parth.set(stems);
-    parth.get(path, (o = { }));
+    regex = parth.get(path, (o = { }));
 
     should(ret).not.be.eql(null);
-    o.regex.path.should.be.eql(stems);
+    regex.path.should.be.eql(stems);
     o.url.should.be.eql(path.match(/\/\S+/)[0]);
     o.notFound.should.be.eql(true);
 

@@ -1,7 +1,7 @@
 'use strict';
 
 var should = require('should');
-var use, stems, path, o;
+var use, stems, path, o, regex;
 
 module.exports = function(Parth, util){
   var parth = new Parth();
@@ -13,13 +13,13 @@ module.exports = function(Parth, util){
     stems = ':method(get|post) /hello/:there/:you';
     path = 'post /hello/awesome/10/?query#hash';
     parth.set(stems);
-    parth.get(path, (o = { }));
+    regex = parth.get(path, (o = { }));
 
     should(o.path).be.eql(fold(boil(path).join(' ')));
-    should(o.regex.path).be.eql(stems);
+    should(regex.path).be.eql(stems);
 
     should(o.params).be.eql({
-      _ : ['post', 'awesome', 10],
+      _ : ['method', 'there', 'you'],
       method: 'post',
       there: 'awesome',
       you: 10
@@ -33,11 +33,11 @@ module.exports = function(Parth, util){
     stems = ':method(post|get) /hello/:there/:you page.:data';
     path = 'post /hello/awesome/10.10 page.user';
     parth.set(stems);
-    parth.get(path, (o = { }));
+    regex = parth.get(path, (o = { }));
     should(o.path).be.eql(path.replace(/\/?\?[^ ](|$)/g, ''));
-    should(o.regex.path).be.eql(stems);
+    should(regex.path).be.eql(stems);
     should(o.params).be.eql({
-      _ : ['post', 'awesome', 10.10, 'user'],
+      _ : ['method', 'there', 'you', 'data'],
       method: 'post',
       there: 'awesome',
       you: 10.1,
