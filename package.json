@@ -11,10 +11,10 @@
   },
   "author": "Javier Carrillo",
   "description": "path to regex madness",
-  "repository": "stringparser/node-parth",
-  "homepage": "https://github.com/stringparser/node-parth",
+  "repository": "stringparser/parth",
+  "homepage": "https://github.com/stringparser/parth",
   "bugs": {
-    "url": "https://github.com/stringparser/node-parth/issues"
+    "url": "https://github.com/stringparser/parth/issues"
   },
   "scripts": {
     "lint": "jshint lib index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",

@@ -11,10 +11,7 @@ module.exports = {
       '_util.js'
     ];
 
-    var testFirst = [
-      'args.js',
-      'unix-paths.js'
-    ];
+    var testFirst = [ ];
 
     var last = [
       'combined.js',
