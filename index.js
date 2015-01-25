@@ -46,7 +46,7 @@ Parth.prototype.set = function(p){
       if($3){ o.custom++; } else { o.default++; }
       return $1 + ($3 || '([^' + sep + '^]+)');
     });
-  }).replace(/\/\S*/, '$&\\/?(?:[^ ])?') // includes /
+  }).replace(/[^\/ ]*\/\S+/g, '$&\\/?(?:[^ ])?') // includes /
     .replace(/\^\]\+/g, ' ]+'); // default params;
 
   // update depths
