@@ -5,6 +5,7 @@ var parth = require('./.')();
 
 // #set
 input = [
+  '1', '2', '1 2',
   'obj.path.here',
   'obj.path.:here(\\w+)',
   'obj.:path(\\d+).:here(\\w+)',
@@ -25,6 +26,7 @@ input.forEach(function(stem, index){
 
 // #get
 input = [
+  '1', '2', '1 2',
   'obj.path.10',
   'obj.10.prop',
   'obj.10.10',

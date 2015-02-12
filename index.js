@@ -34,6 +34,7 @@ Parth.prototype.set = function(p){
   if(!util.boil(p, o)){ return null; }
   if(this.store[o.path]){
     o = this.store[o.path];
+    o.match = o.path;
     return o.regex;
   } // ^ already defined
 
@@ -99,7 +100,8 @@ Parth.prototype.get = function(p, o){
   if(!util.boil(p, o)){ return null; }
   if(this.store[o.path]){
     o = this.store[o.path];
-    return regex;
+    o.match = o.path;
+    return o;
   }
 
   var found = this.master;
