@@ -99,8 +99,7 @@ Parth.prototype.get = function(p, o){
   if(!util.boil(p, o)){ return null; }
   if(this.store[o.path]){
     util.merge(o, this.store[o.path]);
-    o.match = o.path;
-    return o.regex;
+    o.match = o.path; return o.regex;
   }
 
   var found = this.master;
@@ -121,8 +120,9 @@ Parth.prototype.get = function(p, o){
   index = 0;
   regex.path.replace(util.paramRE, function($0, $1, $2){
     var p = o.params._[index];
-    o.params[$2] = o.params._[index++] = Number(p) || p;
-    o.params._[index-1] = $2;
+    var num = Number(p) + 1;
+    o.params[$2] = o.params._[index] = num ? num-1 : p;
+    o.params._[index++] = $2;
   });
 
   o.notFound = !(/[ ]/).test(o.path.replace(o.match, '')[0] || ' ');
