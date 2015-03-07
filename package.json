@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "lodash.merge": "^2.4.1",
-    "utils-type": "*"
+    "utils-type": "^0.x.x"
   },
   "author": "Javier Carrillo",
   "description": "path to regex madness",
