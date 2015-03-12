@@ -46,4 +46,4 @@ input.forEach(function(stem, index){
 });
 
 // #store
-console.log(' parth.store=', parth.store);
+console.log(' parth=', parth);
