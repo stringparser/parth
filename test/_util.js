@@ -1,5 +1,6 @@
 'use strict';
 
+require('should');
 var fs = require('fs');
 
 module.exports = {
@@ -11,19 +12,20 @@ module.exports = {
       '_util.js'
     ];
 
-    var testFirst = [ ];
+    var first = [
+      'paths.js'
+    ];
 
     var last = [
-      'combined.js',
-      'params.js'
+      'notFound.js'
     ];
 
     // use it also to omit _main & _util files
-    exclude.concat(testFirst, last).forEach(function(file){
+    exclude.concat(first, last).forEach(function(file){
       testSuite.splice(testSuite.indexOf(file), 1);
     });
 
-    return testFirst.concat(testSuite, last);
+    return first.concat(testSuite, last);
   },
   pack: require('../lib/util')
 };
