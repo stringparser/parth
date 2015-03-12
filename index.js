@@ -130,6 +130,6 @@ Parth.prototype.get = function(p, o){
     o.params._[index++] = $2;
   });
 
-  o.notFound = o.path.replace(o.match, '');
+  o.notFound = o.path.replace(o.match, '') || false;
   return regex;
 };
