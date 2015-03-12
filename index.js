@@ -49,8 +49,7 @@ Parth.prototype.set = function(p){
       if($3){ o.custom++; } else { o.default++; }
       return $1 + ($3 || '([^' + sep + '^]+)');
     });
-  }).replace(/[^\/ ]*\/\S*/g, '$&/?(?:[^\\/ ]+)?') // includes /
-    .replace(/\^\]\+/g, ' ]+') // default params
+  }).replace(/\^\]\+/g, ' ]+') // default params
     .replace(/[^()]+(?=\(|$)/g, function($0){ // scape all outside parens
       return $0.replace(/[\/\.]/g, '\\$&');
     });
@@ -109,7 +108,8 @@ Parth.prototype.get = function(p, o){
 
   o.notFound = true;
   var found = this.master;
-  var index = (this.store[o.argv.length] || found).length;
+  var index = o.argv.length;
+  if(index > found.length){ index = found.length; }
 
   while(index > -1){
     if(found[index] && found[index].test(o.path)){
