@@ -1,6 +1,5 @@
 'use strict';
 
-var should = require('should');
 var use, path, stems, ret, o, regex;
 
 module.exports = function(Parth){
@@ -12,12 +11,12 @@ module.exports = function(Parth){
     path = 'get /hello/awesome/human?query#hash';
 
     ret = parth.set(stems);
-    should(ret).not.be.eql(null);
+    ret.should.not.be.eql(null);
 
     regex = parth.get(path, (o = { }));
     regex.path.should.be.eql(stems);
     o.url.should.be.eql(path.match(/\/\S+/)[0]);
-    o.notFound.should.be.eql(true);
+    o.notFound.should.be.eql('');
   });
 
   use = 'urls spaces and object paths';
@@ -27,13 +26,13 @@ module.exports = function(Parth){
     ret = parth.set(stems);
     regex = parth.get(path, (o = { }));
 
-    should(ret).not.be.eql(null);
+    ret.should.not.be.eql(null);
     regex.path.should.be.eql(stems);
     o.url.should.be.eql(path.match(/\/\S+/)[0]);
-    o.notFound.should.be.eql(false);
+    o.notFound.should.be.eql(' page.user');
 
     path = path.replace(/^post/, 'put');
-    should(parth.get(path)).be.eql(null);
+    (parth.get(path) === null).should.be.eql(true);
   });
 
   use = 'urls spaces and object paths';
@@ -43,12 +42,12 @@ module.exports = function(Parth){
     ret = parth.set(stems);
     regex = parth.get(path, (o = { }));
 
-    should(ret).not.be.eql(null);
+    ret.should.not.be.eql(null);
     regex.path.should.be.eql(stems);
     o.url.should.be.eql(path.match(/\/\S+/)[0]);
-    o.notFound.should.be.eql(true);
+    o.notFound.should.be.eql('/human page.user');
 
     path = path.replace(/^post/, 'put');
-    should(parth.get(path)).be.eql(null);
+    (parth.get(path) === null).should.be.eql(true);
   });
 };
