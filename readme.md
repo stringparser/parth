@@ -20,12 +20,21 @@ var parth = new require('parth')();
 _set_
 
 ```js
-parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when') // =>
-{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when')
+// =>
+{
+  /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^. ]+) ([^. ]+)/i
   url: '/:page(\\w+(?:end))/baby',
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
-           'user.', ':data(\\d+).', ':drink', ':when' ],
+  argv:  [
+    'get',
+    '/:page(\\w+(?:end))',
+    '/baby',
+    'user.',
+    ':data(\\d+).',
+    ':drink',
+    ':when'
+  ],
   depth: 5
 }
 ```
@@ -35,40 +44,35 @@ _get_
 var extra = { };
 parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
 // =>
-{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
-  notFound: false,
-  url: '/weekend/baby?query=string#hash',
-  path: 'get /weekend/baby user.10.beers now',
-  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
-           'user.', ':data(\\d+).', ':drink', ':when' ],
-  params: {
-    _: [ 'weekend', 10, 'beers', 'now' ],
-    page: 'weekend',
-    data: 10,
-    drink: 'beers',
-    when: 'now'
-  }
+{
+  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
+  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  argv: [
+   'get',
+   '/:page(\\w+(?:end))',
+   '/baby',
+   'user.',
+   ':data(\\d+).',
+   ':drink',
+   ':when'
+  ],
+  def: 2,
+  cust: 2
 }
 
 console.log(extra);
 // =>
-{ notFound: false,
-  path: 'get /weekend/baby user.10.beers now',
+{
   url: '/weekend/baby?query=string#hash',
-  found: [ 'get /weekend/baby user.10.beers now' ],
-  depth: 5,
-  index: 4,
-  regex: { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
-    path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-    argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
-             'user.', ':data(\\d+).', ':drink', ':when' ],
-    def: 2,
-    cust: 2
-  },
+  path: 'get /weekend/baby user.10.beers now',
+  argv: [ 'get', '/weekend', '/baby', 'user.', '10.', 'beers', 'now' ],
+  notFound: false,
+  depth: 7,
+  match: 'get /weekend/baby user.10.beers now',
   params: {
-    _: [ 'weekend', 10, 'beers', 'now' ],
+    _: [ 'page', 'data', 'drink', 'when' ],
     page: 'weekend',
-    data: 10,
+    data: '10',
     drink: 'beers',
     when: 'now'
   }
@@ -77,28 +81,29 @@ console.log(extra);
 
 ## documentation
 
+module.exports: `parth` constructor
+
 ````js
 var Parth = require('parth');
 ````
 
-`Parth` constructor. Takes no arguments.
-
+which takes no arguments
 ```js
 var parth = new Parth();
 ```
 
 ### parth.set(path)
 
-Set a string or array path
+Set a string
 
 _arguments_
-- `path` type `string` or `array`
+- `path` type `string`
 
 _return_
   - `regex` object with properties below
     - path: the input path sanitized
     - argv: normalized path vector
-    - def: number of default regexes used to set
+    - def: number of default regexes used for set
     - cust: number of custom regexes parsed for set
 
 `path` can contain any number of parameters(regexes) in the form
@@ -108,39 +113,43 @@ _return_
 Any string matching the regular expression below qualifies as a parameter
 
 ````js
-util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
+util.paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 ````
 
-[Go to regexpr](http://regexr.com/) and test it out.
+[Go to http://regexr.com/](http://regexr.com/) and test it out.
 
-> Characters should be escaped i.e. `\\w+` <br>
-> For now, only one group per parameter is allowed
+> Characters should be escaped i.e. `\\w+`
 
-### parth.get(path[, o])
+### parth.get(path[, opt])
 
-Obtain a path matching what was previously set.
+Obtain a path matching one of the previously paths set.
 
 _arguments_
-- `path` type `string` or `array`
-- `o` type `object` holding all extra information
+- `path` type `string`
+- `opt` type `object` optional, with all extra information:
+  - url: if any, the url contained within the `path` given
+  - path: the `path` given as an input
+  - argv: normalized path vector
+  - depth: integer representing the `depth` of the path (argv.length)
+  - params: object with a map between labels and the path.
+  - notFound: `false` if perfect match, what is left after the match if not
 
 _return_
   - `null` for no matches
   - `regex` object maching the path given, with properties:
-   - notFound: wether or not the it was a complete match of the path given
-   - url: if any, the url contained within the `path` given
-   - path: the `path` given as an input
-   - argv: normalized path vector
-   - params: object with a map between labels and the path. Numbers are parsed.
+    - url: if any, the url contained within the `path` given
+    - path: the `path` of the previosly set path
+    - argv: normalized path vector of the path set
+
 
 > All matches partial i.e. /^regex baby/i. Not being strict is useful for `notFound` paths
 
-### parth.store
+### parth
 
-The `parth` instance `store`. Has 3 properties
- - `cache`: all previously set paths live here
+The `parth` instance has 3 properties
+ - `store`: all previously set paths live here
  - `regex`: object with one key per `depth`, each being an array.
- - `masterRE` : array aggregating a regular expression for each `depth`.
+ - `master`: array aggregating a regular expression for each `depth`.
 
 > When paths are set they are classified according to their `depth`
 
@@ -150,7 +159,9 @@ I need it for the [runtime](https://github.com/stringparser/runtime) module.
 
 ## install
 
-    $ npm install --save parth
+With [npm](http://npmjs.org)
+
+    npm install --save parth
 
 ### examples
  Run the [`example.js`](example.js) file.
@@ -162,30 +173,27 @@ I need it for the [runtime](https://github.com/stringparser/runtime) module.
 ```
 ➜  node-parth (master) ✓ npm test
 parth
-  args
-    ✓ should handle string args for #set and #get
-    ✓ should handle array args for #set and #get
-    ✓ should handle array args for #set string for #set
-    ✓ should handle string args for #set array for #get
-  unix-paths
-    ✓ should handle unix paths
-  notFound
-    ✓ should handle urls and spaces
-    ✓ should handle urls spaces and object paths
-    ✓ should handle urls spaces and object paths
-  object-paths
-    ✓ should handle object paths
-    ✓ should handle object paths with regexes
-  sentences
-    ✓ should handle space separated strings
-  combined
-    ✓ should handle urls and spaces
-    ✓ should handle urls spaces and object paths
+  paths
+    ✓ object
+    ✓ raw object paths
+    ✓ unix paths
+    ✓ raw unix paths
+    ✓ urls
+    ✓ raw urls
+    ✓ space separated paths
+    ✓ raw, space separated paths
+    ✓ unix, object and url paths together
+    ✓ raw: unix, object and urls paths together
   params
-    ✓ should handle urls and spaces
-    ✓ should handle urls spaces and object paths
+    ✓ can be given as a string regex
+    ✓ will contain all parameter keys at _
+    ✓ parameter values should be at params
+  notFound
+    ✓ should be false for perfect match
+    ✓ should have what is left of the path
 
-15 passing (19ms)
+
+15 passing (18ms)
 ```
 
 ### todo
@@ -194,4 +202,4 @@ parth
 
 ### license
 
-[<img alt="LICENSE" src="http://img.shields.io/npm/l/parth.svg?style=flat-square"/>](http://opensource.org/licenses/MIT)
+![LICENSE](http://img.shields.io/npm/l/parth.svg?style=flat-square)
