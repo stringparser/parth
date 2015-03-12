@@ -73,7 +73,7 @@ Parth.prototype.set = function(p){
   // reorder them
   this.regex[o.depth].push(o.regex);
   this.regex[o.depth] = this.regex[o.depth].sort(function(a, b){
-    return (a.def - a.cust) - (b.def - b.cust);
+    return (a.def - b.cust) - (b.def - a.cust);
   });
 
   // sum up all learned: void groups and make it one
