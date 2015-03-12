@@ -20,11 +20,10 @@ module.exports = function(Parth){
     path = 'post /page/1/?query';
     parth.set(stems);
     parth.get(path, (o = { }));
-
     o.params._.should.be.eql(['word', 'number']);
   });
 
-  it('parameters can be given as a regexp', function(){
+  it('parameter values should be at params', function(){
     stems = ':method(get|post) /hello/:there/:you';
     path = 'post /hello/awesome/10/?query#hash';
     parth.set(stems);
@@ -38,22 +37,6 @@ module.exports = function(Parth){
       method: 'post',
       there: 'awesome',
       you: '10'
-    });
-  });
-
-  it('urls spaces and object paths', function(){
-    stems = ':method(post|get) /hello/:there/:you page.:data';
-    path = 'post /hello/awesome/10.10 page.user';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?\?[^ ](|$)/g, ''));
-    regex.path.should.be.eql(stems);
-    o.params.should.be.eql({
-      _ : ['method', 'there', 'you', 'data'],
-      method: 'post',
-      there: 'awesome',
-      you: '10.10',
-      data: 'user'
     });
   });
 };
