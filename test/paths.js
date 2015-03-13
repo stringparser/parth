@@ -55,7 +55,33 @@ module.exports = function(Parth){
     path = '/hello/there/?query';
     parth.set(stems);
     regex = parth.get(path, (o = { }));
+    regex.path.should.be.eql(stems);
+  });
+
+  it('urls: querystring is stripped', function(){
+    stems = 'get page.thing /hello/there';
+    path = 'get page.thing /hello/there/?query';
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
+    regex.path.should.be.eql(stems);
+  });
+
+  it('urls: hash is stripped', function(){
+    stems = 'get page.thing /hello/there';
+    path = 'get page.thing /hello/there#hello';
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
+    o.path.should.be.eql(path.replace(/\/?[?#][^ ]+/,''));
+    regex.path.should.be.eql(stems);
+  });
+
+  it('urls: parameters are not mistaken as querystrings', function(){
+    stems = 'get page.thing /hello/:here(?:hello(?!there(?=you)))';
+    path = 'get page.thing /hello/helloyou';
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
+    o.path.should.be.eql(path.replace(/\/?[?#][^!:= ]+/,''));
     regex.path.should.be.eql(stems);
   });
 
