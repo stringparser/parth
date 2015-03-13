@@ -21,12 +21,10 @@ _set_
 
 ```js
 parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when')
-// =>
 {
-  /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^. ]+) ([^. ]+)/i
-  url: '/:page(\\w+(?:end))/baby',
+  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^u ]+) ([^: ]+)/i
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  argv:  [
+  argv: [
     'get',
     '/:page(\\w+(?:end))',
     '/baby',
@@ -35,7 +33,8 @@ parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when')
     ':drink',
     ':when'
   ],
-  depth: 5
+  cus: 2,
+  def: 2
 }
 ```
 _get_
@@ -43,25 +42,23 @@ _get_
 ```js
 var extra = { };
 parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
-// =>
 {
-  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
+  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^u ]+) ([^: ]+)/i
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
   argv: [
-   'get',
-   '/:page(\\w+(?:end))',
-   '/baby',
-   'user.',
-   ':data(\\d+).',
-   ':drink',
-   ':when'
+    'get',
+    '/:page(\\w+(?:end))',
+    '/baby',
+    'user.',
+    ':data(\\d+).',
+    ':drink',
+    ':when'
   ],
-  def: 2,
-  cust: 2
+  cus: 2,
+  def: 2
 }
 
 console.log(extra);
-// =>
 {
   url: '/weekend/baby?query=string#hash',
   path: 'get /weekend/baby user.10.beers now',
@@ -69,7 +66,7 @@ console.log(extra);
   notFound: false,
   depth: 7,
   match: 'get /weekend/baby user.10.beers now',
-  params: {
+  params:  {
     _: [ 'page', 'data', 'drink', 'when' ],
     page: 'weekend',
     data: '10',
@@ -81,7 +78,7 @@ console.log(extra);
 
 ## documentation
 
-module.exports: `parth` constructor
+The `module.exports` a `Parth` constructor
 
 ````js
 var Parth = require('parth');
@@ -94,7 +91,7 @@ var parth = new Parth();
 
 ### parth.set(path)
 
-Set a string
+Create a regular expression from a string. Store if for later looked up.
 
 _arguments_
 - `path` type `string`
