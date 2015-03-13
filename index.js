@@ -121,8 +121,8 @@ Parth.prototype.get = function(p, o){
   index = 0;
   regex.path.replace(util.paramRE, function($0, $1, $2){
     var p = o.params._[index];
-    var num = Number(p);
-    o.params[$2] = Number.isNaN(num) ? p : num;
+    try { o.params[$2] = util.EJSON.parse(p); }
+    catch(e){ o.params[$2] = p; }
     o.params._[index++] = $2;
   });
 
