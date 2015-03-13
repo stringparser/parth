@@ -40,17 +40,16 @@ Parth.prototype.set = function(p){
     return this.store[o.path].regex;
   }
 
-  // # of default and custom regex
-  var sep; o.custom = o.default = 0;
+  // default and custom regexes
+  var sep, cus, def; cus = def = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
-    if((/\//).test(stem)){ sep = '/#?'; } else
-    if((/\./).test(stem)){ sep = '.';   } else { sep = ''; }
+    sep = (stem.match(/\/|./) || ' ')[0].replace('/', '/#?').trim();
     return stem.replace(util.paramRE, function($0, $1, $2, $3){
-      if($3){ o.custom++; } else { o.default++; }
-      return $1 + ($3 || '([^' + sep + '^]+)');
+      if($3){ cus++; } else { def++; }
+      return $1 + ($3 || '([^'+sep+' ]+)');
     });
-  }).replace(/\^\]\+/g, ' ]+') // default params
-    .replace(/[^()]+(?=\(|$)/g, function($0){ // scape all outside parens
+  }).replace(/[^()]+(?=\(|$)/g, function($0){
+      // escape separation tokens outside parens
       return $0.replace(/[\/\.]/g, '\\$&');
     });
 
@@ -67,22 +66,20 @@ Parth.prototype.set = function(p){
   // attach relevant info.
   o.regex = new RegExp(o.regex, 'i');
   o.regex.path = o.path; o.regex.argv = o.argv;
-  o.regex.def = o.default; o.regex.cust = o.custom;
+  o.regex.cus = cus; o.regex.def = def;
 
   // reorder them
   this.regex[o.depth].push(o.regex);
   this.regex[o.depth] = this.regex[o.depth].sort(function(a, b){
-    return (a.def - b.cust) - (b.def - a.cust);
+    return (a.def - b.cus) - (b.def - a.cus);
   });
 
-  // sum up all learned: void groups and make it one
+  // sum up all learned: void groups and make one master per depth
   this.master[o.depth] =
     new RegExp(this.regex[o.depth].map(function(re){
       return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
     }).join('|'), 'i');
 
-  // clean, save & return
-  delete o.default; delete o.custom;
   this.store[o.path] = o;
   return o.regex;
 };
