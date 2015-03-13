@@ -120,7 +120,9 @@ Parth.prototype.get = function(p, o){
 
   index = 0;
   regex.path.replace(util.paramRE, function($0, $1, $2){
-    o.params[$2] = o.params._[index];
+    var p = o.params._[index];
+    var num = Number(p);
+    o.params[$2] = Number.isNaN(num) ? p : num;
     o.params._[index++] = $2;
   });
 
