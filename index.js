@@ -43,7 +43,7 @@ Parth.prototype.set = function(p){
   // default and custom regexes
   var sep, cus, def; cus = def = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
-    sep = (stem.match(/\/|./) || ' ')[0].replace('/', '/#?').trim();
+    sep = (stem.match(/\/|\./) || ' ')[0].replace('/', '/#?').trim();
     return stem.replace(util.paramRE, function($0, $1, $2, $3){
       if($3){ cus++; } else { def++; }
       return $1 + ($3 || '([^'+sep+' ]+)');
