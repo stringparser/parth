@@ -8,7 +8,8 @@ function Parth(){
   if(this instanceof Parth){
     this.store = Object.create(null);
     this.regex = Object.create(null);
-    this.master = {length: 0};
+    this.master = Object.create(null);
+    this.master.length = 0;
     return this;
   }
   return new Parth();
@@ -25,15 +26,13 @@ function Parth(){
 //
 // returns a regular expression for the path
 //
-// --
-// api.public
-// --
 //
 
 util.paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 Parth.prototype.set = function(p){
   var o = util.boil(p);
+
   if(this.store[o.path]){
     o.match = o.path;
     return this.store[o.path].regex;
@@ -54,7 +53,6 @@ Parth.prototype.set = function(p){
 
 
   // update depths
-  o.depth = o.argv.length;
   if(!this.regex[o.depth]){
     this.regex[o.depth] = [ ];
     while(this.master.length < o.depth){
@@ -88,16 +86,16 @@ Parth.prototype.set = function(p){
 // > take a string or array, return the matching path
 //
 // arguments
-//  - path, type `string` or `array`
+//  - path, type `string`
 //  - options, type `object` optional holding all extra information
 //
+// throws error if the path type is not supported
+//
 // returns regex matching path
-// --
-// api.public
-// --
 //
 Parth.prototype.get = function(p, o){
   o = util.boil(p, o);
+
   if(this.store[o.path]){
     return util.merge(o, this.store[o.path]).regex;
   }
