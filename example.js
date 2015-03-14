@@ -15,9 +15,9 @@ input = [
   ':method(get|post) /:page/:view',
 ];
 
-console.log('\n -- parth.set -- ');
+console.log('\n -- parth.add -- ');
 input.forEach(function(stem, index){
-  extra = { }; regex = parth.set(stem, extra);
+  extra = { }; regex = parth.add(stem, extra);
   console.log(' input:', stem);
   console.log(' regex:', regex);
   console.log((input[index+1] ? ' -- ' : ''));
@@ -35,9 +35,9 @@ input = [
   'post /user/page/?query=name&path=tree#hash'
 ];
 
-console.log(' -- parth.get -- ');
+console.log(' -- parth.match -- ');
 input.forEach(function(stem, index){
-  extra = { }; regex = parth.get(stem, extra);
+  extra = { }; regex = parth.match(stem, extra);
   console.log(' input:', stem);
   console.log(' regex:', regex);
   console.log(' extra:', extra);
