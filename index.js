@@ -33,10 +33,16 @@ var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 Parth.prototype.add = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return null; }
 
-  if(this.store.children[o.path]){
-    var index = this.regex[o.depth]
-      .indexOf(this.store.children[o.path].regex);
-    return this.regex[o.depth][index];
+  var node = this.store.children;
+  var found = this.regex[o.depth];
+
+  if(node[o.path]){
+    return found[found.indexOf(node[o.path].regex)];
+  } else if(!found){
+    while(this.regex.length < o.depth){
+      this.regex[++this.regex.length] = null;
+    }
+    found = this.regex[o.depth] = [ ];
   }
 
   // default and custom regexes
@@ -52,32 +58,22 @@ Parth.prototype.add = function(p, o){
       return $0.replace(/[\/\.]/g, '\\$&');
     });
 
-  // update depths
-  if(!this.regex[o.depth]){
-    while(this.regex.length < o.depth){
-      this.regex[++this.regex.length] = null;
-    }
-    this.regex[o.depth] = [ ];
-  }
-
   // attach relevant info.
   o.regex = new RegExp(o.regex, 'i');
   o.regex.path = o.path; o.regex.cus = cus; o.regex.def = def;
 
   // reorder them
-  this.regex[o.depth].push(o.regex);
-  this.regex[o.depth] = this.regex[o.depth].sort(function(a, b){
+  found.push(o.regex);
+  found = found.sort(function(a, b){
     return (a.def - b.cus) - (b.def - a.cus);
   });
 
   // sum up all learned: void groups and make one master per depth
-  this.regex[o.depth].master =
-    new RegExp(this.regex[o.depth].map(function(re){
-      return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
-    }).join('|'), 'i');
+  found.master = new RegExp(found.map(function(re){
+    return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
+  }).join('|'), 'i');
 
-  // stablish a hierarchy
-  this.store.children[o.path] = o;
+  node[o.path] = o;
   return o.regex;
 };
 
@@ -99,10 +95,11 @@ Parth.prototype.match = function(p, o){
 
   var index = o.depth;
   var found = this.regex;
+  var node = this.store.children[o.path];
 
-  if(this.store.children[o.path]){
+  if(node){
     o.match = o.path; o.notFound = false; found = found[o.depth];
-    index = found.indexOf(this.store.children[o.path].regex);
+    index = found.indexOf(node.regex);
     return found[index];
   } else if(index > found.length){
     index = found.length;
