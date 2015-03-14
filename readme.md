@@ -49,7 +49,7 @@ console.log(extra);
     _: [ 'method', 'page', 'view' ],
     method: 'post',
     page: 'user',
-    view: 'page' 
+    view: 'page'
   }
 }
 ```
@@ -69,7 +69,7 @@ var parth = new Parth();
 
 ### parth.add(path)
 
-Create a regular expression from a string. Store if for later looked up.
+Create a regular expression from a string. Store it for later look up.
 
 _arguments_
 - `path` type `string`
@@ -95,7 +95,7 @@ util.paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 > Characters should be escaped i.e. `\\w+`
 
-### parth.get(path[, opt])
+### parth.match(path[, opt])
 
 Obtain a path matching one of the previously paths set.
 
@@ -135,7 +135,7 @@ With [npm](http://npmjs.org)
 
 ### examples
 
- Run the [`example.js`](example.js) file.
+Run the [`example.js`](example.js) file.
 
 ### test
 
