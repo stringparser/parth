@@ -20,39 +20,36 @@ var parth = new require('parth')();
 _add_
 
 ```js
-parth.add('get /:page(\\w+(?:end)) :data(\\d+).:drink :when')
+parth.add(':method(get|post) /:page/:view')
 {
-  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
-  cus: 2,
-  def: 2,
-  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
+  /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
+  path: ':method(get|post) /:page/:view',
+  cus: 1, def: 2
 }
 ```
 _match_
 
 ```js
 var extra = { };
-parth.match('get /weekend/?query=string#hash 10.beers now', extra)
+parth.match('post /user/page/?query=name&path=tree#hash', extra)
 {
-  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
-  cus: 2,
-  def: 2,
-  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
+  /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
+  path: ':method(get|post) /:page/:view',
+  cus: 1, def: 2
 }
 
 console.log(extra);
 {
   notFound: false,
-  path: 'get /weekend/baby user.10.beers now',
-  url: '/weekend/baby?query=string#hash',
-  depth: 7,
-  match: 'get /weekend/baby user.10.beers now',
+  path: 'post /user/page',
+  url: '/user/page/?query=name&path=tree#hash',
+  depth: 3,
+  match: 'post /user/page',
   params: {
-    _: [ 'page', 'data', 'drink', 'when' ],
-    page: 'weekend',
-    data: 10,
-    drink: 'beers',
-    when: 'now'
+    _: [ 'method', 'page', 'view' ],
+    method: 'post',
+    page: 'user',
+    view: 'page' 
   }
 }
 ```
