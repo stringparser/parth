@@ -31,16 +31,17 @@ function Parth(){
 util.paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 Parth.prototype.set = function(p){
-  var o = o || {}; if(!util.boil(p, o)){ return null; }
+  var o = { }, argv = util.boil(p, o);
+  if(!argv){ return null; }
 
   if(this.store[o.path]){
-    o.match = o.path;
-    return this.store[o.path];
+    var index = this.regex[o.depth].indexOf(this.store[o.path].regex);
+    return this.regex[o.depth][index];
   }
 
   // default and custom regexes
   var sep, cus, def; cus = def = 0;
-  var regex = '^' + o.path.replace(/\S+/g, function(stem){
+  o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
     return stem.replace(util.paramRE, function($0, $1, $2, $3){
       if($3){ cus++; } else { def++; }
@@ -60,12 +61,12 @@ Parth.prototype.set = function(p){
   }
 
   // attach relevant info.
-  regex = new RegExp(regex, 'i');
-  regex.cus = cus; regex.def = def;
-  regex.path = o.path;
+  o.regex = new RegExp(o.regex, 'i');
+  o.regex.cus = cus; o.regex.def = def;
+  o.regex.path = o.path;
 
   // reorder them
-  this.regex[o.depth].push(regex);
+  this.regex[o.depth].push(o.regex);
   this.regex[o.depth] = this.regex[o.depth].sort(function(a, b){
     return (a.def - b.cus) - (b.def - a.cus);
   });
@@ -76,8 +77,17 @@ Parth.prototype.set = function(p){
       return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
     }).join('|'), 'i');
 
+  // stablish a hierarchy
+  var parent = o.path.slice(0, o.path.indexOf(argv[o.depth-1])).trim();
+  if(parent && this.store[parent]){
+    o.parent = parent;
+    parent = this.store[parent];
+    parent.children = parent.children || { };
+    parent.children[o.path] = parent.children[o.path] || o;
+  }
+
   this.store[o.path] = o;
-  return regex;
+  return o.regex;
 };
 
 
@@ -96,16 +106,16 @@ Parth.prototype.get = function(p, o){
   o = o || {}; o.notFound = true;
   if(!util.boil(p, o)){ return null; }
 
-  if(this.store[o.path]){
-    o.match = o.path;
-    o.notFound = false;
-    return util.merge(o, this.store[o.path]);
-  }
-
-  o.notFound = true;
   var index = o.depth;
   var found = this.master;
-  if(index > found.length){ index = found.length; }
+
+  if(this.store[o.path]){
+    o.match = o.path; o.notFound = false;
+    index = this.regex[o.depth].indexOf(this.store[o.path].regex);
+    return this.regex[o.depth][index];
+  } else if(index > found.length){
+    index = found.length;
+  }
 
   while(index > -1){
     if(found[index] && found[index].test(o.path)){
