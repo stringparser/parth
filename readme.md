@@ -78,6 +78,7 @@ _arguments_
 - `path` type `string`
 
 _return_
+  - `null` for non-supported types
   - `regex` object with properties below
     - path: the input path sanitized
     - def: number of default regexes used for set
@@ -104,14 +105,14 @@ Obtain a path matching one of the previously paths set.
 _arguments_
 - `path` type `string`
 - `opt` type `object` optional, with all extra information:
-  - url: if any, the url contained within the `path` given
   - path: the `path` given as an input
+  - url: if any, the url contained within the `path` given
   - depth: integer representing the `depth` of the path
   - params: object with a map between labels and the path.
   - notFound: `false` if perfect match, what is left after the match if not
 
 _return_
-  - `null` for no matches
+  - `null` for no matches or non-supported types
   - `regex` object matching the path given, with same properties of #set
 
 > All matches partial i.e. /^regex baby/i.
@@ -137,14 +138,15 @@ With [npm](http://npmjs.org)
     npm install --save parth
 
 ### examples
+
  Run the [`example.js`](example.js) file.
 
 ### test
 
-    $ npm test
+    npm test
 
 ```
-➜  node-parth (master) ✓ npm test
+➜  parth (master) ✓ npm t
 parth
   paths
     ✓ object
@@ -153,6 +155,9 @@ parth
     ✓ raw unix paths
     ✓ urls
     ✓ raw urls
+    ✓ urls: querystring is stripped
+    ✓ urls: hash is stripped
+    ✓ urls: parameters are not mistaken as querystrings
     ✓ space separated paths
     ✓ raw, space separated paths
     ✓ unix, object and url paths together
@@ -166,7 +171,7 @@ parth
     ✓ should have what is left of the path
 
 
-15 passing (18ms)
+18 passing (16ms)
 ```
 
 ### todo
