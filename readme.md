@@ -24,15 +24,6 @@ parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when')
 {
   /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^u ]+) ([^: ]+)/i
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  argv: [
-    'get',
-    '/:page(\\w+(?:end))',
-    '/baby',
-    'user.',
-    ':data(\\d+).',
-    ':drink',
-    ':when'
-  ],
   cus: 2,
   def: 2
 }
@@ -45,31 +36,21 @@ parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
 {
   /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^u ]+) ([^: ]+)/i
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  argv: [
-    'get',
-    '/:page(\\w+(?:end))',
-    '/baby',
-    'user.',
-    ':data(\\d+).',
-    ':drink',
-    ':when'
-  ],
   cus: 2,
   def: 2
 }
 
 console.log(extra);
 {
-  url: '/weekend/baby?query=string#hash',
-  path: 'get /weekend/baby user.10.beers now',
-  argv: [ 'get', '/weekend', '/baby', 'user.', '10.', 'beers', 'now' ],
   notFound: false,
+  path: 'get /weekend/baby user.10.beers now',
+  url: '/weekend/baby?query=string#hash',
   depth: 7,
   match: 'get /weekend/baby user.10.beers now',
   params:  {
     _: [ 'page', 'data', 'drink', 'when' ],
     page: 'weekend',
-    data: '10',
+    data: 10,
     drink: 'beers',
     when: 'now'
   }
@@ -99,9 +80,8 @@ _arguments_
 _return_
   - `regex` object with properties below
     - path: the input path sanitized
-    - argv: normalized path vector
     - def: number of default regexes used for set
-    - cust: number of custom regexes parsed for set
+    - cus: number of custom regexes parsed for set
 
 `path` can contain any number of parameters(regexes) in the form
 ```js
@@ -126,20 +106,16 @@ _arguments_
 - `opt` type `object` optional, with all extra information:
   - url: if any, the url contained within the `path` given
   - path: the `path` given as an input
-  - argv: normalized path vector
-  - depth: integer representing the `depth` of the path (argv.length)
+  - depth: integer representing the `depth` of the path
   - params: object with a map between labels and the path.
   - notFound: `false` if perfect match, what is left after the match if not
 
 _return_
   - `null` for no matches
-  - `regex` object maching the path given, with properties:
-    - url: if any, the url contained within the `path` given
-    - path: the `path` of the previosly set path
-    - argv: normalized path vector of the path set
+  - `regex` object matching the path given, with same properties of #set
 
-
-> All matches partial i.e. /^regex baby/i. Not being strict is useful for `notFound` paths
+> All matches partial i.e. /^regex baby/i.
+> Not being strict is useful for `notFound` paths
 
 ### parth
 
