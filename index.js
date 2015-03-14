@@ -7,6 +7,7 @@ exports = module.exports = Parth;
 function Parth(){
   if(this instanceof Parth){
     this.store = Object.create(null);
+    this.store.children = Object.create(null);
     this.regex = Object.create(null);
     this.regex.length = 0;
     return this;
@@ -32,8 +33,9 @@ var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 Parth.prototype.add = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return null; }
 
-  if(this.store[o.path]){
-    var index = this.regex[o.depth].indexOf(this.store[o.path].regex);
+  if(this.store.children[o.path]){
+    var index = this.regex[o.depth]
+      .indexOf(this.store.children[o.path].regex);
     return this.regex[o.depth][index];
   }
 
@@ -75,7 +77,7 @@ Parth.prototype.add = function(p, o){
     }).join('|'), 'i');
 
   // stablish a hierarchy
-  this.store[o.path] = o;
+  this.store.children[o.path] = o;
   return o.regex;
 };
 
@@ -98,9 +100,9 @@ Parth.prototype.match = function(p, o){
   var index = o.depth;
   var found = this.regex;
 
-  if(this.store[o.path]){
+  if(this.store.children[o.path]){
     o.match = o.path; o.notFound = false; found = found[o.depth];
-    index = found.indexOf(this.store[o.path].regex);
+    index = found.indexOf(this.store.children[o.path].regex);
     return found[index];
   } else if(index > found.length){
     index = found.length;
