@@ -120,10 +120,4 @@ module.exports = function(Parth){
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
     regex.path.should.be.eql(stems);
   });
-
-  it('hierarchy: between paths', function(){
-    parth.add('get page.:view /there');
-    parth.add('get page.:view');
-    regex = parth.match('get page.sidebar', (o = {}));
-  });
 };
