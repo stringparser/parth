@@ -123,7 +123,6 @@ _return_
 The `parth` instance has 3 properties
  - `store`: all previously set paths live here
  - `regex`: object with one key per `depth`, each being an array.
- - `master`: array aggregating a regular expression for each `depth`.
 
 > When paths are set they are classified according to their `depth`
 
