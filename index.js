@@ -35,12 +35,12 @@ Parth.prototype.set = function(p){
 
   if(this.store[o.path]){
     o.match = o.path;
-    return this.store[o.path].regex;
+    return this.store[o.path];
   }
 
   // default and custom regexes
   var sep, cus, def; cus = def = 0;
-  o.regex = '^' + o.path.replace(/\S+/g, function(stem){
+  var regex = '^' + o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
     return stem.replace(util.paramRE, function($0, $1, $2, $3){
       if($3){ cus++; } else { def++; }
@@ -61,12 +61,12 @@ Parth.prototype.set = function(p){
   }
 
   // attach relevant info.
-  o.regex = new RegExp(o.regex, 'i');
-  o.regex.path = o.path; o.regex.argv = o.argv;
-  o.regex.cus = cus; o.regex.def = def;
+  regex = new RegExp(regex, 'i');
+  regex.cus = cus; regex.def = def;
+  regex.path = o.path;
 
   // reorder them
-  this.regex[o.depth].push(o.regex);
+  this.regex[o.depth].push(regex);
   this.regex[o.depth] = this.regex[o.depth].sort(function(a, b){
     return (a.def - b.cus) - (b.def - a.cus);
   });
@@ -78,7 +78,7 @@ Parth.prototype.set = function(p){
     }).join('|'), 'i');
 
   this.store[o.path] = o;
-  return o.regex;
+  return regex;
 };
 
 
@@ -94,15 +94,18 @@ Parth.prototype.set = function(p){
 // returns regex matching path
 //
 Parth.prototype.get = function(p, o){
-  o = util.boil(p, o);
+  o = o || { }; o.notFound = true;
+  util.boil(p, o);
 
   if(this.store[o.path]){
-    return util.merge(o, this.store[o.path]).regex;
+    o.match = o.path;
+    o.notFound = false;
+    return util.merge(o, this.store[o.path]);
   }
 
   o.notFound = true;
+  var index = o.depth;
   var found = this.master;
-  var index = o.argv.length;
   if(index > found.length){ index = found.length; }
 
   while(index > -1){
