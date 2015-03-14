@@ -15,13 +15,12 @@ input = [
   ':method(get|post) /:page/:view',
 ];
 
-console.log('\n -- parth.set -- \n');
+console.log('\n -- parth.set -- ');
 input.forEach(function(stem, index){
   extra = { }; regex = parth.set(stem, extra);
-  console.log(' input=', stem);
-  console.log(' regex=', regex); console.log('');
-  console.log(' extra=', extra);
-  console.log((input[index+1] ? '\n -- \n' : ''));
+  console.log(' input:', stem);
+  console.log(' regex:', regex);
+  console.log((input[index+1] ? ' -- ' : ''));
 });
 
 // #get
@@ -36,14 +35,16 @@ input = [
   'post /user/page/?query=name&path=tree#hash'
 ];
 
-console.log('\n -- parth.get -- ');
+console.log(' -- parth.get -- ');
 input.forEach(function(stem, index){
   extra = { }; regex = parth.get(stem, extra);
-  console.log(' input=', stem);
-  console.log(' regex=', regex); console.log('');
-  console.log(' extra=', extra);
-  console.log((input[index+1] ? '\n -- \n' : '\n -- '));
+  console.log(' input:', stem);
+  console.log(' regex:', regex);
+  console.log(' extra:', extra);
+  console.log((input[index+1] ? ' -- ' : '' ));
 });
 
 // #store
-console.log(' parth=', parth);
+Object.keys(parth).forEach(function(prop){
+  console.log('\nparth.%s\n', prop, parth[prop]);
+});
