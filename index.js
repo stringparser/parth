@@ -8,15 +8,14 @@ function Parth(){
   if(this instanceof Parth){
     this.store = Object.create(null);
     this.regex = Object.create(null);
-    this.master = Object.create(null);
-    this.master.length = 0;
+    this.regex.length = 0;
     return this;
   }
   return new Parth();
 }
 
-// ## parth.set(path)
-// > convert a path to a regular expression
+// ## parth.add(path)
+// > path to a regex adding it to parth.store
 // > TODO: regexp input
 //
 // arguments
@@ -28,11 +27,10 @@ function Parth(){
 //
 //
 
-util.paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
+var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
-Parth.prototype.set = function(p){
-  var o = { }, argv = util.boil(p, o);
-  if(!argv){ return null; }
+Parth.prototype.add = function(p, o){
+  o = o || { }; if(!util.boil(p, o)){ return null; }
 
   if(this.store[o.path]){
     var index = this.regex[o.depth].indexOf(this.store[o.path].regex);
@@ -43,7 +41,7 @@ Parth.prototype.set = function(p){
   var sep, cus, def; cus = def = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
-    return stem.replace(util.paramRE, function($0, $1, $2, $3){
+    return stem.replace(paramRE, function($0, $1, $2, $3){
       if($3){ cus++; } else { def++; }
       return $1 + ($3 || '([^'+sep+' ]+)');
     });
@@ -54,16 +52,15 @@ Parth.prototype.set = function(p){
 
   // update depths
   if(!this.regex[o.depth]){
-    this.regex[o.depth] = [ ];
-    while(this.master.length < o.depth){
-      this.master[++this.master.length] = null;
+    while(this.regex.length < o.depth){
+      this.regex[++this.regex.length] = null;
     }
+    this.regex[o.depth] = [ ];
   }
 
   // attach relevant info.
   o.regex = new RegExp(o.regex, 'i');
-  o.regex.cus = cus; o.regex.def = def;
-  o.regex.path = o.path;
+  o.regex.path = o.path; o.regex.cus = cus; o.regex.def = def;
 
   // reorder them
   this.regex[o.depth].push(o.regex);
@@ -72,26 +69,18 @@ Parth.prototype.set = function(p){
   });
 
   // sum up all learned: void groups and make one master per depth
-  this.master[o.depth] =
+  this.regex[o.depth].master =
     new RegExp(this.regex[o.depth].map(function(re){
       return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
     }).join('|'), 'i');
 
   // stablish a hierarchy
-  var parent = o.path.slice(0, o.path.indexOf(argv[o.depth-1])).trim();
-  if(parent && this.store[parent]){
-    o.parent = parent;
-    parent = this.store[parent];
-    parent.children = parent.children || { };
-    parent.children[o.path] = parent.children[o.path] || o;
-  }
-
   this.store[o.path] = o;
   return o.regex;
 };
 
 
-// ## parth.get(path[, options])
+// ## parth.match(path[, options])
 // > take a string or array, return the matching path
 //
 // arguments
@@ -102,24 +91,25 @@ Parth.prototype.set = function(p){
 //  - null for non-supported types or not matching path
 //  - regex with for the matching path
 //
-Parth.prototype.get = function(p, o){
+Parth.prototype.match = function(p, o){
   o = o || {}; o.notFound = true;
   if(!util.boil(p, o)){ return null; }
 
   var index = o.depth;
-  var found = this.master;
+  var found = this.regex;
 
   if(this.store[o.path]){
-    o.match = o.path; o.notFound = false;
-    index = this.regex[o.depth].indexOf(this.store[o.path].regex);
-    return this.regex[o.depth][index];
+    o.match = o.path; o.notFound = false; found = found[o.depth];
+    index = found.indexOf(this.store[o.path].regex);
+    return found[index];
   } else if(index > found.length){
     index = found.length;
   }
 
   while(index > -1){
-    if(found[index] && found[index].test(o.path)){
-      found = o.path.match(found[index]).slice(1);
+    if(!found[index] || !found[index].master){ --index; }
+    else if(found[index].master.test(o.path)){
+      found = o.path.match(found[index].master).slice(1);
       o.depth = index; index = -1;
     } else if(--index < 1){ return null; }
     // ^ depth starts at 1 :), notFound
@@ -131,10 +121,10 @@ Parth.prototype.get = function(p, o){
   o.params = {_: o.path.match(regex).slice(1)};
 
   index = 0;
-  regex.path.replace(util.paramRE, function($0, $1, $2){
+  regex.path.replace(paramRE, function($0, $1, $2){
     var p = o.params._[index];
-    try { o.params[$2] = util.EJSON.parse(p); }
-    catch(e){ o.params[$2] = p; }
+    var num = Number(p);
+    o.params[$2] = util.isNaN(num) ? p : num;
     o.params._[index++] = $2;
   });
 
