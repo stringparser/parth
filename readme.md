@@ -11,7 +11,7 @@
 
 path to regexp madness not only for an url
 
-## usage
+## sample
 
 ```js
 var parth = new require('parth')();
@@ -22,10 +22,10 @@ _set_
 ```js
 parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when')
 {
-  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^u ]+) ([^: ]+)/i
-  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
   cus: 2,
-  def: 2
+  def: 2,
+  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
 }
 ```
 _get_
@@ -34,10 +34,10 @@ _get_
 var extra = { };
 parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
 {
-  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^u ]+) ([^: ]+)/i
-  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
   cus: 2,
-  def: 2
+  def: 2,
+  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
 }
 
 console.log(extra);
@@ -47,7 +47,7 @@ console.log(extra);
   url: '/weekend/baby?query=string#hash',
   depth: 7,
   match: 'get /weekend/baby user.10.beers now',
-  params:  {
+  params: {
     _: [ 'page', 'data', 'drink', 'when' ],
     page: 'weekend',
     data: 10,
