@@ -17,10 +17,10 @@ path to regexp madness not only for an url
 var parth = new require('parth')();
 ```
 
-_set_
+_add_
 
 ```js
-parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when')
+parth.add('get /:page(\\w+(?:end)) :data(\\d+).:drink :when')
 {
   /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
   cus: 2,
@@ -28,11 +28,11 @@ parth.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when')
   path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when'
 }
 ```
-_get_
+_match_
 
 ```js
 var extra = { };
-parth.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
+parth.match('get /weekend/?query=string#hash 10.beers now', extra)
 {
   /^get \/(\w+(?:end))\/baby user\.(\d+)\.([^. ]+) ([^ ]+)/i
   cus: 2,
@@ -70,7 +70,7 @@ which takes no arguments
 var parth = new Parth();
 ```
 
-### parth.set(path)
+### parth.add(path)
 
 Create a regular expression from a string. Store if for later looked up.
 
