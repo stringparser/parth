@@ -22,16 +22,16 @@ function Parth(){
 // arguments
 //  - path, type `string`
 //
-// throws error if the path type is not supported
-//
-// returns a regular expression for the path
+// returns
+//  - null for non-supported types
+//  - regular expression from the path
 //
 //
 
 util.paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 Parth.prototype.set = function(p){
-  var o = util.boil(p);
+  var o = o || {}; if(!util.boil(p, o)){ return null; }
 
   if(this.store[o.path]){
     o.match = o.path;
@@ -50,7 +50,6 @@ Parth.prototype.set = function(p){
       // escape separation tokens outside parens
       return $0.replace(/[\/\.]/g, '\\$&');
     });
-
 
   // update depths
   if(!this.regex[o.depth]){
@@ -89,13 +88,13 @@ Parth.prototype.set = function(p){
 //  - path, type `string`
 //  - options, type `object` optional holding all extra information
 //
-// throws error if the path type is not supported
-//
-// returns regex matching path
+// return
+//  - null for non-supported types or not matching path
+//  - regex with for the matching path
 //
 Parth.prototype.get = function(p, o){
-  o = o || { }; o.notFound = true;
-  util.boil(p, o);
+  o = o || {}; o.notFound = true;
+  if(!util.boil(p, o)){ return null; }
 
   if(this.store[o.path]){
     o.match = o.path;
