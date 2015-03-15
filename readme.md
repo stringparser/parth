@@ -117,9 +117,9 @@ _return_
 
 ### parth
 
-The `parth` instance has 3 properties
- - `store`: all previously set paths live here
+The `parth` instance has one properties
  - `regex`: object with one key per `depth`, each being an array.
+ - `regex.map`: map between paths and regexes for lookup
 
 > When paths are set they are classified according to their `depth`
 
