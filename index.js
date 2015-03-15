@@ -48,7 +48,7 @@ Parth.prototype.add = function(p, o){
   }
 
   // default and custom regexes
-  var sep, cus, def; cus = def = 0;
+  var sep, cus = 0, def = 0;
   o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
     return stem.replace(paramRE, function($0, $1, $2, $3){
@@ -63,7 +63,8 @@ Parth.prototype.add = function(p, o){
   // attach relevant info.
   o.regex = new RegExp(o.regex, 'i');
   o.regex.path = o.path;
-  o.regex.cus = cus; o.regex.def = def;
+  o.regex.def = def;
+  o.regex.cus = cus;
 
   // reorder them
   regex.push(o.regex);
