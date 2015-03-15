@@ -7,11 +7,7 @@ exports = module.exports = Parth;
 function Parth(o){
   o = o || {};
   if(this instanceof Parth){
-    this.regex = {length: 0};
-    this.store = {
-      name: typeof o.name !== 'string' ? '#rootNode' : o.name,
-      children:{}
-    };
+    this.regex = {map: Object.create(null), length: 0};
     return this;
   }
 
@@ -36,16 +32,19 @@ var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 Parth.prototype.add = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return null; }
 
-  var node = this.store.children;
-  var found = this.regex[o.depth];
+  var index, found = this.regex.map;
+  var regex = this.regex[o.depth];
 
-  if(node[o.path]){
-    return found[found.indexOf(node[o.path].regex)];
-  } else if(!found){
-    while(this.regex.length < o.depth){
-      this.regex[++this.regex.length] = null;
+  if(found[o.path]){
+    return regex[regex.indexOf(found[o.path])];
+  } else if(!regex){
+    index = this.regex.length + 1;
+    while(index < o.depth){
+      this.regex[index++] = [];
+      this.regex[index-1].master = /[]/;
     }
-    found = this.regex[o.depth] = [ ];
+    this.regex.length = index;
+    regex = this.regex[o.depth] = [ ];
   }
 
   // default and custom regexes
@@ -67,17 +66,17 @@ Parth.prototype.add = function(p, o){
   o.regex.cus = cus; o.regex.def = def;
 
   // reorder them
-  found.push(o.regex);
-  found = found.sort(function(a, b){
+  regex.push(o.regex);
+  regex = regex.sort(function(a, b){
     return (a.def - b.cus) - (b.def - a.cus);
   });
 
   // sum up all learned: void groups and make one master per depth
-  found.master = new RegExp(found.map(function(re){
+  regex.master = new RegExp(regex.map(function(re){
     return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
   }).join('|'), 'i');
 
-  node[o.path] = o;
+  found[o.path] = o.regex;
   return o.regex;
 };
 
@@ -99,18 +98,17 @@ Parth.prototype.match = function(p, o){
 
   var index = o.depth;
   var regex = this.regex;
-  var found = this.store.children[o.path];
+  var found = regex.map[o.path];
 
   if(found){
     o.match = o.path; o.notFound = false; regex = regex[o.depth];
-    return regex[regex.indexOf(found.regex)];
+    return regex[regex.indexOf(found)];
   } else if(index > regex.length){
     index = regex.length;
   }
 
   while(index > -1){
-    found = regex[index] && regex[index].master;
-    if(found && found.test(o.path)){
+    if(regex[index].master.test(o.path)){
       found = o.path.match(regex[index].master).slice(1);
       o.depth = index; index = -1;
       o.match = found.join('');
