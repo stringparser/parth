@@ -4,15 +4,18 @@ var util = require('./lib/util');
 
 exports = module.exports = Parth;
 
-function Parth(){
+function Parth(o){
+  o = o || {};
   if(this instanceof Parth){
-    this.store = Object.create(null);
-    this.store.children = Object.create(null);
-    this.regex = Object.create(null);
-    this.regex.length = 0;
+    this.regex = {length: 0};
+    this.store = {
+      name: typeof o.name !== 'string' ? '#rootNode' : o.name,
+      children:{}
+    };
     return this;
   }
-  return new Parth();
+
+  return new Parth(o);
 }
 
 // ## parth.add(path)
@@ -60,7 +63,8 @@ Parth.prototype.add = function(p, o){
 
   // attach relevant info.
   o.regex = new RegExp(o.regex, 'i');
-  o.regex.path = o.path; o.regex.cus = cus; o.regex.def = def;
+  o.regex.path = o.path;
+  o.regex.cus = cus; o.regex.def = def;
 
   // reorder them
   found.push(o.regex);
@@ -94,35 +98,32 @@ Parth.prototype.match = function(p, o){
   if(!util.boil(p, o)){ return null; }
 
   var index = o.depth;
-  var found = this.regex;
-  var node = this.store.children[o.path];
+  var regex = this.regex;
+  var found = this.store.children[o.path];
 
-  if(node){
-    o.match = o.path; o.notFound = false; found = found[o.depth];
-    index = found.indexOf(node.regex);
-    return found[index];
-  } else if(index > found.length){
-    index = found.length;
+  if(found){
+    o.match = o.path; o.notFound = false; regex = regex[o.depth];
+    return regex[regex.indexOf(found.regex)];
+  } else if(index > regex.length){
+    index = regex.length;
   }
 
   while(index > -1){
-    if(!found[index] || !found[index].master){ --index; }
-    else if(found[index].master.test(o.path)){
-      found = o.path.match(found[index].master).slice(1);
+    found = regex[index] && regex[index].master;
+    if(found && found.test(o.path)){
+      found = o.path.match(regex[index].master).slice(1);
       o.depth = index; index = -1;
+      o.match = found.join('');
     } else if(--index < 1){ return null; }
     // ^ depth starts at 1 :), notFound
   }
 
-  o.match = found.join('');
-  index = found.indexOf(o.match);
-  var regex = this.regex[o.depth][index];
+  regex = regex[o.depth][found.indexOf(o.match)];
   o.params = {_: o.path.match(regex).slice(1)};
 
   index = 0;
   regex.path.replace(paramRE, function($0, $1, $2){
-    var p = o.params._[index];
-    var num = Number(p);
+    var p = o.params._[index], num = Number(p);
     o.params[$2] = util.isNaN(num) ? p : num;
     o.params._[index++] = $2;
   });

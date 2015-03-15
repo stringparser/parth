@@ -19,7 +19,7 @@ console.log('\n -- parth.add -- ');
 input.forEach(function(stem, index){
   extra = { }; regex = parth.add(stem, extra);
   console.log(' input:', stem);
-  console.log(' regex:', regex);
+  console.log('return:', regex);
   console.log((input[index+1] ? ' -- ' : ''));
 });
 
@@ -39,12 +39,16 @@ console.log(' -- parth.match -- ');
 input.forEach(function(stem, index){
   extra = { }; regex = parth.match(stem, extra);
   console.log(' input:', stem);
-  console.log(' regex:', regex);
+  console.log('return:', regex);
   console.log(' extra:', extra);
   console.log((input[index+1] ? ' -- ' : '' ));
 });
 
-// #store
+// parth enumerable properties
 Object.keys(parth).forEach(function(prop){
   console.log('\nparth.%s\n', prop, parth[prop]);
 });
+
+console.log(Object.keys(parth.store).sort(function(b, a){
+  return a.length - b.length;
+}));
