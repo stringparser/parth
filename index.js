@@ -47,7 +47,7 @@ Parth.prototype.add = function(p, o){
 
   // default and custom regexes indexes
   var sep, cus = 0, def = 0;
-  o.regex = '^' + o.path.replace(/\S+/g, function(stem){
+  var parsed = '^' + o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
     return stem.replace(paramRE, function($0, $1, $2, $3){
       if($3){ cus++; } else { def++; }
@@ -60,12 +60,11 @@ Parth.prototype.add = function(p, o){
 
   // attach relevant info
   o.strict = o.strict ? '$' : '';
-  o.regex = new RegExp(o.regex + o.strict);
-  o.regex.path = o.path; o.regex.depth = o.depth-1;
-  o.regex.def = def; o.regex.cus = cus;
+  parsed = new RegExp(parsed + o.strict);
+  parsed.path = o.path; parsed.def = def; parsed.cus = cus;
 
   // reorder them
-  regex.push(o.regex);
+  regex.push(parsed);
   regex = regex.sort(function(a, b){
     return (a.def - b.cus) - (b.def - a.cus);
   });
@@ -99,11 +98,10 @@ Parth.prototype.add = function(p, o){
   //
   this.regex.master = new RegExp('(' +
     this.regex.map(function(re){
-      var src = re.master.source;
-      return re.length ? src.replace(/\((?=[^?])/g, '(?:') : src;
+      return re.master.source.replace(/\((?=[^?])/g, '(?:');
     }).reverse().join(')|(') + ')');
 
-  return o.regex;
+  return parsed;
 };
 
 
@@ -131,11 +129,10 @@ Parth.prototype.match = function(p, o){
   var regex = this.regex[o.depth][found.indexOf(found.shift())];
    o.params = {_: o.path.match(regex).slice(1)};
 
-  var index = 0;
+  var index = -1;
   regex.path.replace(paramRE, function($0, $1, $2){
-    var p = o.params._[index], num = Number(p);
-    o.params[$2] = util.isNaN(num) ? p : num;
-    o.params._[index++] = $2;
+    o.params[$2] = o.params._[++index];
+    o.params._[index] = $2;
   });
 
   o.notFound = o.path.replace(o.match, '') || false;
