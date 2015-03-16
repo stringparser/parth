@@ -120,4 +120,18 @@ module.exports = function(Parth){
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
     regex.path.should.be.eql(stems);
   });
+
+  after(function(){
+    if(process.argv.indexOf('-l') < 0){ return ; }
+    Object.keys(parth.regex).forEach(function(prop){
+      var print = parth.regex[prop];
+      console.log('parth.regex[%s]', prop);
+      if(prop === 'master'){
+        print = print.source.split(/\|(?=\({1,2})/);
+      }
+      console.log(print);
+      console.log(' --\n');
+    });
+  });
+
 };
