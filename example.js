@@ -43,3 +43,14 @@ input.forEach(function(stem, index){
   console.log(' extra =', extra);
   console.log((input[index+1] ? ' -- ' : '' ));
 });
+
+Object.keys(parth.regex).forEach(function(prop){
+  var print = parth.regex[prop];
+  if(prop === 'master'){
+    if(process.argv.indexOf('-l') < 0){ return ; }
+    print = print.source.split(/\|(?=\({1,2})/);
+  }
+  console.log('parth.regex[%s]', prop);
+  console.log(print);
+  console.log(' --\n');
+});
