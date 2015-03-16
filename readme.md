@@ -40,9 +40,9 @@ parth.match('post /user/page/?query=name&path=tree#hash', extra)
 
 console.log(extra);
 {
-  notFound: false,
-  path: 'post /user/page',
-  url: '/user/page/?query=name&path=tree#hash',
+  notFound: '/photo',
+  path: 'post /user/page/photo',
+  url: '/user/page/photo?query=name&path=tree#hash',
   depth: 3,
   match: 'post /user/page',
   params: {
