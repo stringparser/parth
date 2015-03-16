@@ -24,7 +24,6 @@ parth.add(':method(get|post) /:page/:view')
 {
   /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
   path: ':method(get|post) /:page/:view',
-  depth: 2,
   cus: 1,
   def: 2
 }
@@ -37,7 +36,6 @@ parth.match('post /user/page/?query=name&path=tree#hash', extra)
 {
   /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
   path: ':method(get|post) /:page/:view',
-  depth: 2,
   cus: 1,
   def: 2
 }
@@ -77,7 +75,7 @@ Create a regular expression from a string. Store it for later look up.
 
 _arguments_
 - `path` type `string`
-- `opt` type `object` optional, with all extra information:
+- `opt` type `object` optional, with extra info after function call:
   - path: the `path` given as an input
   - url: type `string`. If any, the url contained within the given `path`
   - depth: type `number`, integer representing the `depth` of the path
@@ -109,11 +107,12 @@ Obtain a path matching one of the previously paths set.
 
 _arguments_
 - `path` type `string`
-- `opt` type `object` optional, with all extra information:
+- `opt` type `object` optional, with extra info after function call:
   - path: the `path` given as an input
   - url: if any, the url contained within the `path` given
   - match: type `string`, part of the path that matched
-  - params: object with a map between labels and the path.
+  - params: object with a map between labels and the path
+  - depth: type `number`, integer representing the `depth` of the path
   - notFound: `false` for perfect match, what is left after of the path if the match wasn't perfect
 
 _return_
