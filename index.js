@@ -119,8 +119,9 @@ Parth.prototype.add = function(p, o){
 //
 Parth.prototype.match = function(p, o){
   o = o || {}; o.notFound = true;
-  if(!util.boil(p, o)){ return null; }
-  if(!this.regex.master.test(o.path)){ return null; }
+  if(!util.boil(p, o) || !this.regex.master.test(o.path)){
+    return null;
+  }
 
   var index = this.regex.length-1;
   var parth = o.path.match(this.regex.master).slice(1);
