@@ -47,7 +47,7 @@ Parth.prototype.add = function(p, o){
 
   // default and custom regexes indexes
   var sep, cus = 0, def = 0;
-  o.regex = o.path.replace(/\S+/g, function(stem){
+  o.regex = '^' + o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
     return stem.replace(paramRE, function($0, $1, $2, $3){
       if($3){ cus++; } else { def++; }
@@ -59,7 +59,8 @@ Parth.prototype.add = function(p, o){
     });
 
   // attach relevant info
-  o.regex = new RegExp(o.regex, 'i');
+  o.strict = o.strict ? '$' : '';
+  o.regex = new RegExp(o.regex + o.strict);
   o.regex.path = o.path; o.regex.depth = o.depth-1;
   o.regex.def = def; o.regex.cus = cus;
 
@@ -79,12 +80,12 @@ Parth.prototype.add = function(p, o){
     regex.map(function(re){
       var group = re.source.replace(/\((?=[^?])/g, '(?:');
       if(re.def + re.cus){
-         return '(?:^' + util.escapeRegExp(re.path) + '$)|(?:^' + group + ')';
+         return '(?:^' + util.escapeRegExp(re.path) + '$)|(?:' + group + ')';
       } else {
-        return '^' + group;
+        return group;
       }
-    }).join(')|(') + ')',
-  'i');
+    }).join(')|(') + ')'
+  );
 
   // THE GIANT REGEXP
   // -----------Oooo---
@@ -98,9 +99,9 @@ Parth.prototype.add = function(p, o){
   //
   this.regex.master = new RegExp('(' +
     this.regex.map(function(re){
-      return re.master.source.replace(/\((?=[^?])/g, '(?:');
-    }).reverse().join(')|(') + ')',
-  'i');
+      var src = re.master.source;
+      return re.length ? src.replace(/\((?=[^?])/g, '(?:') : src;
+    }).reverse().join(')|(') + ')');
 
   return o.regex;
 };
@@ -123,13 +124,13 @@ Parth.prototype.match = function(p, o){
     return null;
   }
 
-  var index = this.regex.length-1;
-  var parth = o.path.match(this.regex.master).slice(1);
-    o.depth = index - parth.indexOf(parth.join(''));
-  var found = o.path.match(this.regex[o.depth].master).slice(1);
-    o.match = found.join('');
-  var regex = this.regex[o.depth][found.indexOf(o.match)];
-
+  var regex = this.regex;
+  var index = regex.length-1;
+  var parth = regex.master.exec(o.path);
+    o.match = parth.shift();
+    o.depth = index - parth.indexOf(o.match);
+  var found = regex[o.depth].master.exec(o.path);
+      regex = regex[o.depth][found.indexOf(found.shift())];
   o.params = {_: o.path.match(regex).slice(1)};
 
   index = 0;
