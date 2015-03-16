@@ -124,16 +124,14 @@ Parth.prototype.match = function(p, o){
     return null;
   }
 
-  var regex = this.regex;
-  var index = regex.length-1;
-  var parth = regex.master.exec(o.path);
+  var parth = this.regex.master.exec(o.path);
     o.match = parth.shift();
-    o.depth = index - parth.indexOf(o.match);
-  var found = regex[o.depth].master.exec(o.path);
-      regex = regex[o.depth][found.indexOf(found.shift())];
-  o.params = {_: o.path.match(regex).slice(1)};
+    o.depth = this.regex.length-parth.indexOf(o.match)-1;
+  var found = this.regex[o.depth].master.exec(o.path);
+  var regex = this.regex[o.depth][found.indexOf(found.shift())];
+   o.params = {_: o.path.match(regex).slice(1)};
 
-  index = 0;
+  var index = 0;
   regex.path.replace(paramRE, function($0, $1, $2){
     var p = o.params._[index], num = Number(p);
     o.params[$2] = util.isNaN(num) ? p : num;
