@@ -24,7 +24,9 @@ parth.add(':method(get|post) /:page/:view')
 {
   /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
   path: ':method(get|post) /:page/:view',
-  cus: 1, def: 2
+  depth: 2,
+  cus: 1,
+  def: 2
 }
 ```
 _match_
@@ -35,7 +37,9 @@ parth.match('post /user/page/?query=name&path=tree#hash', extra)
 {
   /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
   path: ':method(get|post) /:page/:view',
-  cus: 1, def: 2
+  depth: 2,
+  cus: 1,
+  def: 2
 }
 
 console.log(extra);
@@ -44,6 +48,7 @@ console.log(extra);
   path: 'post /user/page/photo',
   url: '/user/page/photo?query=name&path=tree#hash',
   match: 'post /user/page',
+  depth: 2,
   params: {
     _: [ 'method', 'page', 'view' ],
     method: 'post',
