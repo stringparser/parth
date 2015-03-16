@@ -36,7 +36,7 @@ module.exports = function(Parth){
       _ : ['method', 'there', 'you'],
       method: 'post',
       there: 'awesome',
-      you: 10
+      you: '10'
     });
   });
 };
