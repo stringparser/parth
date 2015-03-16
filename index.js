@@ -7,7 +7,8 @@ exports = module.exports = Parth;
 function Parth(o){
   o = o || {};
   if(this instanceof Parth){
-    this.regex = {map: Object.create(null), length: 0};
+    this.regex = [];
+    this.regex.master = /(?:[])/;
     return this;
   }
 
@@ -32,24 +33,22 @@ var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 Parth.prototype.add = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return null; }
 
-  var index, found = this.regex.map;
-  var regex = this.regex[o.depth];
+  var index, regex;
+  o.depth = util.boil.argv(o.path).length;
 
-  if(found[o.path]){
-    return regex[regex.indexOf(found[o.path])];
-  } else if(!regex){
-    index = this.regex.length + 1;
+  if(!this.regex[o.depth]){
+    regex = this.regex;
+    index = regex.length;
     while(index < o.depth){
-      this.regex[index++] = [];
-      this.regex[index-1].master = /[]/;
+      index = regex.push([]);
+      regex[index-1].master = /(?:[])/;
     }
-    this.regex.length = index;
-    regex = this.regex[o.depth] = [ ];
   }
+  regex = this.regex[o.depth-1];
 
-  // default and custom regexes
+  // default and custom regexes indexes
   var sep, cus = 0, def = 0;
-  o.regex = '^' + o.path.replace(/\S+/g, function(stem){
+  o.regex = o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
     return stem.replace(paramRE, function($0, $1, $2, $3){
       if($3){ cus++; } else { def++; }
@@ -60,11 +59,9 @@ Parth.prototype.add = function(p, o){
       return $0.replace(/[\/\.]/g, '\\$&');
     });
 
-  // attach relevant info.
+  // attach relevant info
   o.regex = new RegExp(o.regex, 'i');
-  o.regex.path = o.path;
-  o.regex.def = def;
-  o.regex.cus = cus;
+  o.regex.path = o.path; o.regex.def = def; o.regex.cus = cus;
 
   // reorder them
   regex.push(o.regex);
@@ -72,12 +69,39 @@ Parth.prototype.add = function(p, o){
     return (a.def - b.cus) - (b.def - a.cus);
   });
 
-  // sum up all learned: void groups and make one master per depth
-  regex.master = new RegExp(regex.map(function(re){
-    return '(' + re.source.replace(/\((?=[^?])/g, '(?:') + ')';
-  }).join('|'), 'i');
+  // ## sum up all learned
+  // - void groups and
+  // - make one regex per depth
+  // - make a giant regex for everything
+  //
+  //
+  regex.master = new RegExp('(' +
+    regex.map(function(re){
+      var group = re.source.replace(/\((?=[^?])/g, '(?:');
+      if(re.def + re.cus){
+         return '(?:^' + util.escapeRegExp(re.path) + '$)|(?:^' + group + ')';
+      } else {
+        return '^' + group;
+      }
+    }).join(')|(') + ')',
+  'i');
 
-  found[o.path] = o.regex;
+  // THE GIANT REGEXP
+  // -----------Oooo---
+  // -----------(----)---
+  // ------------)--/----
+  // ------------(_/-
+  // ----oooO----
+  // ----(---)----
+  // -----\--(--
+  // ------\_)-
+  //
+  this.regex.master = new RegExp('(' +
+    this.regex.map(function(re){
+      return re.master.source.replace(/\((?=[^?])/g, '(?:');
+    }).reverse().join(')|(') + ')',
+  'i');
+
   return o.regex;
 };
 
@@ -95,29 +119,17 @@ Parth.prototype.add = function(p, o){
 //
 Parth.prototype.match = function(p, o){
   o = o || {}; o.notFound = true;
-  if(!util.boil(p, o)){ return null; }
-
-  var index = o.depth;
-  var regex = this.regex;
-  var found = regex.map[o.path];
-
-  if(found){
-    o.match = o.path; o.notFound = false; regex = regex[o.depth];
-    return regex[regex.indexOf(found)];
-  } else if(index > regex.length){
-    index = regex.length;
+  if(!util.boil(p, o) || !this.regex.master.test(o.path)){
+    return null;
   }
 
-  while(index > -1){
-    if(regex[index].master.test(o.path)){
-      found = o.path.match(regex[index].master).slice(1);
-      o.depth = index; index = -1;
-      o.match = found.join('');
-    } else if(--index < 1){ return null; }
-    // ^ depth starts at 1 :), notFound
-  }
+  var index = this.regex.length-1;
+  var parth = o.path.match(this.regex.master).slice(1);
+  var depth = index - parth.indexOf(parth.join(''));
+  var found = o.path.match(this.regex[depth].master).slice(1);
+  var regex = this.regex[depth][found.indexOf(found.join(''))];
 
-  regex = regex[o.depth][found.indexOf(o.match)];
+  o.match = found.join('');
   o.params = {_: o.path.match(regex).slice(1)};
 
   index = 0;
