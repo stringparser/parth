@@ -43,7 +43,6 @@ console.log(extra);
   notFound: '/photo',
   path: 'post /user/page/photo',
   url: '/user/page/photo?query=name&path=tree#hash',
-  depth: 3,
   match: 'post /user/page',
   params: {
     _: [ 'method', 'page', 'view' ],
@@ -67,12 +66,16 @@ which takes no arguments
 var parth = new Parth();
 ```
 
-### parth.add(path)
+### parth.add(path[, opt])
 
 Create a regular expression from a string. Store it for later look up.
 
 _arguments_
 - `path` type `string`
+- `opt` type `object` optional, with all extra information:
+  - path: the `path` given as an input
+  - url: type `string`. If any, the url contained within the given `path`
+  - depth: type `number`, integer representing the `depth` of the path
 
 _return_
   - `null` for non-supported types
@@ -104,9 +107,9 @@ _arguments_
 - `opt` type `object` optional, with all extra information:
   - path: the `path` given as an input
   - url: if any, the url contained within the `path` given
-  - depth: integer representing the `depth` of the path
+  - match: type `string`, part of the path that matched
   - params: object with a map between labels and the path.
-  - notFound: `false` if perfect match, what is left after the match if not
+  - notFound: `false` for perfect match, what is left after of the path if the match wasn't perfect
 
 _return_
   - `null` for no matches or non-supported types
@@ -118,10 +121,8 @@ _return_
 ### parth
 
 The `parth` instance has one properties
- - `regex`: object with one key per `depth`, each being an array.
- - `regex.map`: map between paths and regexes for lookup
-
-> When paths are set they are classified according to their `depth`
+ - `regex`: array with one element per `depth`, an array of regexes.
+ - `regex.master`: a regex encapsulating all the regexes given.
 
 ## why
 
