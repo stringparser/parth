@@ -16,16 +16,16 @@ function Parth(o){
 }
 
 // ## parth.add(path)
-// > path to a regex adding it to parth.store
+// > path to regex classification
 // > TODO: regexp input
 //
 // arguments
 //  - path, type `string`
+//  - options, type `object` optional holding all extra information
 //
 // returns
 //  - null for non-supported types
 //  - regular expression from the path
-//
 //
 
 var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
@@ -63,17 +63,19 @@ Parth.prototype.add = function(p, o){
   parsed = new RegExp(parsed + o.strict);
   parsed.path = o.path; parsed.def = def; parsed.cus = cus;
 
-  // reorder them
+  // ## reorder from more to less strict
+  // - raw paths (no params) go first
+  // - custom regexes have more weight than defaults
+  //
   regex.push(parsed);
   regex = regex.sort(function(a, b){
     return (a.def - b.cus) - (b.def - a.cus);
   });
 
   // ## sum up all learned
-  // - void groups and
+  // - void groups
   // - make one regex per depth
   // - make a giant regex for everything
-  //
   //
   regex.master = new RegExp('(' +
     regex.map(function(re){
@@ -86,6 +88,11 @@ Parth.prototype.add = function(p, o){
     }).join(')|(') + ')'
   );
 
+  this.regex.master = new RegExp('(' +
+    this.regex.map(function(re){
+      return re.master.source.replace(/\((?=[^?])/g, '(?:');
+    }).reverse().join(')|(') + ')');
+
   // THE GIANT REGEXP
   // -----------Oooo---
   // -----------(----)---
@@ -96,11 +103,6 @@ Parth.prototype.add = function(p, o){
   // -----\--(--
   // ------\_)-
   //
-  this.regex.master = new RegExp('(' +
-    this.regex.map(function(re){
-      return re.master.source.replace(/\((?=[^?])/g, '(?:');
-    }).reverse().join(')|(') + ')');
-
   return parsed;
 };
 
