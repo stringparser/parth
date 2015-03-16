@@ -30,20 +30,20 @@ function Parth(o){
 
 var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
-Parth.prototype.add = function(p, o){
-  o = o || { }; if(!util.boil(p, o)){ return null; }
+Parth.prototype.add = function(path, o){
+  if(typeof path !== 'string'){ return null; }
 
-  var index, regex = this.regex;
-  o.depth = util.boil.argv(o.path).length;
+  o = util.boil(path, o);
+  var regex = this.regex[o.depth-1];
 
-  if(!regex[o.depth-1]){
-    index = regex.length;
+  if(!regex){
+    var index = this.regex.length;
     while(index < o.depth){
-      index = regex.push([]);
-      regex[index-1].master = /(?:[])/;
+      index = this.regex.push([]);
+      this.regex[index-1].master = /(?:[])/;
     }
+    regex = this.regex[o.depth-1];
   }
-  regex = regex[o.depth-1];
 
   // default and custom regexes indexes
   var sep, cus = 0, def = 0;
@@ -59,8 +59,7 @@ Parth.prototype.add = function(p, o){
     });
 
   // attach relevant info
-  o.strict = o.strict ? '$' : '';
-  parsed = new RegExp(parsed + o.strict);
+  parsed = new RegExp(parsed);
   parsed.path = o.path; parsed.def = def; parsed.cus = cus;
 
   // ## reorder from more to less strict
@@ -118,13 +117,13 @@ Parth.prototype.add = function(p, o){
 //  - null for non-supported types or not matching path
 //  - regex with for the matching path
 //
-Parth.prototype.match = function(p, o){
-  o = o || {}; o.notFound = true;
-  if(!util.boil(p, o) || !this.regex.master.test(o.path)){
-    return null;
-  }
+Parth.prototype.match = function(path, o){
+  if(typeof path !== 'string'){ return null; }
 
+  o = util.boil(path, o); o.notFound = true;
   var parth = this.regex.master.exec(o.path);
+  if(!parth){ return null; }
+
     o.match = parth.shift();
     o.depth = this.regex.length-parth.indexOf(o.match)-1;
   var found = this.regex[o.depth].master.exec(o.path);
