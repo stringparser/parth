@@ -125,9 +125,9 @@ Parth.prototype.match = function(p, o){
 
   var index = this.regex.length-1;
   var parth = o.path.match(this.regex.master).slice(1);
-  var depth = index - parth.indexOf(parth.join(''));
-  var found = o.path.match(this.regex[depth].master).slice(1);
-  var regex = this.regex[depth][found.indexOf(found.join(''))];
+    o.depth = index - parth.indexOf(parth.join(''));
+  var found = o.path.match(this.regex[o.depth].master).slice(1);
+  var regex = this.regex[o.depth][found.indexOf(found.join(''))];
 
   o.match = found.join('');
   o.params = {_: o.path.match(regex).slice(1)};
