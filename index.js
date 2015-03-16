@@ -53,10 +53,10 @@ Parth.prototype.add = function(path, o){
       if($3){ cus++; } else { def++; }
       return $1 + ($3 || '([^'+sep+' ]+)');
     });
-  }).replace(/[^()]+(?=\(|$)/g, function($0){
-      // escape separation tokens outside parens
-      return $0.replace(/[\/\.]/g, '\\$&');
-    });
+    // ↓ escape separation tokens outside parens
+  }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
+    return $0.replace($1, util.escapeRegExp);
+  });
 
   // attach relevant info
   parsed = new RegExp(parsed);
@@ -80,28 +80,28 @@ Parth.prototype.add = function(path, o){
     regex.map(function(re){
       var group = re.source.replace(/\((?=[^?])/g, '(?:');
       if(re.def + re.cus){
-         return '(?:^' + util.escapeRegExp(re.path) + '$)|(?:' + group + ')';
+         return '(?:'+ group +')|(?:^'+ util.escapeRegExp(re.path) +')';
       } else {
         return group;
       }
     }).join(')|(') + ')'
   );
 
+  // BEHOLD! THE GIANT REGEXP
   this.regex.master = new RegExp('(' +
     this.regex.map(function(re){
       return re.master.source.replace(/\((?=[^?])/g, '(?:');
-    }).reverse().join(')|(') + ')');
-
-  // THE GIANT REGEXP
-  // -----------Oooo---
-  // -----------(----)---
-  // ------------)--/----
-  // ------------(_/-
-  // ----oooO----
-  // ----(---)----
-  // -----\--(--
-  // ------\_)-
+    }).reverse().join(')|(') + ')'
+  );// -----------Oooo---
+  // ------------(----)---
+  // -------------)--/----
+  // -------------(_/-
+  // -----oooO----
+  // -----(---)----
+  // ------\--(--
+  // -------\_)-
   //
+
   return parsed;
 };
 
