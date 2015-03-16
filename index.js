@@ -33,18 +33,17 @@ var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 Parth.prototype.add = function(p, o){
   o = o || { }; if(!util.boil(p, o)){ return null; }
 
-  var index, regex;
+  var index, regex = this.regex;
   o.depth = util.boil.argv(o.path).length;
 
-  if(!this.regex[o.depth]){
-    regex = this.regex;
+  if(!regex[o.depth-1]){
     index = regex.length;
     while(index < o.depth){
       index = regex.push([]);
       regex[index-1].master = /(?:[])/;
     }
   }
-  regex = this.regex[o.depth-1];
+  regex = regex[o.depth-1];
 
   // default and custom regexes indexes
   var sep, cus = 0, def = 0;
@@ -61,7 +60,8 @@ Parth.prototype.add = function(p, o){
 
   // attach relevant info
   o.regex = new RegExp(o.regex, 'i');
-  o.regex.path = o.path; o.regex.def = def; o.regex.cus = cus;
+  o.regex.path = o.path; o.regex.depth = o.depth-1;
+  o.regex.def = def; o.regex.cus = cus;
 
   // reorder them
   regex.push(o.regex);
@@ -119,17 +119,16 @@ Parth.prototype.add = function(p, o){
 //
 Parth.prototype.match = function(p, o){
   o = o || {}; o.notFound = true;
-  if(!util.boil(p, o) || !this.regex.master.test(o.path)){
-    return null;
-  }
+  if(!util.boil(p, o)){ return null; }
+  if(!this.regex.master.test(o.path)){ return null; }
 
   var index = this.regex.length-1;
   var parth = o.path.match(this.regex.master).slice(1);
     o.depth = index - parth.indexOf(parth.join(''));
   var found = o.path.match(this.regex[o.depth].master).slice(1);
-  var regex = this.regex[o.depth][found.indexOf(found.join(''))];
+    o.match = found.join('');
+  var regex = this.regex[o.depth][found.indexOf(o.match)];
 
-  o.match = found.join('');
   o.params = {_: o.path.match(regex).slice(1)};
 
   index = 0;
