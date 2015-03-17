@@ -45,12 +45,7 @@ input.forEach(function(stem, index){
 });
 
 if(process.argv.indexOf('-l') < 0){ return ; }
-Object.keys(parth.regex).forEach(function(prop){
-  var print = parth.regex[prop];
-  if(prop === 'master'){
-    print = print.source.split(/\|(?=\({1,2})/);
-  }
-  console.log('parth.regex[%s]', prop);
-  console.log(print);
+Object.keys(parth).forEach(function(prop){
+  console.log(parth[prop]);
   console.log(' --\n');
 });
