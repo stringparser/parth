@@ -20,7 +20,7 @@ input = [
   ':get page view',
   ':get :page view',
   ':get :page :view',
-  ':get(\\S+\\w+) page view',
+  ':get(\\S+) page view',
   ':get(\\S+) :page(\\S+) view',
   ':get(\\S+) :page(\\S+) :view',
   ':get(\\S+) :page(\\S+) :view(\\S+)',
@@ -76,8 +76,11 @@ parth.regex.forEach(function(origin){
 });
 
 function modulus(x, y){
-  if(x.depth !== y.depth){ return y.depth - x.depth; }
-  return ((2*x.def + x.cus) - (2*y.def + y.cus)) || y.source.length - x.source.length;
+  if(x.depth !== y.depth){
+    return y.depth - x.depth;
+  }
+  var distance = 2*x.def + x.cus - (2*y.def + y.cus);
+  return distance || (y.source.length - x.source.length);
 }
 
 master.sort(modulus);
