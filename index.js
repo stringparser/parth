@@ -46,11 +46,12 @@ Parth.prototype.add = function(path, o){
   }
 
   // default and custom regexes indexes
-  var sep, cus = 0, def = 0;
+  var sep;
+  var cus = (o.path.match(/\(.*?\)/g) || []).length;
+  var def = (o.path.match(paramRE) || []).length - cus;
   var parsed = '^' + o.path.replace(/\S+/g, function(stem){
     sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
     return stem.replace(paramRE, function($0, $1, $2, $3){
-      if($3){ cus++; } else { def++; }
       return $1 + ($3 || '([^'+sep+' ]+)');
     });
     // ↓ escape separation tokens outside parens
@@ -60,7 +61,9 @@ Parth.prototype.add = function(path, o){
 
   // attach relevant info
   parsed = new RegExp(parsed);
-  parsed.path = o.path; parsed.def = def; parsed.cus = cus;
+  parsed.path = o.path;
+  parsed.depth = o.depth;
+  parsed.def = def; parsed.cus = cus;
 
   // ## reorder from more to less strict
   // - raw paths (no params) go first
