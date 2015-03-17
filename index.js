@@ -37,10 +37,11 @@ Parth.prototype.add = function(path, o){
   o = util.boil(path, o);
   if(this.store[o.path]){ return this.store[o.path]; }
 
-  var sep, parsed = '^' +
+  var sep, def = 0, parsed = '^' +
     o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
+        if(!$3){ def++; }
         return $1 + ($3 || '([^'+sep+' ]+)');
       });
       // ↓ escape separation tokens outside parens
@@ -50,9 +51,10 @@ Parth.prototype.add = function(path, o){
 
   parsed = new RegExp(parsed);
   // attach some metadata before pushing
-  parsed.path = o.path; parsed.depth = util.boil.argv(o.path).length;
-  parsed.cus = (o.path.match(/\(.*?\)/g) || []).length;
-  parsed.def = (o.path.match(paramRE) || []).length - parsed.cus;
+  parsed.path = o.path;
+  parsed.depth = util.boil.argv(o.path).length;
+  parsed.cus = (o.path.match(/\(.*?\)+/g) || []).length;
+  parsed.def = def;
 
   this.regex.push(parsed);
 
