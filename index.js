@@ -101,8 +101,8 @@ Parth.prototype.add = function(path, o){
 //
 Parth.prototype.match = function(path, o){
   if(typeof path !== 'string'){ return null; }
-  o = util.boil(path, o); o.notFound = true;
-
+  
+  o = o || {}; o.notFound = true; util.boil(path, o);
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
 
