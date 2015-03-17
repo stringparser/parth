@@ -50,7 +50,7 @@ Parth.prototype.add = function(path, o){
 
   parsed = new RegExp(parsed);
   // attach some metadata before pushing
-  parsed.path = o.path; parsed.depth = o.depth;
+  parsed.path = o.path; parsed.depth = util.boil.argv(o.path).length;
   parsed.cus = (o.path.match(/\(.*?\)/g) || []).length;
   parsed.def = (o.path.match(paramRE) || []).length - parsed.cus;
 
@@ -101,7 +101,7 @@ Parth.prototype.add = function(path, o){
 //
 Parth.prototype.match = function(path, o){
   if(typeof path !== 'string'){ return null; }
-  
+
   o = o || {}; o.notFound = true; util.boil(path, o);
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
