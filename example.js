@@ -79,8 +79,9 @@ function modulus(x, y){
   if(x.depth !== y.depth){
     return y.depth - x.depth;
   }
-  var distance = 2*x.def + x.cus - (2*y.def + y.cus);
-  return distance || (y.source.length - x.source.length);
+
+  var distance = x.def + x.cus - (y.def + y.cus);
+  return distance || y.source.length*(y.cus+1) - x.source.length*(x.cus+1);
 }
 
 master.sort(modulus);
