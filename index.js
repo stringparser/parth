@@ -8,6 +8,7 @@ function Parth(o){
   o = o || {};
   if(this instanceof Parth){
     this.regex = [];
+    this.store = {};
     this.regex.master = /(?:[])/;
     return this;
   }
@@ -34,75 +35,54 @@ Parth.prototype.add = function(path, o){
   if(typeof path !== 'string'){ return null; }
 
   o = util.boil(path, o);
-  var regex = this.regex[o.depth-1];
+  if(this.store[o.path]){ return this.store[o.path]; }
 
-  if(!regex){
-    var index = this.regex.length;
-    while(index < o.depth){
-      index = this.regex.push([]);
-      this.regex[index-1].master = /(?:[])/;
-    }
-    regex = this.regex[o.depth-1];
-  }
-
-  // default and custom regexes indexes
-  var sep;
-  var parsed = '^' + o.path.replace(/\S+/g, function(stem){
-    sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
-    return stem.replace(paramRE, function($0, $1, $2, $3){
-      return $1 + ($3 || '([^'+sep+' ]+)');
+  var sep, parsed = '^' +
+    o.path.replace(/\S+/g, function(stem){
+      sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
+      return stem.replace(paramRE, function($0, $1, $2, $3){
+        return $1 + ($3 || '([^'+sep+' ]+)');
+      });
+      // ↓ escape separation tokens outside parens
+    }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
+      return $0.replace($1, util.escapeRegExp);
     });
-    // ↓ escape separation tokens outside parens
-  }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
-    return $0.replace($1, util.escapeRegExp);
-  });
 
-  // attach some metadata
   parsed = new RegExp(parsed);
-  parsed.path = o.path;
-  parsed.depth = o.depth;
+  // attach some metadata before pushing
+  parsed.path = o.path; parsed.depth = o.depth;
   parsed.cus = (o.path.match(/\(.*?\)/g) || []).length;
   parsed.def = (o.path.match(paramRE) || []).length - parsed.cus;
 
-  // ## reorder from more to less strict
-  // - raw paths (no params) go first
-  // - custom regexes have more weight than defaults
-  //
-  regex.push(parsed);
-  regex = regex.sort(function(a, b){
-    return (a.def - b.cus) - (b.def - a.cus);
-  });
+  this.regex.push(parsed);
 
   // ## sum up all learned
-  // - void groups
+  // - raw paths (no params) go first
+  // - custom regexes before defaults
+
+  this.regex.sort(function(x, y){
+    if(x.depth !== y.depth){
+      return y.depth - x.depth;
+    }
+    return (
+      x.def + x.cus - (y.def + y.cus)
+       || (y.source.length*(y.cus + 1) - x.source.length*(x.cus + 1))
+    );
+  });
+
+  // ## make a giant regex for everything
+  // - void groups all groups
   // - make one regex per depth
   // - make a giant regex for everything
-  //
-  regex.master = new RegExp('(' +
-    regex.map(function(re){
-      var group = re.source.replace(/\((?=[^?])/g, '(?:');
-      if(re.def + re.cus){
-         return '(?:'+ group +')|(?:^'+ util.escapeRegExp(re.path) +')';
-      } else {
-        return group;
-      }
-    }).join(')|(') + ')'
-  );
 
-  // BEHOLD! THE GIANT REGEXP
-  this.regex.master = new RegExp('(' +
+  this.regex.master = new RegExp( '(' +
     this.regex.map(function(re){
-      return re.master.source.replace(/\((?=[^?])/g, '(?:');
-    }).reverse().join(')|(') + ')'
-  );// -----------Oooo---
-  // ------------(----)---
-  // -------------)--/----
-  // -------------(_/-
-  // -----oooO----
-  // -----(---)----
-  // ------\--(--
-  // -------\_)-
-  //
+      return re.source.replace(/\((?=[^?])/g, '(?:');
+    }).join(')|(') + ')'
+  ); // BEHOLD!
+
+  this.store[o.path] = o;
+  o.regex = parsed;
 
   return parsed;
 };
@@ -121,16 +101,14 @@ Parth.prototype.add = function(path, o){
 //
 Parth.prototype.match = function(path, o){
   if(typeof path !== 'string'){ return null; }
-
   o = util.boil(path, o); o.notFound = true;
-  var parth = this.regex.master.exec(o.path);
-  if(!parth){ return null; }
 
-    o.match = parth.shift();
-    o.depth = this.regex.length-parth.indexOf(o.match)-1;
-  var found = this.regex[o.depth].master.exec(o.path);
-  var regex = this.regex[o.depth][found.indexOf(found.shift())];
-   o.params = {_: o.path.match(regex).slice(1)};
+  var found = this.regex.master.exec(o.path);
+  if(!found){ return null; }
+
+  o.match = found.shift();
+  var regex = this.regex[found.indexOf(o.match)];
+  o.params = {_: o.path.match(regex).slice(1)};
 
   var index = -1;
   regex.path.replace(paramRE, function($0, $1, $2){
