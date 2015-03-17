@@ -122,11 +122,11 @@ _return_
 > All matches partial i.e. /^regex baby/i.
 > Not being strict is useful for `notFound` paths
 
-### parth
+### parth properties
 
-The `parth` instance has one properties
- - `regex`: array with one element per `depth`, an array of regexes.
- - `regex.master`: a regex encapsulating all the regexes given.
+ - `store`: all paths added for match are here
+ - `regex`: an array of carefully ordered regexes
+ - `regex.master`: a regex encapsulating all the regexes given
 
 ## why
 
