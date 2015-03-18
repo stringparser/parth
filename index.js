@@ -35,7 +35,7 @@ Parth.prototype.add = function(path, o){
 
   o = util.boil(path, o);
   if(this.store.children[o.path]){
-    return this.store.children[o.path];
+    return this.store.children[o.path].regex;
   }
 
   var sep, def = 0, parsed = '^' +
@@ -82,7 +82,8 @@ Parth.prototype.add = function(path, o){
   );
 
   this.store.children[o.path] = o;
-  o.regex = parsed;
+  util.defineProperty(o, 'regex', '', parsed);
+  o.depth = parsed.depth;
 
   return parsed;
 };
