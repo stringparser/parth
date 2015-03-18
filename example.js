@@ -5,12 +5,14 @@ var parth = require('./.')();
 
 // #set
 input = [
-  '1', '2', '1 2',
+  '1',
+  '2',
+  '1 2',
   'obj.path.here',
+  'get /page/view',
   'obj.path.:here(\\w+)',
   'obj.:path(\\d+).:here(\\w+)',
   ':obj.:path(\\w+).:here(\\d+)',
-  'get /page/view',
   'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
   ':method(get|post) /:page/:view',
 ];
@@ -25,7 +27,9 @@ input.forEach(function(stem, index){
 
 // #get
 input = [
-  '1', '2', '1 2',
+  '1',
+  '2',
+  '1 2',
   'obj.path.10',
   'obj.10.prop',
   'obj.10.10',
@@ -48,4 +52,8 @@ if(process.argv.indexOf('-l') < 0){ return ; }
 Object.keys(parth).forEach(function(prop){
   console.log(parth[prop]);
   console.log(' --\n');
+});
+
+parth.regex.forEach(function(re){
+  console.log(re.path);
 });
