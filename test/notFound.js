@@ -22,6 +22,6 @@ module.exports = function(Parth){
     regex = parth.add(stems);
     regex.should.not.be.eql(null);
     parth.match(path, (o = { }));
-    o.notFound.should.be.eql('human');
+    o.notFound.should.be.eql(' human');
   });
 };

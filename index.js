@@ -104,8 +104,8 @@ Parth.prototype.match = function(path, o){
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
 
-  o.match = found.shift();
-  var regex = this.regex[found.indexOf(o.match)];
+  o.match = found[0].trim();
+  var regex = this.regex[found.indexOf(found.shift())];
   o.params = {_: o.path.match(regex).slice(1)};
 
   var index = -1;
