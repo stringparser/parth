@@ -36,7 +36,7 @@ input = [
   'array.method.prop',
   'get /weekend/baby?query=string#hash user.10.beers now',
   'get /user/view/#hash',
-  'post /user/page/photo?query=name&path=tree#hash'
+  'post /user/page/?query=name&path=tree#hash photo'
 ];
 
 console.log(' -- parth.match -- ');
