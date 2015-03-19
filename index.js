@@ -108,7 +108,6 @@ Parth.prototype.match = function(path, o){
 
   o.match = found.shift();
   var regex = this.regex[found.indexOf(o.match)];
-  o.depth = regex.depth;
   o.params = {_: o.path.match(regex).slice(1)};
 
   var index = -1;
