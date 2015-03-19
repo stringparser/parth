@@ -50,10 +50,10 @@ Parth.prototype.add = function(path, o){
 
   parsed = new RegExp(parsed);
   // attach some metadata before pushing
-  parsed.depth = util.boil.argv(o.path).length;
   parsed.path = o.path;
-  parsed.cus = (o.path.match(/\(.*?\)+/g) || []).length;
+  parsed.depth = util.boil.argv(o.path).length;
   parsed.def = def;
+  parsed.cus = (o.path.match(/\(.*?\)+/g) || []).length;
 
   this.regex.push(parsed);
 
@@ -81,7 +81,6 @@ Parth.prototype.add = function(path, o){
 
   this.store.children[o.path] = o;
   util.defineProperty(o, 'regex', '', parsed);
-  o.depth = parsed.depth;
 
   return parsed;
 };
