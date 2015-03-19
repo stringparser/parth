@@ -77,7 +77,7 @@ module.exports = function(Parth){
   });
 
   it('urls: parameters are not mistaken as querystrings', function(){
-    stems = 'get page.thing /hello/:here(?:hello(?!there(?=you)))';
+    stems = 'get page.thing /hello/:here(?:\\w+you)';
     path = 'get page.thing /hello/helloyou';
     parth.add(stems);
     regex = parth.match(path, (o = { }));
