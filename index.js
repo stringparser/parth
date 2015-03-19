@@ -30,7 +30,7 @@ function Parth(){
 var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 Parth.prototype.add = function(path, o){
-  o = o || {}; if(!util.boil(path, o)){ return null; }
+  o = util.boil(path, o); if(!o){ return null; }
 
   if(this.store.children[o.path]){
     return this.store.children[o.path].regex;
@@ -46,7 +46,7 @@ Parth.prototype.add = function(path, o){
       // now escape separation tokens outside parens
     }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
       return $0.replace($1, util.escapeRegExp);
-    });
+    }) + '(?:[ ]|$)';
 
   parsed = new RegExp(parsed);
   // attach some metadata before pushing
@@ -57,23 +57,25 @@ Parth.prototype.add = function(path, o){
 
   this.regex.push(parsed);
 
-  // ## sum up all learned
+  // ## order regexes according to
   // - raw paths (no params) go first
   // - custom regexes before defaults
+  //
+  // NOTE: if the diff results 0
+  // paths are compared by their length
+  // taking into account the number of custom regexes
 
   this.regex.sort(function(x, y){
     var depthDiff = y.depth - x.depth;
     if(depthDiff){ return depthDiff; }
-    return (
-      x.def + x.cus - y.def - y.cus
-       || (y.source.length*(y.cus + 1) - x.source.length*(x.cus + 1))
+    return (x.def + x.cus - y.def - y.cus) || (
+      y.path.localeCompare(x.path)
     );
   });
 
-  // ## make a giant regex for everything
-  // - void groups all groups
-  // - make one regex per depth
-  // - make a giant regex for everything
+  // ## sum up all learned
+  // - void groups all groups first
+  // - make a giant regex
 
   this.regex.master = new RegExp(
     '(' + this.regex.map(util.voidRE).join(')|(') + ')'
@@ -98,7 +100,7 @@ Parth.prototype.add = function(path, o){
 //  - regex with for the matching path
 //
 Parth.prototype.match = function(path, o){
-  o = o || {}; if(!util.boil(path, o)){ return null; }
+  o = util.boil(path, o); if(!o){ return null; }
 
   o.notFound = true;
   var found = this.regex.master.exec(o.path);
