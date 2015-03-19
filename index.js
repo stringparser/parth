@@ -4,21 +4,20 @@ var util = require('./lib/util');
 
 exports = module.exports = Parth;
 
-function Parth(o){
-  o = o || {};
+function Parth(){
   if(this instanceof Parth){
-    this.store = {children: {}};
     this.regex = [];
     this.regex.master = /(?:[])/;
+    this.store = {};
+    util.defineProperty(this.store, 'children', '', {});
     return this;
   }
-
-  return new Parth(o);
+  return new Parth();
 }
 
 // ## parth.add(path)
 // > path to regex classification
-// > TODO: regexp input
+// > TODO: give support for regexp input
 //
 // arguments
 //  - path, type `string`
@@ -31,9 +30,8 @@ function Parth(o){
 var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 Parth.prototype.add = function(path, o){
-  if(typeof path !== 'string'){ return null; }
+  o = util.boil(path, o); if(!o){ return null; }
 
-  o = util.boil(path, o);
   if(this.store.children[o.path]){
     return this.store.children[o.path].regex;
   }
@@ -101,14 +99,15 @@ Parth.prototype.add = function(path, o){
 //  - regex with for the matching path
 //
 Parth.prototype.match = function(path, o){
-  if(typeof path !== 'string'){ return null; }
+  o = util.boil(path, o); if(!o){ return null; }
 
-  o = o || {}; o.notFound = true; util.boil(path, o);
+  o.notFound = true;
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
 
   o.match = found.shift();
   var regex = this.regex[found.indexOf(o.match)];
+  o.depth = regex.depth;
   o.params = {_: o.path.match(regex).slice(1)};
 
   var index = -1;
