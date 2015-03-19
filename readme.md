@@ -1,15 +1,9 @@
-# parth
-[<img alt="build" src="http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square" align="left"/>](https://travis-ci.org/stringparser/parth/builds)
-[<img alt="NPM version" src="http://img.shields.io/npm/v/parth.svg?style=flat-square" align="right"/>](http://www.npmjs.org/package/parth)
-<p align="center">
-  <a href="#documentation">documentation</a> -
-  <a href="#examples">examples</a> -
-  <a href="#install">install</a> -
-  <a href="#todo">todo</a> -
-  <a href="#why">why</a>
-</p>
-
-path to regexp madness not only for an url
+# parth ![build][x-build] ![NPM version][x-version]
+[documentation](#documentation) -
+[examples](#examples) -
+[install](#install) -
+[todo](#todo) -
+[why](#why)
 
 ## sample
 
@@ -24,8 +18,9 @@ parth.add(':method(get|post) /:page/:view')
 {
   /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
   path: ':method(get|post) /:page/:view',
-  cus: 1,
-  def: 2
+  depth: 3,
+  def: 2,
+  cus: 1
 }
 ```
 _match_
@@ -36,17 +31,17 @@ parth.match('post /user/page/?query=name&path=tree#hash', extra)
 {
   /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
   path: ':method(get|post) /:page/:view',
-  cus: 1,
-  def: 2
+  depth: 3,
+  def: 2,
+  cus: 1
 }
 
 console.log(extra);
 {
-  notFound: '/photo',
   path: 'post /user/page/photo',
   url: '/user/page/photo?query=name&path=tree#hash',
+  notFound: '/photo',
   match: 'post /user/page',
-  depth: 2,
   params: {
     _: [ 'method', 'page', 'view' ],
     method: 'post',
@@ -71,14 +66,13 @@ var parth = new Parth();
 
 ### parth.add(path[, opt])
 
-Create a regular expression from a string. Store it for later look up.
+Create a regular expression from a string and store it for later look up.
 
 _arguments_
 - `path` type `string`
 - `opt` type `object` optional, with extra info after function call:
   - path: the `path` given as an input
   - url: type `string`. If any, the url contained within the given `path`
-  - depth: type `number`, integer representing the `depth` of the path
 
 _return_
   - `null` for non-supported types
@@ -86,6 +80,7 @@ _return_
     - path: the input path sanitized
     - def: number of default regexes used for set
     - cus: number of custom regexes parsed for set
+    - depth: type `number`, integer representing the `depth` of the path
 
 `path` can contain any number of parameters(regexes) in the form
 ```js
@@ -94,16 +89,16 @@ _return_
 Any string matching the regular expression below qualifies as a parameter
 
 ````js
-util.paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
+/(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 ````
 
-[Go to http://regexr.com/](http://regexr.com/) and test it out.
+[Go to http://regexr.com/](http://regexr.com/3akrq) and test it out.
 
 > Characters should be escaped i.e. `\\w+`
 
 ### parth.match(path[, opt])
 
-Obtain a path matching one of the previously paths set.
+Obtain a regex that matches the given path.
 
 _arguments_
 - `path` type `string`
@@ -111,9 +106,8 @@ _arguments_
   - path: the `path` given as an input
   - url: if any, the url contained within the `path` given
   - match: type `string`, part of the path that matched
-  - params: object with a map between labels and the path
-  - depth: type `number`, integer representing the `depth` of the path
   - notFound: `false` for perfect match, what is left after of the path if the match wasn't perfect
+  - params: object map from labels to the given path. Label keys at `_`.
 
 _return_
   - `null` for no matches or non-supported types
@@ -125,7 +119,7 @@ _return_
 ### parth properties
 
  - `regex`: an array of carefully ordered regexes
- - `regex.master`: a regex encapsulating all the regexes given
+ - `regex.master`: regex aggregating what was learned
  - `store.children`: all paths added for match are here
 
 ## why
@@ -182,3 +176,7 @@ parth
 ### license
 
 ![LICENSE](http://img.shields.io/npm/l/parth.svg?style=flat-square)
+
+
+[x-build]: http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square
+[x-version]: http://img.shields.io/npm/v/parth.svg?style=flat-square
