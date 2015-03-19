@@ -68,9 +68,7 @@ Parth.prototype.add = function(path, o){
   this.regex.sort(function(x, y){
     var depthDiff = y.depth - x.depth;
     if(depthDiff){ return depthDiff; }
-    return (x.def + x.cus - y.def - y.cus) || (
-      y.path.localeCompare(x.path)
-    );
+    return (x.def + x.cus - y.def - y.cus) || (y.path.length - x.path.length);
   });
 
   // ## sum up all learned
