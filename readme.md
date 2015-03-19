@@ -125,8 +125,8 @@ _return_
 ### parth properties
 
  - `regex`: an array of carefully ordered regexes
- - `store.store`: all paths added for match are here
  - `regex.master`: a regex encapsulating all the regexes given
+ - `store.children`: all paths added for match are here
 
 ## why
 
