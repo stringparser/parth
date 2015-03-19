@@ -17,7 +17,7 @@ _add_
 ```js
 parth.add(':method(get|post) /:page/:view')
 {
-  /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
+  /^(get|post) \/([^/ ]+)\/([^/ ]+)(?:[ ]|$)/i
   path: ':method(get|post) /:page/:view',
   depth: 3,
   def: 2,
@@ -28,9 +28,9 @@ _match_
 
 ```js
 var extra = { };
-parth.match('post /user/page/?query=name&path=tree#hash', extra)
+parth.match('post /user/page/?query=name&path=tree#hash photo', extra)
 {
-  /^(get|post) \/([^/ ]+)\/([^/ ]+)/i
+  /^(get|post) \/([^/ ]+)\/([^/ ]+)(?:[ ]|$)/i
   path: ':method(get|post) /:page/:view',
   depth: 3,
   def: 2,
@@ -39,10 +39,10 @@ parth.match('post /user/page/?query=name&path=tree#hash', extra)
 
 console.log(extra);
 {
-  path: 'post /user/page/photo',
-  url: '/user/page/photo?query=name&path=tree#hash',
-  notFound: '/photo',
-  match: 'post /user/page',
+  path: 'post /user/page photo',
+  url: '/user/page/?query=name&path=tree#hash',
+  notFound: 'photo',
+  match: 'post /user/page ',
   params: {
     _: [ 'method', 'page', 'view' ],
     method: 'post',
