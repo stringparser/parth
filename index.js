@@ -30,7 +30,7 @@ function Parth(){
 var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 Parth.prototype.add = function(path, o){
-  o = util.boil(path, o); if(!o){ return null; }
+  o = o || {}; if(!util.boil(path, o)){ return null; }
 
   if(this.store.children[o.path]){
     return this.store.children[o.path].regex;
@@ -99,7 +99,7 @@ Parth.prototype.add = function(path, o){
 //  - regex with for the matching path
 //
 Parth.prototype.match = function(path, o){
-  o = util.boil(path, o); if(!o){ return null; }
+  o = o || {}; if(!util.boil(path, o)){ return null; }
 
   o.notFound = true;
   var found = this.regex.master.exec(o.path);
