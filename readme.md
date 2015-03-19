@@ -1,6 +1,4 @@
-# parth
-[![build][badge-build]][x-travis]
-[![NPM version][badge-version]][x-npm]
+# parth [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
 
 [documentation](#documentation) -
 [examples](#examples) -
