@@ -1,4 +1,7 @@
-# parth ![build][x-build] ![NPM version][x-version]
+# parth
+[![build][badge-build]][x-travis]
+[![NPM version][badge-version]][x-npm]
+
 [documentation](#documentation) -
 [examples](#examples) -
 [install](#install) -
@@ -177,6 +180,7 @@ parth
 
 ![LICENSE](http://img.shields.io/npm/l/parth.svg?style=flat-square)
 
-
-[x-build]: http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square
-[x-version]: http://img.shields.io/npm/v/parth.svg?style=flat-square
+[x-npm]: https://npmjs.org/package/parth
+[x-travis]: https://travis-ci.org/stringparser/parth/builds
+[badge-build]: http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square
+[badge-version]: http://img.shields.io/npm/v/parth.svg?style=flat-square
