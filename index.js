@@ -8,7 +8,7 @@ function Parth(){
   if(this instanceof Parth){
     this.regex = [];
     this.store = {children: {}};
-    this.regex.escape = this.regex.master = /(?:[])/;
+    this.regex.master = /(?:[])/;
     return this;
   }
   return new Parth();
@@ -78,12 +78,6 @@ Parth.prototype.add = function(path, opt){
     '(' + this.regex.map(util.voidRE).join(')|(') + ')'
   );
 
-  this.regex.escape = new RegExp('(' +
-    this.regex.map(function(re){
-      return util.escapeRegExp(re.path);
-    }).join(')|(') + ')'
-  );
-
   this.store.children[o.path] = o;
   Object.defineProperty(o, 'regex', {value: parsed});
   return parsed;
@@ -103,16 +97,10 @@ Parth.prototype.add = function(path, opt){
 //
 Parth.prototype.match = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
-  o.notFound = true;
 
-  var found;
-  if(this.regex.escape.test(o.path)){
-    found = this.regex.escape.exec(o.path);
-  } else if(this.regex.master.test(o.path)){
-    found = this.regex.master.exec(o.path);
-  } else {
-    return null;
-  }
+  o.notFound = true;
+  var found = this.regex.master.exec(o.path);
+  if(!found){ return null; }
 
   o.match = found[0].trim();
   var regex = this.regex[found.indexOf(found.shift())];
