@@ -103,9 +103,9 @@ Parth.prototype.add = function(path, opt){
 //
 Parth.prototype.match = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
+  o.notFound = true;
 
   var found;
-  o.notFound = true;
   if(this.regex.escape.test(o.path)){
     found = this.regex.escape.exec(o.path);
   } else if(this.regex.master.test(o.path)){
