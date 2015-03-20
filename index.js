@@ -8,7 +8,7 @@ function Parth(){
   if(this instanceof Parth){
     this.regex = [];
     this.store = {children: {}};
-    this.regex.master = /(?:[])/;
+    this.regex.escape = this.regex.master = /(?:[])/;
     return this;
   }
   return new Parth();
@@ -28,8 +28,8 @@ function Parth(){
 //
 var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
-Parth.prototype.add = function(path, o){
-  o = util.boil(path, o); if(!o){ return null; }
+Parth.prototype.add = function(path, opt){
+  var o = util.boil(path, opt); if(!o){ return null; }
 
   if(this.store.children[o.path]){
     return this.store.children[o.path].regex;
@@ -78,9 +78,14 @@ Parth.prototype.add = function(path, o){
     '(' + this.regex.map(util.voidRE).join(')|(') + ')'
   );
 
-  this.store.children[o.path] = o;
-  o.regex = parsed;
+  this.regex.escape = new RegExp('(' +
+    this.regex.map(function(re){
+      return util.escapeRegExp(re.path);
+    }).join(')|(') + ')'
+  );
 
+  this.store.children[o.path] = o;
+  Object.defineProperty(o, 'regex', {value: parsed});
   return parsed;
 };
 
@@ -96,18 +101,25 @@ Parth.prototype.add = function(path, o){
 //  - null for non-supported types or not matching path
 //  - regex with for the matching path
 //
-Parth.prototype.match = function(path, o){
-  o = util.boil(path, o); if(!o){ return null; }
+Parth.prototype.match = function(path, opt){
+  var o = util.boil(path, opt); if(!o){ return null; }
 
+  var found;
   o.notFound = true;
-  var found = this.regex.master.exec(o.path);
-  if(!found){ return null; }
+  if(this.regex.escape.test(o.path)){
+    found = this.regex.escape.exec(o.path);
+  } else if(this.regex.master.test(o.path)){
+    found = this.regex.master.exec(o.path);
+  } else {
+    return null;
+  }
 
   o.match = found[0].trim();
   var regex = this.regex[found.indexOf(found.shift())];
-  o.params = {_: o.path.match(regex).slice(1)};
+  if(!opt){ return regex; }
 
   var index = -1;
+  o.params = {_: o.path.match(regex).slice(1)};
   regex.path.replace(paramRE, function($0, $1, $2){
     o.params[$2] = o.params._[++index];
     o.params._[index] = $2;
