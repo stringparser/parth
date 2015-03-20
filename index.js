@@ -7,9 +7,8 @@ exports = module.exports = Parth;
 function Parth(){
   if(this instanceof Parth){
     this.regex = [];
+    this.store = {children: {}};
     this.regex.master = /(?:[])/;
-    this.store = {};
-    util.defineProperty(this.store, 'children', '', {});
     return this;
   }
   return new Parth();
@@ -80,7 +79,7 @@ Parth.prototype.add = function(path, o){
   );
 
   this.store.children[o.path] = o;
-  util.defineProperty(o, 'regex', '', parsed);
+  o.regex = parsed;
 
   return parsed;
 };
