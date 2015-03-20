@@ -19,7 +19,7 @@ function Parth(){
 //
 // arguments
 //  - path, type `string`
-//  - options, type `object` optional holding all extra information
+//  - options, type `object` optional with all extra information
 //
 // returns
 //  - null for non-supported types
