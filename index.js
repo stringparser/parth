@@ -6,9 +6,8 @@ exports = module.exports = Parth;
 
 function Parth(){
   if(this instanceof Parth){
-    this.regex = [];
     this.store = {children: {}};
-    this.regex.master = /(?:[])/;
+    this.regex = []; this.regex.master = /(?:[])/;
     return this;
   }
   return new Parth();
