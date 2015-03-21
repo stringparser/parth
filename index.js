@@ -5,12 +5,13 @@ var util = require('./lib/util');
 exports = module.exports = Parth;
 
 function Parth(){
-  if(this instanceof Parth){
-    this.store = {children: {}};
-    this.regex = []; this.regex.master = /(?:[])/;
-    return this;
+  if(!(this instanceof Parth)){
+    return new Parth();
   }
-  return new Parth();
+
+  this.store = {children: {}};
+  this.regex = [];
+  this.regex.master = /(?:[])/;
 }
 
 // ## parth.add(path)
@@ -78,8 +79,8 @@ Parth.prototype.add = function(path, opt){
   );
 
   this.store.children[o.path] = o;
-  Object.defineProperty(o, 'regex', {value: parsed});
-  return parsed;
+  o.regex = parsed;
+  return new RegExp(parsed.source);
 };
 
 
@@ -95,9 +96,9 @@ Parth.prototype.add = function(path, opt){
 //  - regex with for the matching path
 //
 Parth.prototype.match = function(path, opt){
-  var o = util.boil(path, opt); if(!o){ return null; }
+  var o = opt || {}; o.notFound = true;
+  util.boil(path, o); if(!o){ return null; }
 
-  o.notFound = true;
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
 
