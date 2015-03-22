@@ -80,7 +80,7 @@ Parth.prototype.add = function(path, opt){
 
   this.store.children[o.path] = o;
   o.regex = parsed;
-  return new RegExp(parsed.source);
+  return parsed;
 };
 
 
