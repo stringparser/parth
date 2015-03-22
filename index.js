@@ -96,8 +96,8 @@ Parth.prototype.add = function(path, opt){
 //  - regex with for the matching path
 //
 Parth.prototype.match = function(path, opt){
-  var o = opt || {}; o.notFound = true;
-  util.boil(path, o); if(!o){ return null; }
+  var o = opt || { }; o.notFound = true;
+  o = util.boil(path, o); if(!o){ return null; }
 
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
