@@ -15,6 +15,7 @@ input = [
   ':obj.:path(\\w+).:here(\\d+)',
   'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
   ':method(get|post) /:page/:view',
+  '(get|post) /:page/:view',
 ];
 
 console.log('\n -- parth.add -- ');
