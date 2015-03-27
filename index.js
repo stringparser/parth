@@ -26,20 +26,24 @@ function Parth(){
 //  - null for non-supported types
 //  - regular expression from the path
 //
-var paramRE = /(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
+var noParamRE = /(^|[\/\. ]+)(\([^?].+?\)+)/g;
+var paramRE = /(^|[ \/.])\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
 
 Parth.prototype.add = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
 
-  if(this.store.children[o.path]){
-    return this.store.children[o.path].regex;
-  }
+  // find groups without parameters and label them
+  var index = -1;
+  o.path = o.path.replace(noParamRE, function($0, $1, $2){
+    return $1 + ':' + (++index) + $2;
+  });
 
-  var sep, def = 0, parsed = '^' +
+  index = 0;
+  var sep, parsed = '^' +
     o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
-        if(!$3){ def++; }
+        if(!$3){ ++index; }
         return $1 + ($3 || '([^'+sep+' ]+)');
       });
       // now escape separation tokens outside parens
@@ -51,8 +55,13 @@ Parth.prototype.add = function(path, opt){
   // attach some metadata before pushing
   parsed.path = o.path;
   parsed.depth = util.boil.argv(o.path).length;
-  parsed.def = def;
+  parsed.def = index;
   parsed.cus = (o.path.match(/\(.*?\)+/g) || []).length;
+
+  // avoid mutation
+  if(this.store.children[o.path]){
+    return parsed;
+  }
 
   this.regex.push(parsed);
 
@@ -67,7 +76,7 @@ Parth.prototype.add = function(path, opt){
   this.regex.sort(function(x, y){
     var depthDiff = y.depth - x.depth;
     if(depthDiff){ return depthDiff; }
-    return (x.def + x.cus - y.def - y.cus) || (y.path.length - x.path.length);
+    return (x.def + x.cus - y.def - y.cus) || x.path.localeCompare(y.path);
   });
 
   // ## sum up all learned
@@ -79,7 +88,6 @@ Parth.prototype.add = function(path, opt){
   );
 
   this.store.children[o.path] = o;
-  o.regex = parsed;
   return parsed;
 };
 
