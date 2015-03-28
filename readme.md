@@ -90,10 +90,10 @@ _return_
 Any string matching the regular expression below qualifies as a parameter
 
 ````js
-/(^|\W)\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
+/(^|[ /.]):([A-Za-z0-9_]+)(\([^)]+?\)+)?/g;
 ````
 
-[Go to http://regexr.com/](http://regexr.com/3akrq) and test it out.
+[Go to http://regexr.com/](http://regexr.com/3an4i) and test it out.
 
 > Characters should be escaped i.e. `\\w+`
 
