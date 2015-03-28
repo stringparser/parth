@@ -26,8 +26,8 @@ function Parth(){
 //  - null for non-supported types
 //  - regular expression from the path
 //
-var noParamRE = /(^|[\/\. ]+)(\([^?].+?\)+)/g;
-var paramRE = /(^|[ \/.])\:([^(?#/.: ]+)(\([^)]*?\)+)?/g;
+var noParamRE = /(^|[/. ]+)(\([^?].+?\)+)/g;
+var paramRE = /(^|[ /.]):([A-Za-z0-9_]+)(\([^)]+?\)+)?/g;
 
 Parth.prototype.add = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
@@ -39,8 +39,7 @@ Parth.prototype.add = function(path, opt){
   });
 
   index = 0;
-  var sep, parsed = '^' +
-    o.path.replace(/\S+/g, function(stem){
+  var sep, parsed = '^' + o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
         if(!$3){ ++index; }
@@ -49,7 +48,7 @@ Parth.prototype.add = function(path, opt){
       // now escape separation tokens outside parens
     }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
       return $0.replace($1, util.escapeRegExp);
-    }) + '(?:[ ]|$)';
+    });
 
   parsed = new RegExp(parsed);
   // attach some metadata before pushing
@@ -74,9 +73,11 @@ Parth.prototype.add = function(path, opt){
   // taking into account the number of custom regexes
 
   this.regex.sort(function(x, y){
-    var depthDiff = y.depth - x.depth;
-    if(depthDiff){ return depthDiff; }
-    return (x.def + x.cus - y.def - y.cus) || x.path.localeCompare(y.path);
+    return (
+      (y.depth - x.depth) ||
+      (2*x.def + x.cus - 2*y.def - y.cus) ||
+      y.path.localeCompare(x.path)
+    );
   });
 
   // ## sum up all learned
