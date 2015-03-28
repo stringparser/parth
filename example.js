@@ -5,17 +5,27 @@ var parth = require('./.')();
 
 // #set
 input = [
-  '1',
-  '2',
-  '1 2',
-  'obj.path.here',
-  'get /page/view',
-  'obj.path.:here(\\w+)',
-  'obj.:path(\\d+).:here(\\w+)',
-  ':obj.:path(\\w+).:here(\\d+)',
-  'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  ':method(get|post) /:page/:view',
-  '(get|post) /:page/:view',
+  '/',
+  '/page',
+  '/page/:number(\\d+)',
+  'get /',
+  'get /page',
+  'get /page/:number(\\d+)',
+  'get /:page(\\w+)/number',
+  'get /:page(\\w+)/:number(\\d+)',
+  '(get|post) /page/number',
+  '(get|post) /:page(\\w+)/number',
+  '(get|post) /:page(\\w+)/:Number(\\w+)',
+  'get /page/number',
+  ':n(get|post) /:page(\\w+)/:view(\\d+)',
+  '(get|post) /:page(\\w+)/:view(\\d+)',
+  '1', '2', '1 2',
+  'obj.path',
+  'obj.:path(\\S+).:number(\\d+)',
+  'obj.path.:here',
+  'obj.(prop|path).:here',
+  ':obj.(method|prop).:here'
+
 ];
 
 console.log('\n -- parth.add -- ');
@@ -37,7 +47,7 @@ input = [
   'array.method.prop',
   'get /weekend/baby?query=string#hash user.10.beers now',
   'get /user/view/#hash',
-  'post /user/page/?query=name&path=tree#hash photo'
+  'post /user/page/photo?query=name&path=tree#hash'
 ];
 
 console.log(' -- parth.match -- ');
