@@ -38,11 +38,9 @@ Parth.prototype.add = function(path, opt){
     return $1 + ':' + (++index) + $2;
   });
 
-  index = 0;
   var sep, parsed = '^' + o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
-        if(!$3){ ++index; }
         return $1 + ($3 || '([^'+sep+' ]+)');
       });
       // now escape separation tokens outside parens
@@ -54,8 +52,6 @@ Parth.prototype.add = function(path, opt){
   // attach some metadata before pushing
   parsed.path = o.path;
   parsed.depth = util.boil.argv(o.path).length;
-  parsed.def = index;
-  parsed.cus = (o.path.match(/\(.*?\)+/g) || []).length;
 
   // avoid mutation
   if(this.store.children[o.path]){
@@ -73,11 +69,7 @@ Parth.prototype.add = function(path, opt){
   // taking into account the number of custom regexes
 
   this.regex.sort(function(x, y){
-    return (
-      (y.depth - x.depth) ||
-      (2*x.def + x.cus - 2*y.def - y.cus) ||
-      y.path.localeCompare(x.path)
-    );
+    return (y.depth - x.depth) || y.path.localeCompare(x.path);
   });
 
   // ## sum up all learned
@@ -123,5 +115,6 @@ Parth.prototype.match = function(path, opt){
   });
 
   o.notFound = o.path.replace(o.match, '') || false;
+  o.notFound = /^([ ]|$)/.test(o.notFound) || o.notFound;
   return regex;
 };
