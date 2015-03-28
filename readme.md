@@ -19,9 +19,7 @@ parth.add('(get|post) /:page(\\w+)/:view([^./]+)')
 {
   /^(get|post) \/(\w+)\/([^./]+)/
   path: ':0(get|post) /:page(\\w+)/:view([^./]+)',
-  depth: 3,
-  def: 0,
-  cus: 3
+  depth: 3
 }
 ```
 _match_
@@ -32,9 +30,7 @@ parth.match('post /user/page/?query=name&path=tree#hash photo', extra)
 {
   /^(get|post) \/(\w+)\/([^./]+)/
   path: ':0(get|post) /:page(\\w+)/:view([^./]+)',
-  depth: 3,
-  def: 0,
-  cus: 3
+  depth: 3
 }
 
 console.log(extra);
@@ -79,8 +75,6 @@ _return_
   - `null` for non-supported types
   - `regex` object with properties below
     - path: the input path sanitized
-    - def: number of default regexes used for set
-    - cus: number of custom regexes parsed for set
     - depth: type `number`, integer representing the `depth` of the path
 
 `path` can contain any number of parameters(regexes) in the form
@@ -114,7 +108,7 @@ _return_
   - `null` for no matches or non-supported types
   - `regex` object matching the path given, with same properties of #set
 
-> All matches partial i.e. /^regex baby/i.
+> All matches partial i.e. /^regex baby/.
 > Not being strict is useful for `notFound` paths
 
 ### parth properties
