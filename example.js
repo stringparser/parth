@@ -2,6 +2,7 @@
 
 var input, regex, extra;
 var parth = require('./.')();
+var boil = require('./lib/boil');
 
 // #set
 input = [
@@ -10,6 +11,7 @@ input = [
   '/page/:number(\\d+)',
   'get /',
   'get /page',
+  'get /:page',
   'get /page/:number(\\d+)',
   'get /:page(\\w+)/number',
   'get /:page(\\w+)/:number(\\d+)',
@@ -17,7 +19,7 @@ input = [
   '(get|post) /:page(\\w+)/number',
   '(get|post) /:page(\\w+)/:Number(\\d+)',
   'get /page/number',
-  '(get|post) /:page(\\w+)/:view([^./]+)',
+  '(get|post) /:page(\\w+)/:view([^.\\/]+)',
   '1', '2', '1 2',
   'obj.path',
   'obj.:path(\\S+).:number(\\d+)',
@@ -65,5 +67,5 @@ Object.keys(parth).forEach(function(prop){
 });
 
 parth.regex.forEach(function(re){
-  console.log(re.path);
+  console.log(re.path, boil.argv(re.path));
 });
