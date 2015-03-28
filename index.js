@@ -44,11 +44,7 @@ Parth.prototype.add = function(path, opt){
     return $1 + ':' + (++index) + $2;
   });
 
-  o.end = util.type(o.end).string || '';
-  o.flag = util.type(o.flag).string || '';
-  o.begin = util.type(o.begin).string || '^';
-
-  var parsed = new RegExp(o.begin + o.path.replace(/\S+/g, function(stem){
+  var parsed = new RegExp('^' + o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^'+sep+' ]+)');
@@ -56,7 +52,8 @@ Parth.prototype.add = function(path, opt){
       // now escape separation tokens outside parens
     }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
       return $0.replace($1, util.escapeRegExp);
-    }) + o.end, o.flag);
+    })
+  );
 
   parsed.path = o.path;
   parsed.depth = util.boil.argv(o.path).length;
