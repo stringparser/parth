@@ -32,13 +32,23 @@ var paramRE = /(^|[ /.]):([A-Za-z0-9_]+)(\([^)]+?\)+)?/g;
 Parth.prototype.add = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
 
+  // avoid mutation of main object
+  if(this.store.children[o.path]){
+    return this.store.children[o.path];
+  }
+
+  var sep, index = -1;
+
   // find groups without parameters and label them
-  var index = -1;
   o.path = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
-  var sep, parsed = '^' + o.path.replace(/\S+/g, function(stem){
+  o.end = util.type(o.end).string || '';
+  o.flag = util.type(o.flag).string || '';
+  o.begin = util.type(o.begin).string || '^';
+
+  var parsed = new RegExp(o.begin + o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^'+sep+' ]+)');
@@ -46,16 +56,10 @@ Parth.prototype.add = function(path, opt){
       // now escape separation tokens outside parens
     }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
       return $0.replace($1, util.escapeRegExp);
-    });
+    }) + o.end, o.flag);
 
-  parsed = new RegExp(parsed);
   parsed.path = o.path;
   parsed.depth = util.boil.argv(o.path).length;
-
-  // avoid mutation of main object
-  if(this.store.children[o.path]){
-    return parsed;
-  }
 
   this.regex.push(parsed);
 
@@ -68,7 +72,7 @@ Parth.prototype.add = function(path, opt){
   });
 
   // ## sum up all learned
-  // - void groups all groups first
+  // - void all groups
   // - make a giant regex
 
   this.regex.master = new RegExp(
