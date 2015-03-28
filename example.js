@@ -67,5 +67,5 @@ Object.keys(parth).forEach(function(prop){
 });
 
 parth.regex.forEach(function(re){
-  console.log(re.path, boil.argv(re.path));
+  console.log(re.path);
 });
