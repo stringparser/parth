@@ -49,11 +49,10 @@ Parth.prototype.add = function(path, opt){
     });
 
   parsed = new RegExp(parsed);
-  // attach some metadata before pushing
   parsed.path = o.path;
   parsed.depth = util.boil.argv(o.path).length;
 
-  // avoid mutation
+  // avoid mutation of main object
   if(this.store.children[o.path]){
     return parsed;
   }
@@ -61,12 +60,8 @@ Parth.prototype.add = function(path, opt){
   this.regex.push(parsed);
 
   // ## order regexes according to
-  // - raw paths (no params) go first
-  // - custom regexes before defaults
-  //
-  // NOTE: if the diff results 0
-  // paths are compared by their length
-  // taking into account the number of custom regexes
+  // - depth (number of separation tokens, [ /.])
+  // - if that fails, use localCompare
 
   this.regex.sort(function(x, y){
     return (y.depth - x.depth) || y.path.localeCompare(x.path);
