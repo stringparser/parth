@@ -76,7 +76,7 @@ Parth.prototype.add = function(path, opt){
     '(' + this.regex.map(util.voidRE).join(')|(') + ')'
   );
 
-  this.store.children[o.path] = o;
+  this.store.children[o.path] = parsed;
   return parsed;
 };
 
