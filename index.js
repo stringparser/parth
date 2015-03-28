@@ -115,6 +115,5 @@ Parth.prototype.match = function(path, opt){
   });
 
   o.notFound = o.path.replace(o.match, '') || false;
-  o.notFound = /^([ ]|$)/.test(o.notFound) || o.notFound;
   return regex;
 };
