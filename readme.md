@@ -26,7 +26,7 @@ _match_
 
 ```js
 var extra = { };
-parth.match('post /user/page/?query=name&path=tree#hash photo', extra)
+parth.match('post /user/page/photo?query=name&path=tree#hash', extra)
 {
   /^(get|post) \/(\w+)\/([^./]+)/
   path: ':0(get|post) /:page(\\w+)/:view([^./]+)',

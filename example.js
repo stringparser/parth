@@ -2,7 +2,6 @@
 
 var input, regex, extra;
 var parth = require('./.')();
-var boil = require('./lib/boil');
 
 // #set
 input = [
