@@ -17,11 +17,11 @@ module.exports = function(Parth){
 
   it('should have what is left of the path', function(){
     stems = ':method(get) /hello/:there';
-    path = 'get /hello/awesome human';
+    path = 'get /hello/awesome/human';
 
     regex = parth.add(stems);
     regex.should.not.be.eql(null);
     parth.match(path, (o = { }));
-    o.notFound.should.be.eql(' human');
+    o.notFound.should.be.eql('/human');
   });
 };
