@@ -33,14 +33,16 @@ Parth.prototype.set = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
 
   var sep, index = -1;
-  var parsed = new RegExp('^' + o.path.replace(/\S+/g, function(stem){
+  o.path = o.path.replace(noParamRE, function($0, $1, $2){
+    return $1 + ':' + (++index) + $2;
+  });
+
+  var parsed = new RegExp('^' +
+    o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^'+sep+' ]+)');
       });
-    }).replace(noParamRE, function($0, $1, $2){
-      return $1 + ':' + (++index) + $2;
-      // find groups without parameters and label them
     }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
       return $0.replace($1, util.escapeRegExp);
       // now escape separation tokens outside parens
