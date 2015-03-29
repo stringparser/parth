@@ -14,7 +14,7 @@ function Parth(){
   this.regex.master = /(?:[])/;
 }
 
-// ## parth.add(path)
+// ## parth.set(path)
 // > path to regex classification
 // > TODO: give support for regexp input
 //
@@ -29,23 +29,21 @@ function Parth(){
 var noParamRE = /(^|[/. ]+)(\([^?].+?\)+)/g;
 var paramRE = /(^|[ /.]):([A-Za-z0-9_]+)(\([^)]+?\)+)?/g;
 
-Parth.prototype.add = function(path, opt){
+Parth.prototype.set = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
+
   var sep, index = -1;
-
-  // find groups without parameters and label them
-  o.path = o.path.replace(noParamRE, function($0, $1, $2){
-    return $1 + ':' + (++index) + $2;
-  });
-
   var parsed = new RegExp('^' + o.path.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^'+sep+' ]+)');
       });
-      // now escape separation tokens outside parens
+    }).replace(noParamRE, function($0, $1, $2){
+      return $1 + ':' + (++index) + $2;
+      // find groups without parameters and label them
     }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
       return $0.replace($1, util.escapeRegExp);
+      // now escape separation tokens outside parens
     })
   );
 
@@ -80,7 +78,7 @@ Parth.prototype.add = function(path, opt){
 };
 
 
-// ## parth.match(path[, options])
+// ## parth.get(path[, options])
 // > take a string or array, return the matching path
 //
 // arguments
@@ -91,7 +89,7 @@ Parth.prototype.add = function(path, opt){
 //  - null for non-supported types or not matching path
 //  - regex with for the matching path
 //
-Parth.prototype.match = function(path, opt){
+Parth.prototype.get = function(path, opt){
   var o = opt || { }; o.notFound = true;
   o = util.boil(path, o); if(!o){ return null; }
 
@@ -102,13 +100,17 @@ Parth.prototype.match = function(path, opt){
   var regex = this.regex[found.indexOf(found.shift())];
   if(!opt){ return regex; }
 
-  var index = -1;
-  o.params = {_: o.path.match(regex).slice(1)};
+  var index = 0;
+  var params = {_: o.path.match(regex).slice(1)};
+
   regex.path.replace(paramRE, function($0, $1, $2){
-    o.params[$2] = o.params._[++index];
-    o.params._[index] = $2;
+    params[$2] = params._[index];
+    params._[index++] = $2;
   });
 
+  if(!index){ return regex; }
+
+  o.params = params;
   o.notFound = o.path.replace(o.match, '') || false;
   return regex;
 };
