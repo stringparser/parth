@@ -31,12 +31,6 @@ var paramRE = /(^|[ /.]):([A-Za-z0-9_]+)(\([^)]+?\)+)?/g;
 
 Parth.prototype.add = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
-
-  // avoid mutation of main object
-  if(this.store.children[o.path]){
-    return this.store.children[o.path];
-  }
-
   var sep, index = -1;
 
   // find groups without parameters and label them
@@ -58,6 +52,11 @@ Parth.prototype.add = function(path, opt){
   parsed.path = o.path;
   parsed.depth = util.boil.argv(o.path).length;
 
+  // avoid mutation of main object
+  if(this.store.children[o.path]){
+    return parsed;
+  }
+
   this.regex.push(parsed);
 
   // ## order regexes according to
@@ -76,7 +75,7 @@ Parth.prototype.add = function(path, opt){
     '(' + this.regex.map(util.voidRE).join(')|(') + ')'
   );
 
-  this.store.children[o.path] = parsed;
+  this.store.children[o.path] = o;
   return parsed;
 };
 
