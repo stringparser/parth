@@ -28,9 +28,9 @@ input = [
 
 ];
 
-console.log('\n -- parth.add -- ');
+console.log('\n -- parth.set -- ');
 input.forEach(function(stem, index){
-  extra = { }; regex = parth.add(stem, extra);
+  extra = { }; regex = parth.set(stem, extra);
   console.log(' input =', stem);
   console.log('return =', regex);
   console.log((input[index+1] ? ' -- ' : ''));
@@ -50,9 +50,9 @@ input = [
   'post /user/page/photo?query=name&path=tree#hash'
 ];
 
-console.log(' -- parth.match -- ');
+console.log(' -- parth.get -- ');
 input.forEach(function(stem, index){
-  extra = { }; regex = parth.match(stem, extra);
+  extra = { }; regex = parth.get(stem, extra);
   console.log(' input =', stem);
   console.log('return =', regex);
   console.log(' extra =', extra);

@@ -9,9 +9,9 @@ module.exports = function(Parth){
     stems = ':method(get) /hello/:there';
     path = 'get /hello/awesome?query#hash';
 
-    regex = parth.add(stems);
+    regex = parth.set(stems);
     regex.should.not.be.eql(null);
-    parth.match(path, (o = { }));
+    parth.get(path, (o = { }));
     o.notFound.should.be.eql(false);
   });
 
@@ -19,9 +19,9 @@ module.exports = function(Parth){
     stems = ':method(get) /hello/:there';
     path = 'get /hello/awesome/human';
 
-    regex = parth.add(stems);
+    regex = parth.set(stems);
     regex.should.not.be.eql(null);
-    parth.match(path, (o = { }));
+    parth.get(path, (o = { }));
     o.notFound.should.be.eql('/human');
   });
 };

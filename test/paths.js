@@ -8,8 +8,8 @@ module.exports = function(Parth){
   it('object', function(){
     stems = 'hello.:there';
     path = 'hello.awesome';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path);
     regex.path.should.be.eql(stems);
   });
@@ -17,8 +17,8 @@ module.exports = function(Parth){
   it('raw object paths', function(){
     stems = 'hello.there';
     path = 'hello.there';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path);
     regex.path.should.be.eql(stems);
   });
@@ -26,8 +26,8 @@ module.exports = function(Parth){
   it('unix paths', function(){
     stems = '/hello/:there/:you';
     path = '/hello/awesome/human';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path);
     regex.path.should.be.eql(stems);
   });
@@ -35,8 +35,8 @@ module.exports = function(Parth){
   it('raw unix paths', function(){
     stems = '/hello/there/you';
     path = '/hello/there/you?here';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
     regex.path.should.be.eql(stems);
   });
@@ -44,8 +44,8 @@ module.exports = function(Parth){
   it('urls', function(){
     stems = '/hello/:there';
     path = '/hello/awesome/?query';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
     regex.path.should.be.eql(stems);
   });
@@ -53,16 +53,16 @@ module.exports = function(Parth){
   it('raw urls', function(){
     stems = '/hello/there';
     path = '/hello/there/?query';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     regex.path.should.be.eql(stems);
   });
 
   it('urls: querystring is stripped', function(){
     stems = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there/?query';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
     regex.path.should.be.eql(stems);
   });
@@ -70,8 +70,8 @@ module.exports = function(Parth){
   it('urls: hash is stripped', function(){
     stems = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there#hello';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?[?#][^ ]+/,''));
     regex.path.should.be.eql(stems);
   });
@@ -79,8 +79,8 @@ module.exports = function(Parth){
   it('urls: parameters are not mistaken as querystrings', function(){
     stems = 'get page.thing /hello/:here(?:\\w+you)';
     path = 'get page.thing /hello/helloyou';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?[?#][^!:= ]+/,''));
     regex.path.should.be.eql(stems);
   });
@@ -88,8 +88,8 @@ module.exports = function(Parth){
   it('space separated paths', function(){
     path = 'you are an awesome human';
     stems = 'you are an :there :you';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path);
     regex.path.should.be.eql(stems);
   });
@@ -97,8 +97,8 @@ module.exports = function(Parth){
   it('raw, space separated paths', function(){
     path = 'you are an there you';
     stems = 'you are an there you';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path);
     regex.path.should.be.eql(stems);
   });
@@ -106,8 +106,8 @@ module.exports = function(Parth){
   it('unix, object and url paths together', function(){
     stems = 'get page.:thing /hello/:there';
     path = 'get page.data /hello/awesome/?query';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
     regex.path.should.be.eql(stems);
   });
@@ -115,8 +115,8 @@ module.exports = function(Parth){
   it('raw: unix, object and urls paths together', function(){
     stems = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there/?query';
-    parth.add(stems);
-    regex = parth.match(path, (o = { }));
+    parth.set(stems);
+    regex = parth.get(path, (o = { }));
     o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
     regex.path.should.be.eql(stems);
   });

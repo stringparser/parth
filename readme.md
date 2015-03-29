@@ -15,7 +15,7 @@ var parth = new require('parth')();
 _add_
 
 ```js
-parth.add('(get|post) /:page(\\w+)/:view([^./]+)')
+parth.set('(get|post) /:page(\\w+)/:view([^./]+)')
 {
   /^(get|post) \/(\w+)\/([^./]+)/
   path: ':0(get|post) /:page(\\w+)/:view([^./]+)',
@@ -26,7 +26,7 @@ _match_
 
 ```js
 var extra = { };
-parth.match('post /user/page/photo?query=name&path=tree#hash', extra)
+parth.get('post /user/page/photo?query=name&path=tree#hash', extra)
 {
   /^(get|post) \/(\w+)\/([^./]+)/
   path: ':0(get|post) /:page(\\w+)/:view([^./]+)',
@@ -61,7 +61,7 @@ which takes no arguments
 var parth = new Parth();
 ```
 
-### parth.add(path[, opt])
+### parth.set(path[, opt])
 
 Create a regular expression from a string and store it for later look up.
 
@@ -91,7 +91,7 @@ Any string matching the regular expression below qualifies as a parameter
 
 > Characters should be escaped i.e. `\\w+`
 
-### parth.match(path[, opt])
+### parth.get(path[, opt])
 
 Obtain a regex that matches the given path.
 
