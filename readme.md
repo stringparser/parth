@@ -12,7 +12,7 @@
 var parth = new require('parth')();
 ```
 
-_add_
+_set_
 
 ```js
 parth.set('(get|post) /:page(\\w+)/:view([^./]+)')
@@ -22,7 +22,7 @@ parth.set('(get|post) /:page(\\w+)/:view([^./]+)')
   depth: 3
 }
 ```
-_match_
+_get_
 
 ```js
 var extra = { };
@@ -115,7 +115,7 @@ _return_
 
  - `regex`: an array of carefully ordered regexes
  - `regex.master`: regex aggregating what was learned
- - `store.children`: all paths added for match are here
+ - `store.children`: all paths seted for match are here
 
 ## why
 
@@ -166,7 +166,7 @@ parth
 
 ### todo
 
- - [ ] add support for regexp input
+ - [ ] set support for regexp input
 
 ### license
 
