@@ -30,7 +30,8 @@ module.exports = function(Parth){
     regex = parth.get(path, (o = { }));
 
     o.path.should.be.eql(path.replace(/\/\?[^ ]+/, ''));
-    regex.path.should.be.eql(':0'+stem);
+    regex.path.should.be.eql(stem);
+    regex.stem.should.be.eql(':0'+stem);
 
     o.params.should.be.eql({
       '0': 'post',
