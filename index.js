@@ -27,37 +27,37 @@ function Parth(){
 //  - regular expression from the path
 //
 var noParamRE = /(^|[/. ]+)(\([^?].+?\)+)/g;
-var paramRE = /(^|[ /.]):([A-Za-z0-9_:\-]+)(\([^)]+?\)+)?/g;
+var paramRE = /(^|[ /.]):([A-Za-z0-9_:\-]+)(\([^/. ]+\))?/g;
 
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
 
+  // avoid mutation of main object
+  if(this.store.children[o.path]){
+    return this.store.children[o.path];
+  }
+
   var sep, index = -1;
-  o.path = o.path.replace(noParamRE, function($0, $1, $2){
+  var stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
-  var parsed = new RegExp('^' +
-    o.path.replace(/\S+/g, function(stem){
+  o.regex = new RegExp('^' +
+    stem.replace(/\S+/g, function(stem){
       sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
       return stem.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^'+sep+' ]+)');
       });
-    }).replace(/(.*?)(?:\(.+?\)+|$)/g, function($0, $1){
+    }).replace(/(.[^( )]+?)(?:\([^./ ]+\))/g, function($0, $1){
       return $0.replace($1, util.escapeRegExp);
       // now escape separation tokens outside parens
     })
   );
 
-  parsed.path = o.path;
-  parsed.depth = util.boil.argv(o.path).length;
+  o.regex.path = stem;
+  o.regex.depth = util.boil.argv(o.path).length;
 
-  // avoid mutation of main object
-  if(this.store.children[o.path]){
-    return parsed;
-  }
-
-  this.regex.push(parsed);
+  this.regex.push(o.regex);
 
   // ## order regexes according to
   // - depth (number of separation tokens, [ /.])
@@ -75,8 +75,7 @@ Parth.prototype.set = function(path, opt){
     '(' + this.regex.map(util.voidRE).join(')|(') + ')'
   );
 
-  this.store.children[o.path] = o;
-  return parsed;
+  return (this.store.children[o.path] = o.regex);
 };
 
 
