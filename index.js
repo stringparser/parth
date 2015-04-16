@@ -54,7 +54,8 @@ Parth.prototype.set = function(path, opt){
     })
   );
 
-  o.regex.path = stem;
+  o.regex.path = o.path;
+  if(index !== -1){ o.regex.stem = stem; }
   o.regex.depth = util.boil.argv(o.path).length;
 
   this.regex.push(o.regex);
@@ -101,17 +102,15 @@ Parth.prototype.get = function(path, opt){
   var regex = this.regex[found.indexOf(found.shift())];
   if(!opt){ return regex; }
 
-  var index = 0;
+  var index = -1, stem = regex.stem || regex.path;
   var params = {_: o.path.match(regex).slice(1)};
-
-  regex.path.replace(paramRE, function($0, $1, $2){
-    params[$2] = params._[index];
-    params._[index++] = $2;
+  stem.replace(paramRE, function($0, $1, $2){
+    params[$2] = params._[++index];
+    params._[index] = $2;
   });
 
-  if(!index){ return regex; }
-
-  o.params = params;
   o.notFound = o.path.replace(o.match, '') || false;
+  if(index < 0){ return regex; }
+  o.params = params;
   return regex;
 };
