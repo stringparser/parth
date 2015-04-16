@@ -1,36 +1,36 @@
 'use strict';
 
-var stems, path, o, regex;
+var stem, path, o, regex;
 
 module.exports = function(Parth){
   var parth = new Parth();
 
   it('can be given as a string regex', function(){
-    stems = 'post /:number(\\d+)';
+    stem = 'post /:number(\\d+)';
     path = 'post /1/?query';
-    parth.set(stems);
+    parth.set(stem);
     regex = parth.get(path, (o = { }));
 
     o.path.should.be.eql(path.replace(/\/\?[^ ]+/, ''));
-    regex.path.should.be.eql(stems);
+    regex.path.should.be.eql(stem);
   });
 
   it('will contain all parameter keys at _', function(){
-    stems = 'post /:word(\\w+)/:number(\\d+)';
+    stem = 'post /:word(\\w+)/:number(\\d+)';
     path = 'post /page/1/?query';
-    parth.set(stems);
+    parth.set(stem);
     parth.get(path, (o = { }));
     o.params._.should.be.eql(['word', 'number']);
   });
 
   it('do not have to contain a label', function(){
-    stems = '(get|post) /hello/:there/:you';
+    stem = '(get|post) /hello/:there/:you';
     path = 'post /hello/awesome/10/?query#hash';
-    parth.set(stems);
+    parth.set(stem);
     regex = parth.get(path, (o = { }));
 
     o.path.should.be.eql(path.replace(/\/\?[^ ]+/, ''));
-    regex.path.should.be.eql(':0'+stems);
+    regex.path.should.be.eql(':0'+stem);
 
     o.params.should.be.eql({
       '0': 'post',
@@ -41,13 +41,13 @@ module.exports = function(Parth){
   });
 
   it('parameter labels should be at params', function(){
-    stems = ':method(get|post) /hello/:there/:you';
+    stem = ':method(get|post) /hello/:there/:you';
     path = 'post /hello/awesome/10/?query#hash';
-    parth.set(stems);
+    parth.set(stem);
     regex = parth.get(path, (o = { }));
 
     o.path.should.be.eql(path.replace(/\/\?[^ ]+/, ''));
-    regex.path.should.be.eql(stems);
+    regex.path.should.be.eql(stem);
 
     o.params.should.be.eql({
       _ : ['method', 'there', 'you'],
