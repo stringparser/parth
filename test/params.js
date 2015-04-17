@@ -42,8 +42,8 @@ module.exports = function(Parth){
   });
 
   it('parameter labels should be at params', function(){
-    stem = ':method(get|post) /hello/:there/:you';
-    path = 'post /hello/awesome/10/?query#hash';
+    stem = ':method(get|post) /page/:there/:you';
+    path = 'post /page/awesome/10/?query#hash';
     parth.set(stem);
     regex = parth.get(path, (o = { }));
 
