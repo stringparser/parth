@@ -27,7 +27,7 @@ function Parth(){
 //  - regular expression from the path
 //
 var noParamRE = /(^|[/. ]+)(\([^?].+?\)+)/g;
-var paramRE = /(^|[ /.]):([A-Za-z0-9_:\-]+)(\([^/. ]+\))?/g;
+var paramRE = /(^|[ /.]):([\w_-]+)(\(.+?\)+)?/g;
 
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
@@ -38,15 +38,12 @@ Parth.prototype.set = function(path, opt){
   });
 
   var parsed = new RegExp('^' +
-    stem.replace(/\S+/g, function(stem){
-      sep = (stem.match(/\//) || stem.match(/\./) || ' ')[0].trim();
-      return stem.replace(paramRE, function($0, $1, $2, $3){
+    stem.replace(/\S+/g, function(s){
+      sep = (s.match(/\//) || s.match(/\./) || ' ')[0].trim();
+      return s.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^'+sep+' ]+)');
       });
-    }).replace(/(.[^( )]+?)(?:\([^./ ]+\))/g, function($0, $1){
-      return $0.replace($1, util.escapeRegExp);
-      // now escape separation tokens outside parens
-    })
+    }).replace(/[^?( )+*$]+(?=\(|$)/g, util.escapeRegExp)
   );
 
   parsed.path = o.path;
