@@ -17,8 +17,9 @@ _set_
 ```js
 parth.set('(get|post) /:page(\\w+)/:view([^./]+)')
 {
-  /^(get|post) \/(\w+)\/([^./]+)/
-  path: ':0(get|post) /:page(\\w+)/:view([^./]+)',
+  /^(get|post) \/(\w+)\/([^.\/]+)/
+  path: '(get|post) /:page(\\w+)/:view([^.\\/]+)',
+  stem: ':0(get|post) /:page(\\w+)/:view([^.\\/]+)',
   depth: 3
 }
 ```
@@ -28,8 +29,9 @@ _get_
 var extra = { };
 parth.get('post /user/page/photo?query=name&path=tree#hash', extra)
 {
-  /^(get|post) \/(\w+)\/([^./]+)/
-  path: ':0(get|post) /:page(\\w+)/:view([^./]+)',
+  /^(get|post) \/(\w+)\/([^.\/]+)/
+  path: '(get|post) /:page(\\w+)/:view([^.\\/]+)',
+  stem: ':0(get|post) /:page(\\w+)/:view([^.\\/]+)',
   depth: 3
 }
 
@@ -84,10 +86,10 @@ _return_
 Any string matching the regular expression below qualifies as a parameter
 
 ````js
-/(^|[ /.]):([A-Za-z0-9_:\-]+)(\([^/. ]+\))?/g;
+/(^|[ /.]):([\w_-]+)(\(.+?\)+)?/g;
 ````
 
-[Go to http://regexr.com/](http://regexr.com/3arbf) and test it out.
+[Go to http://regexr.com/](http://regexr.com/3arto) and test it out.
 
 > Characters should be escaped i.e. `\\w+`
 
