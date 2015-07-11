@@ -31,8 +31,8 @@ var paramRE = /(^|[ /.]):([\w_-]+)(\(.+?\)+)?/g;
 
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
-
   var sep, index = -1;
+
   var stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
