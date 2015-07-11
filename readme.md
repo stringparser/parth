@@ -1,4 +1,4 @@
-# parth [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
+# parth [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm] [![downloads][badge-downloads]][x-npm]
 
 [documentation](#documentation) -
 [examples](#examples) -
@@ -178,3 +178,4 @@ parth
 [x-travis]: https://travis-ci.org/stringparser/parth/builds
 [badge-build]: http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square
 [badge-version]: http://img.shields.io/npm/v/parth.svg?style=flat-square
+[badge-downloads]: http://img.shields.io/npm/dm/parth.svg?style=flat-square
