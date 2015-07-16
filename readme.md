@@ -1,10 +1,12 @@
-# parth [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm] [![downloads][badge-downloads]][x-npm]
+# parth [![NPM version][badge-version]][x-npm] [![downloads][badge-downloads]][x-npm]
 
 [documentation](#documentation) -
 [examples](#examples) -
 [install](#install) -
 [todo](#todo) -
 [why](#why)
+
+[![build][badge-build]][x-travis]
 
 ## sample
 
