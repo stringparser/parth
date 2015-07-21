@@ -27,7 +27,7 @@ function Parth(){
 //  - regular expression from the path
 //
 var noParamRE = /(^|[/. ]+)(\([^?].+?\)+)/g;
-var paramRE = /(^|[ /.]):([\w_-]+)(\(.+?\)+)?/g;
+var paramRE = /(^|[ /.=]):([\w_-]+)(\(.+?(?:\)\??)+)?/g;
 
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, opt); if(!o){ return null; }
