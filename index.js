@@ -5,11 +5,9 @@ var util = require('./lib/util');
 exports = module.exports = Parth;
 
 function Parth(){
-  if(!(this instanceof Parth)){
-    return new Parth();
-  }
+  if(!(this instanceof Parth)){ return new Parth(); }
 
-  this.store = {children: {}};
+  this.store = {};
   this.regex = [];
   this.regex.master = /(?:[])/;
 }
@@ -26,11 +24,12 @@ function Parth(){
 //  - null for non-supported types
 //  - regular expression from the path
 //
-var noParamRE = /(^|[/. ]+)(\([^?].+?\)+)/g;
 var paramRE = /([ /.=]?):([\w-]+)(\(.+?(?:\)\??)+)?/g;
+var noParamRE = /(^|[ /.=]+)(\(.+?(?:\)\??)+)/g;
 
 Parth.prototype.set = function(path, opt){
-  var o = util.boil(path, opt); if(!o){ return null; }
+  var o = util.boil(path, opt);
+  if(!o){ return null; }
   var sep, index = -1;
 
   var stem = o.path.replace(noParamRE, function($0, $1, $2){
@@ -41,22 +40,20 @@ Parth.prototype.set = function(path, opt){
     stem.replace(/\S+/g, function(s){
       sep = (s.match(/\//) || s.match(/\./) || ' ')[0].trim();
       return s.replace(paramRE, function($0, $1, $2, $3){
-        return $1 + ($3 || '([^'+sep+' ]+)');
+        return $1 + ($3 || '([^' + sep + ' ]+)');
       });
     }).replace(/[^?( )+*$]+(?=\(|$)/g, util.escapeRegExp)
   );
+  if(this.store[o.path]){ return parsed; }
+  // ^ avoid mutation
 
   parsed.path = o.path;
   if(index > -1){ parsed.stem = stem; }
   parsed.depth = util.boil.argv(o.path).length;
-
-  // avoid mutation of main object
-  if(this.store.children[o.path]){ return parsed; }
-
   this.regex.push(parsed);
 
   // ## order regexes according to
-  // - depth (number of separation tokens, [ /.])
+  // - depth (number of separation tokens
   // - if that fails, use localCompare
 
   this.regex.sort(function(x, y){
@@ -72,7 +69,7 @@ Parth.prototype.set = function(path, opt){
   );
 
   if(/:/.test(o.path)){ o.regex = new RegExp(parsed.source); }
-  this.store.children[o.path] = o;
+  this.store[o.path] = o;
   return parsed;
 };
 
