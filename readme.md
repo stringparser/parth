@@ -117,9 +117,9 @@ _return_
 
 ### parth properties
 
- - `regex`: an array of carefully ordered regexes
- - `regex.master`: regex aggregating what was learned
- - `store.children`: all paths seted for match are here
+ - `store`: all paths set for match are here
+ - `regex`: array of carefully ordered regexes
+ - `regex.master`: regex aggregating with all learned
 
 ## why
 
