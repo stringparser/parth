@@ -1,131 +1,118 @@
 'use strict';
 
-var stems, path, o, regex;
+var stem, path, result;
 
 module.exports = function(Parth){
   var parth = new Parth();
 
   it('object', function(){
-    stems = 'hello.:there';
+    stem = 'hello.:there';
     path = 'hello.awesome';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path);
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.path.should.be.eql(path);
+    result.stem.should.be.eql(stem);
   });
 
   it('raw object paths', function(){
-    stems = 'hello.there';
+    stem = 'hello.there';
     path = 'hello.there';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path);
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.path.should.be.eql(stem);
   });
 
   it('unix paths', function(){
-    stems = '/hello/:there/:you';
+    stem = '/hello/:there/:you';
     path = '/hello/awesome/human';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path);
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.path.should.be.eql(path);
+    result.stem.should.be.eql(stem);
   });
 
   it('raw unix paths', function(){
-    stems = '/hello/there/you';
+    stem = '/hello/there/you';
     path = '/hello/there/you?here';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path.split('?')[0]);
   });
 
   it('urls', function(){
-    stems = '/hello/:there';
+    stem = '/hello/:there';
     path = '/hello/awesome/?query';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path.split('/?')[0]);
   });
 
   it('raw urls', function(){
-    stems = '/hello/there';
+    stem = '/hello/there';
     path = '/hello/there/?query';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path.split('/?')[0]);
   });
 
   it('urls: querystring is stripped', function(){
-    stems = 'get page.thing /hello/there';
+    stem = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there/?query';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path.split('/?')[0]);
   });
 
   it('urls: hash is stripped', function(){
-    stems = 'get page.thing /hello/there';
+    stem = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there#hello';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?[?#][^ ]+/,''));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path.split('#')[0]);
   });
 
   it('urls: parameters are not mistaken as querystrings', function(){
-    stems = 'get page.thing /hello/:here(?:\\w+you)';
+    stem = 'get page.thing /hello/:here(?:\\w+you)';
     path = 'get page.thing /hello/helloyou';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?[?#][^!:= ]+/,''));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path);
   });
 
   it('space separated paths', function(){
     path = 'you are an awesome human';
-    stems = 'you are an :there :you';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path);
-    regex.path.should.be.eql(stems);
+    stem = 'you are an :there :you';
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path);
   });
 
   it('raw, space separated paths', function(){
     path = 'you are an there you';
-    stems = 'you are an there you';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path);
-    regex.path.should.be.eql(stems);
+    stem = 'you are an there you';
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path);
   });
 
   it('unix, object and url paths together', function(){
-    stems = 'get page.:thing /hello/:there';
+    stem = 'get page.:thing /hello/:there';
     path = 'get page.data /hello/awesome/?query';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path.split('/?')[0]);
   });
 
   it('raw: unix, object and urls paths together', function(){
-    stems = 'get page.thing /hello/there';
+    stem = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there/?query';
-    parth.set(stems);
-    regex = parth.get(path, (o = { }));
-    o.path.should.be.eql(path.replace(/\/?\?[^ ]+/,''));
-    regex.path.should.be.eql(stems);
+    result = parth.set(stem).get(path);
+    result.stem.should.be.eql(stem);
+    result.path.should.be.eql(path.split('/?')[0]);
   });
 
   after(function(){
-    if(process.argv.indexOf('-l') < 0){ return ; }
-    Object.keys(parth.regex).forEach(function(prop){
-      var print = parth.regex[prop];
-      console.log('parth.regex[%s]', prop);
+    if(process.argv.indexOf('-l') < 0){ return; }
+    Object.keys(parth.result).forEach(function(prop){
+      var print = parth.result[prop];
+      console.log('parth.result[%s]', prop);
       if(prop === 'master'){
         print = print.source.split(/\|(?=\({1,2})/);
       }

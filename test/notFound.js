@@ -1,6 +1,6 @@
 'use strict';
 
-var path, stems, regex, o;
+var path, stems, result;
 
 module.exports = function(Parth){
   var parth = new Parth();
@@ -9,19 +9,16 @@ module.exports = function(Parth){
     stems = ':method(get) /hello/:there';
     path = 'get /hello/awesome?query#hash';
 
-    regex = parth.set(stems);
-    regex.should.not.be.eql(null);
-    parth.get(path, (o = { }));
-    o.notFound.should.be.eql(false);
+    result = parth.set(stems).get(path);
+    result.should.not.be.eql(null);
+    result.notFound.should.be.eql(false);
   });
 
   it('should have what is left of the path', function(){
     stems = ':method(get) /hello/:there';
     path = 'get /hello/awesome/human';
-
-    regex = parth.set(stems);
-    regex.should.not.be.eql(null);
-    parth.get(path, (o = { }));
-    o.notFound.should.be.eql('/human');
+    result = parth.set(stems).get(path);
+    result.should.not.be.eql(null);
+    result.notFound.should.be.eql('/human');
   });
 };
