@@ -36,6 +36,7 @@ var noParamRE = /(^|[ /.=]+)(\(.+?(?:\)\??)+)/g;
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, util.clone(opt, true));
   if(!o || this.store[o.path]){ return this; }
+  // ^ avoid pushing the same path twice
 
   var sep, index = -1;
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
@@ -52,7 +53,6 @@ Parth.prototype.set = function(path, opt){
   );
 
   o.depth = util.boil.argv(o.path).length;
-  // ^ avoid pushing the same path twice
 
   // ## order regexes according to
   // - depth (number of separation tokens
@@ -106,11 +106,10 @@ Parth.prototype.get = function(path){
   var match = found.shift();
   found = this.regex[found.indexOf(match)];
 
-  var stem = found.stem || found.path;
+  var index = -1;
   var params = {_: found.regex.exec(o.path).slice(1)};
 
-  var index = -1;
-  stem.replace(paramRE, function($0, $1, $2){
+  found.stem.replace(paramRE, function($0, $1, $2){
     params[$2] = params._[++index];
     params._[index] = $2;
   });
