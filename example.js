@@ -1,6 +1,6 @@
 'use strict';
 
-var input, regex, extra;
+var input, result;
 var parth = require('./.')();
 
 // #set
@@ -28,12 +28,8 @@ input = [
 
 ];
 
-console.log('\n -- parth.set -- ');
 input.forEach(function(stem, index){
-  extra = { }; regex = parth.set(stem, extra);
-  console.log(' input =', stem);
-  console.log('return =', regex);
-  console.log((input[index+1] ? ' -- ' : ''));
+  parth.set(stem);
 });
 
 // #get
@@ -52,14 +48,13 @@ input = [
 
 console.log(' -- parth.get -- ');
 input.forEach(function(stem, index){
-  extra = { }; regex = parth.get(stem, extra);
+  result = parth.get(stem);
   console.log(' input =', stem);
-  console.log('return =', regex);
-  console.log(' extra =', extra);
-  console.log((input[index+1] ? ' -- ' : '' ));
+  console.log('result =', result);
+  console.log((input[index + 1] ? ' -- ' : '' ));
 });
 
-if(process.argv.indexOf('-l') < 0){ return ; }
+if(process.argv.indexOf('-l') < 0){ return; }
 Object.keys(parth).forEach(function(prop){
   console.log(parth[prop]);
   console.log(' --\n');
