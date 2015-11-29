@@ -12,42 +12,24 @@
 
 ```js
 var parth = new require('parth')();
-```
 
-_set_
+var props = {handle: function(){}};
 
-```js
-parth.set('(get|post) /:page(\\w+)/:view([^./]+)')
+parth.set('(get|post) /:page(\\w+)/:view([^./]+)', props)
+     .get('post /user/page/photo?query#hash')
+// =>
 {
-  /^(get|post) \/(\w+)\/([^.\/]+)/
-  path: '(get|post) /:page(\\w+)/:view([^.\\/]+)',
-  stem: ':0(get|post) /:page(\\w+)/:view([^.\\/]+)',
-  depth: 3
-}
-```
-_get_
-
-```js
-var extra = { };
-parth.get('post /user/page/photo?query=name&path=tree#hash', extra)
-{
-  /^(get|post) \/(\w+)\/([^.\/]+)/
-  path: '(get|post) /:page(\\w+)/:view([^.\\/]+)',
-  stem: ':0(get|post) /:page(\\w+)/:view([^.\\/]+)',
-  depth: 3
-}
-
-console.log(extra);
-{
-  notFound: '/photo',
+  handle: [Function],
   path: 'post /user/page/photo',
-  url: '/user/page/photo?query=name&path=tree#hash',
-  match: 'post /user/page',
+  stem: ':0(get|post) /:page(\\w+)/:view([^./]+)',
+  regex: /^(get|post) \/(\w+)\/([^./]+)/,
+  depth: 3,
+  notFound: '/photo',
   params: {
     '0': 'post',
-    _: [ '0', 'page', 'view' ],
-    page: 'user',
-    view: 'page'
+     _: [ '0', 'page', 'view' ],
+     page: 'user',
+     view: 'page'
   }
 }
 ```
@@ -65,21 +47,22 @@ which takes no arguments
 var parth = new Parth();
 ```
 
-### parth.set(path[, opt])
+## parth.set
 
-Create a regular expression from a string and store it for later look up.
+```js
+function set(string path[, object options])
+```
+This method purpose is to sanitize the `path` given
+and classify the resulting regular expression with those
+previously stored.
 
 _arguments_
-- `path` type `string`
-- `opt` type `object` optional, with extra info after function call:
-  - path: the `path` given as an input
-  - url: type `string`. If any, the url contained within the given `path`
+ - `path`, type `string`, path to be set
+ - `options`, type `object`, to merge with this path properties
 
-_return_
-  - `null` for non-supported types
-  - `regex` object with properties below
-    - path: the input path sanitized
-    - depth: type `number`, integer representing the `depth` of the path
+_returns_ `this`
+
+> NOTE: `options` is deep cloned beforehand to avoid mutation
 
 `path` can contain any number of parameters(regexes) in the form
 ```js
@@ -93,37 +76,35 @@ Any string matching the regular expression below qualifies as a parameter
 
 [Go to http://regexr.com/](http://regexr.com/3be8b) and test it out.
 
-> Characters should be escaped i.e. `\\w+`
+## parth.get
+```js
+function get(string path)
+```
 
-### parth.get(path[, opt])
-
-Obtain a regex that matches the given path.
+Take a string and return a clone of the store object properties
 
 _arguments_
-- `path` type `string`
-- `opt` type `object` optional, with extra info after function call:
-  - path: the `path` given as an input
-  - url: if any, the url contained within the `path` given
-  - match: type `string`, part of the path that matched
-  - notFound: `false` for perfect match, what is left after of the path if the match wasn't perfect
-  - params: object map from labels to the given path. Label keys at `_`.
+ - `path`, type `string` to match stored paths with
 
 _return_
-  - `null` for no matches or non-supported types
-  - `regex` object matching the path given, with same properties of #set
+ - null for non-supported types or not matching paths
+ - object with all the information stored in `parth.set`
 
-> All matches partial i.e. /^regex baby/.
-> Not being strict is useful for `notFound` paths
+> All matches are partial i.e. /^regex baby/.
+> Not being strict is useful for `notFound` paths.
+
+> NOTE: the returned object is a deep copy of the original `options`
+> given in `parth.set` to avoid mutation
 
 ### parth properties
 
  - `store`: all paths set for match are here
  - `regex`: array of carefully ordered regexes
- - `regex.master`: regex aggregating with all learned
+ - `regex.master`: regex aggregating all learned
 
 ## why
 
-I need it for the [runtime](https://github.com/stringparser/runtime) module.
+I need it for the [gulp-runtime](https://github.com/stringparser/gulp-runtime) module.
 
 ## install
 
