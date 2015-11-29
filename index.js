@@ -35,8 +35,10 @@ var noParamRE = /(^|[ /.=]+)(\(.+?(?:\)\??)+)/g;
 
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, util.clone(opt, true));
-  if(!o || this.store[o.path]){ return this; }
-  // ^ avoid pushing the same path twice
+  if(!o){ return this; } else if(this.store[o.path]){
+    util.merge(this.store[o.path], o);
+    return this;
+  }
 
   var sep, index = -1;
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
