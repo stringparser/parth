@@ -99,8 +99,9 @@ return
 Parth.prototype.get = function(path){
   var o = util.boil(path);
 
-  o.notFound = true;
-  if(!o){ return null; }
+  if(!o){ return null; } else if(this.store[o.path]){
+    return util.clone(this.store[o.path], true);
+  }
 
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
