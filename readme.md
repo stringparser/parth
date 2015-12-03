@@ -11,7 +11,7 @@
 ## sample
 
 ```js
-var Parht = require('parth');
+var Parth = require('parth');
 
 var parth = new Parth();
 var props = {handle: function(){}};

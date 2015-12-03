@@ -35,6 +35,7 @@ var noParamRE = /(^|[ /.=]+)(\(.+?(?:\)\??)+)/g;
 
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, util.clone(opt, true));
+
   if(!o){ return this; } else if(this.store[o.path]){
     util.merge(this.store[o.path], o);
     return this;
