@@ -42,12 +42,12 @@ Parth.prototype.set = function(path, opt){
   }
 
   var sep, index = -1;
-  o.stem = o.path.replace(noParamRE, function($0, $1, $2){
+  var stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
   o.regex = new RegExp('^' +
-    o.stem.replace(/\S+/g, function(s){
+    stem.replace(/\S+/g, function(s){
       sep = (s.match(/\//) || s.match(/\./) || ' ')[0].trim();
       return s.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^' + sep + ' ]+)');
@@ -55,6 +55,7 @@ Parth.prototype.set = function(path, opt){
     }).replace(/[^?( )+*$]+(?=\(|$)/g, util.escapeRegExp)
   );
 
+  if(paramRE.test(stem)){ o.stem = stem; }
   o.depth = util.boil.argv(o.path).length;
 
   // ## order regexes according to
@@ -110,10 +111,11 @@ Parth.prototype.get = function(path){
   var match = found.shift();
   found = this.regex[found.indexOf(match)];
 
-  var index = -1;
+  var stem = found.stem || found.path;
   var params = {_: found.regex.exec(o.path).slice(1)};
 
-  found.stem.replace(paramRE, function($0, $1, $2){
+  var index = -1;
+  stem.replace(paramRE, function($0, $1, $2){
     params[$2] = params._[++index];
     params._[index] = $2;
   });
