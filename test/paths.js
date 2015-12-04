@@ -32,7 +32,6 @@ module.exports = function(Parth){
     stem = '/hello/there/you';
     path = '/hello/there/you?here';
     result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
     result.path.should.be.eql(path.split('?')[0]);
   });
 
@@ -48,7 +47,6 @@ module.exports = function(Parth){
     stem = '/hello/there';
     path = '/hello/there/?query';
     result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
     result.path.should.be.eql(path.split('/?')[0]);
   });
 
@@ -56,7 +54,6 @@ module.exports = function(Parth){
     stem = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there/?query';
     result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
     result.path.should.be.eql(path.split('/?')[0]);
   });
 
@@ -64,7 +61,6 @@ module.exports = function(Parth){
     stem = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there#hello';
     result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
     result.path.should.be.eql(path.split('#')[0]);
   });
 
@@ -88,7 +84,6 @@ module.exports = function(Parth){
     path = 'you are an there you';
     stem = 'you are an there you';
     result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
     result.path.should.be.eql(path);
   });
 
@@ -104,7 +99,6 @@ module.exports = function(Parth){
     stem = 'get page.thing /hello/there';
     path = 'get page.thing /hello/there/?query';
     result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
     result.path.should.be.eql(path.split('/?')[0]);
   });
 
