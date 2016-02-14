@@ -9,7 +9,7 @@ function Parth(){
 
   this.store = {};
   this.regex = [];
-  this.regex.master = /(?:[])/;
+  this.regex.master = new RegExp('(?:[])');
 }
 
 
@@ -30,6 +30,7 @@ returns `this`
 
 > NOTE: `options` is deep cloned beforehand to avoid mutation
 **/
+var sepRE = /([/.][(:\w])/g;
 var paramRE = /([ /.=]?):([\w-]+)(\(.+?(?:\)\??)+)?/g;
 var noParamRE = /(^|[ /.=]+)(\(.+?(?:\)\??)+)/g;
 
@@ -40,38 +41,36 @@ Parth.prototype.set = function(path, opt){
     util.merge(this.store[o.path], o);
     return this;
   }
+  this.store[o.path] = o;
+  o.depth = o.path.replace(sepRE, ' $&').trim().split(/[ ]+/).length;
 
-  var sep, index = -1;
-  var stem = o.path.replace(noParamRE, function($0, $1, $2){
-    return $1 + ':' + (++index) + $2;
+  var index = 0;
+  o.stem = o.path.replace(noParamRE, function($0, $1, $2){
+    return $1 + ':' + (index++) + $2;
   });
 
   o.regex = new RegExp('^' +
-    stem.replace(/\S+/g, function(s){
-      sep = (s.match(/\//) || s.match(/\./) || ' ')[0].trim();
+    o.stem.replace(/\S+/g, function(s){
+      var sep = (s.match(/\//) || s.match(/\./) || ['']).pop();
       return s.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^' + sep + ' ]+)');
       });
     }).replace(/[^?( )+*$]+(?=\(|$)/g, util.escapeRegExp)
   );
 
-  if(paramRE.test(stem)){ o.stem = stem; }
-  o.depth = util.boil.argv(o.path).length;
-
-  // ## order regexes according to
-  // - depth (number of separation tokens
-  // - if that fails, use localCompare
-
   this.regex.push(o);
-  this.store[o.path] = o;
+  /** order regexes according to
+   * - depth (number of separation tokens
+   * - if that fails, use localCompare
+  **/
   this.regex.sort(function(x, y){
     return (y.depth - x.depth) || y.path.localeCompare(x.path);
   });
 
-  // ## sum up all learned
-  // - void all groups
-  // - make a giant regex
-
+  /** sum up all learned
+   * - void all groups
+   * - make a giant regex
+  **/
   this.regex.master = new RegExp(
     '(' + this.regex.map(util.voidRE).join(')|(') + ')'
   );
@@ -98,8 +97,9 @@ return
 > NOTE: the returned object is a deep copy of the original `options`
 > given in `parth.set` to avoid mutation
 **/
+
 Parth.prototype.get = function(path){
-  var o = util.boil(path);
+  var o = util.boil(path, {notFound: true});
 
   if(!o){ return null; } else if(this.store[o.path]){
     return util.clone(this.store[o.path], true);
@@ -111,11 +111,10 @@ Parth.prototype.get = function(path){
   var match = found.shift();
   found = this.regex[found.indexOf(match)];
 
-  var stem = found.stem || found.path;
+  var index = -1;
   var params = {_: found.regex.exec(o.path).slice(1)};
 
-  var index = -1;
-  stem.replace(paramRE, function($0, $1, $2){
+  found.stem.replace(paramRE, function($0, $1, $2){
     params[$2] = params._[++index];
     params._[index] = $2;
   });
