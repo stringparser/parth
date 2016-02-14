@@ -5,7 +5,9 @@ var util = require('./lib/util');
 exports = module.exports = Parth;
 
 function Parth(){
-  if(!(this instanceof Parth)){ return new Parth(); }
+  if(!(this instanceof Parth)){
+    return new Parth();
+  }
 
   this.store = {};
   this.regex = [];
