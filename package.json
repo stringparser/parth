@@ -18,8 +18,8 @@
     "url": "https://github.com/stringparser/parth/issues"
   },
   "scripts": {
-    "lint": "jshint lib index.js --exclude node_modules",
-    "test": "npm run-script lint && mocha --reporter spec test/_main.js"
+    "lint": "jshint lib *.js",
+    "test": "npm run lint && mocha test"
   },
   "devDependencies": {
     "mocha": "*",
