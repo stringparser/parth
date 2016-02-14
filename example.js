@@ -28,7 +28,7 @@ input = [
 
 ];
 
-input.forEach(function(stem, index){
+input.forEach(function(stem){
   parth.set(stem);
 });
 
