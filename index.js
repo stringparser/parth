@@ -110,19 +110,17 @@ Parth.prototype.get = function(path){
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
 
-  var match = found.shift();
-  found = this.regex[found.indexOf(match)];
+  o.match = found.shift();
+  found = this.regex[found.indexOf(o.match)];
+
+  o.params = {_: found.regex.exec(o.path).slice(1)};
+  o.notFound = o.path.replace(o.match, '') || false;
 
   var index = -1;
-  var params = {_: found.regex.exec(o.path).slice(1)};
-
   found.stem.replace(paramRE, function($0, $1, $2){
-    params[$2] = params._[++index];
-    params._[index] = $2;
+    o.params[$2] = o.params._[++index];
+    o.params._[index] = $2;
   });
-
-  if(params._.length){ o.params = params; }
-  o.notFound = o.path.replace(match, '') || false;
 
   return util.merge(util.clone(found, true), o);
 };
