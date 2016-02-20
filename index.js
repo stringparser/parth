@@ -46,9 +46,9 @@ Parth.prototype.set = function(path, opt){
   this.store[o.path] = o;
   o.depth = o.path.replace(sepRE, ' $&').trim().split(/[ ]+/).length;
 
-  var index = 0;
+  var index = -1;
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
-    return $1 + ':' + (index++) + $2;
+    return $1 + ':' + (++index) + $2;
   });
 
   o.regex = new RegExp('^' +
@@ -57,7 +57,9 @@ Parth.prototype.set = function(path, opt){
       return s.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^' + sep + ' ]+)');
       });
-    }).replace(/[^?( )+*$]+(?=\(|$)/g, util.escapeRegExp)
+    }).replace(/[^?( )+*$]+(?=\(|$)/g, function escapeRegExp($0){
+      return $0.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
+    })
   );
 
   this.regex.push(o);
@@ -73,8 +75,10 @@ Parth.prototype.set = function(path, opt){
    * - void all groups
    * - make a giant regex
   **/
-  this.regex.master = new RegExp(
-    '(' + this.regex.map(util.voidRE).join(')|(') + ')'
+  this.regex.master = new RegExp( '(' +
+    this.regex.map(function voidRegExp(el){
+      return el.regex.source.replace(/\((?=[^?])/g, '(?:');
+    }).join(')|(') + ')'
   );
 
   return this;
@@ -110,19 +114,17 @@ Parth.prototype.get = function(path){
   var found = this.regex.master.exec(o.path);
   if(!found){ return null; }
 
-  var match = found.shift();
-  found = this.regex[found.indexOf(match)];
+  o.match = found.shift();
+  found = util.clone(this.regex[found.indexOf(o.match)], true);
+
+  o.params = {_: found.regex.exec(o.path).slice(1)};
+  o.notFound = o.path.replace(o.match, '') || false;
 
   var index = -1;
-  var params = {_: found.regex.exec(o.path).slice(1)};
-
   found.stem.replace(paramRE, function($0, $1, $2){
-    params[$2] = params._[++index];
-    params._[index] = $2;
+    o.params[$2] = o.params._[++index];
+    o.params._[index] = $2;
   });
 
-  if(params._.length){ o.params = params; }
-  o.notFound = o.path.replace(match, '') || false;
-
-  return util.merge(util.clone(found, true), o);
+  return util.merge(found, o);
 };
