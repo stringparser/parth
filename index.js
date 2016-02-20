@@ -115,7 +115,7 @@ Parth.prototype.get = function(path){
   if(!found){ return null; }
 
   o.match = found.shift();
-  found = this.regex[found.indexOf(o.match)];
+  found = util.clone(this.regex[found.indexOf(o.match)], true);
 
   o.params = {_: found.regex.exec(o.path).slice(1)};
   o.notFound = o.path.replace(o.match, '') || false;
@@ -126,5 +126,5 @@ Parth.prototype.get = function(path){
     o.params._[index] = $2;
   });
 
-  return util.merge(util.clone(found, true), o);
+  return util.merge(found, o);
 };
