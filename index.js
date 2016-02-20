@@ -46,9 +46,9 @@ Parth.prototype.set = function(path, opt){
   this.store[o.path] = o;
   o.depth = o.path.replace(sepRE, ' $&').trim().split(/[ ]+/).length;
 
-  var index = 0;
+  var index = -1;
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
-    return $1 + ':' + (index++) + $2;
+    return $1 + ':' + (++index) + $2;
   });
 
   o.regex = new RegExp('^' +
@@ -57,7 +57,9 @@ Parth.prototype.set = function(path, opt){
       return s.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^' + sep + ' ]+)');
       });
-    }).replace(/[^?( )+*$]+(?=\(|$)/g, util.escapeRegExp)
+    }).replace(/[^?( )+*$]+(?=\(|$)/g, function escapeRegExp($0){
+      return $0.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
+    })
   );
 
   this.regex.push(o);
@@ -73,8 +75,10 @@ Parth.prototype.set = function(path, opt){
    * - void all groups
    * - make a giant regex
   **/
-  this.regex.master = new RegExp(
-    '(' + this.regex.map(util.voidRE).join(')|(') + ')'
+  this.regex.master = new RegExp( '(' +
+    this.regex.map(function voidRegExp(el){
+      return el.regex.source.replace(/\((?=[^?])/g, '(?:');
+    }).join(')|(') + ')'
   );
 
   return this;
