@@ -32,9 +32,9 @@ returns `this`
 
 > NOTE: `options` is deep cloned beforehand to avoid mutation
 **/
-var sepRE = /([/.][(:\w])/g;
-var paramRE = /([ /.=]?):([\w-]+)(\(.+?(?:\)\??)+)?/g;
-var noParamRE = /(^|[ /.=]+)(\(.+?(?:\)\??)+)/g;
+var depthRE = /([ /.]+[(:\w])/g;
+var paramRE = /([ /.=]?):([\w-]+)(\(.+?\)+)?/g;
+var noParamRE = /(^|[ /.=]+)(\(.+?\)+)/g;
 
 Parth.prototype.set = function(path, opt){
   var o = util.boil(path, util.clone(opt, true));
@@ -44,12 +44,14 @@ Parth.prototype.set = function(path, opt){
     return this;
   }
   this.store[o.path] = o;
-  o.depth = o.path.replace(sepRE, ' $&').trim().split(/[ ]+/).length;
 
   var index = -1;
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
+
+  o.depth = -1;
+  o.stem.replace(depthRE, function(){ ++o.depth; });
 
   o.regex = new RegExp('^' +
     o.stem.replace(/\S+/g, function(s){
