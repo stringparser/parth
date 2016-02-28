@@ -107,10 +107,12 @@ return
 **/
 
 Parth.prototype.get = function(path){
-  var o = util.boil(path, {notFound: true});
+  var o = util.boil(path, {notFound: true, match: path});
 
   if(!o){ return null; } else if(this.store[o.path]){
-    return util.clone(this.store[o.path], true);
+    o.match = o.path;
+    o.notFound = o.path.slice(o.match.length);
+    return util.merge(util.clone(this.store[o.path]), o);
   }
 
   var found = this.regex.master.exec(o.path);
