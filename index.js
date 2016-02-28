@@ -107,7 +107,7 @@ return
 **/
 
 Parth.prototype.get = function(path){
-  var o = util.boil(path, {notFound: true, match: path});
+  var o = util.boil(path, {notFound: true});
 
   if(!o){ return null; } else if(this.store[o.path]){
     o.match = o.path;
