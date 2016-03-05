@@ -11,6 +11,7 @@ input = [
   'get /',
   'get /page',
   'get /:page',
+  'get :page/:view',
   'get /page/:number(\\d+)',
   'get /:page(\\w+)/number',
   'get /:page(\\w+)/:number(\\d+)',
@@ -41,6 +42,7 @@ input = [
   'obj.10.prop',
   'obj.10.10',
   'array.method.prop',
+  'get weekend/baby?query=string#hash user.10.beers',
   'get /weekend/baby?query=string#hash user.10.beers now',
   'get /user/view/#hash',
   'post /user/page/photo?query=name&path=tree#hash'
