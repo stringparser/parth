@@ -32,29 +32,34 @@ returns `this`
 
 > NOTE: `options` is deep cloned beforehand to avoid mutation
 **/
+
 var depthRE = /([ /.]+[(:\w])/g;
 var paramRE = /([ /.=]?):([\w-]+)(\(.+?\)+)?/g;
 var noParamRE = /(^|[ /.=]+)(\(.+?\)+)/g;
 
 Parth.prototype.set = function(path, opt){
-  var o = util.boil(path, util.clone(opt, true));
+  if(typeof path !== 'string'){
+    return this;
+  }
 
-  if(!o){ return this; } else if(this.store[o.path]){
+  var o = util.clone(opt || {}, true);
+  o.path = path.replace(/[ ]+/g, ' ').trim();
+
+  if(this.store[o.path]){
     util.merge(this.store[o.path], o);
     return this;
   }
   this.store[o.path] = o;
 
   var index = -1;
-  o.stem = o.path.replace(noParamRE, function($0, $1, $2){
+  o.path = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
-  o.depth = -1;
-  o.stem.replace(depthRE, function(){ ++o.depth; });
+  o.depth = o.path.replace(depthRE, ' $&').trim().split(/[ ]+/).length;
 
   o.regex = new RegExp('^' +
-    o.stem.replace(/\S+/g, function(s){
+    o.path.replace(/\S+/g, function(s){
       var sep = (s.match(/\//) || s.match(/\./) || ['']).pop();
       return s.replace(paramRE, function($0, $1, $2, $3){
         return $1 + ($3 || '([^' + sep + ' ]+)');
@@ -105,30 +110,49 @@ return
 > NOTE: the returned object is a deep copy of the original `options`
 > given in `parth.set` to avoid mutation
 **/
+var qsRE = new RegExp([
+  '\\/?', // urls can end with slash but is optional
+  '[?#]', // start of querystring/hash
+  '[^!=:]', // exclude ?!, ?= and ?: regex strings
+  '[^ ]+'
+].join(''), 'g');
 
 Parth.prototype.get = function(path){
-  var o = util.boil(path, {notFound: true});
-
-  if(!o){ return null; } else if(this.store[o.path]){
-    o.match = o.path;
-    o.notFound = o.path.slice(o.match.length);
-    return util.merge(util.clone(this.store[o.path]), o);
+  if(typeof path !== 'string'){
+    return {notFound: true};
   }
 
-  var found = this.regex.master.exec(o.path);
-  if(!found){ return null; }
+  path = path.replace(/[ ]+/g, ' ').trim();
+  var o = {path: path, match: path, notFound: path};
+  var urls = path.match(/[^\/:( ]*\/\S*/g);
+
+  if(urls){
+    o.url = urls.length > 1 && urls || urls[0];
+    urls.forEach(function(url){
+      path = path.replace(url, url.replace(qsRE, ''));
+    });
+  }
+
+  if(this.store[path]){
+    o.notFound = false;
+    return util.merge(util.clone(this.store[path], true), o);
+  }
+
+  var found = this.regex.master.exec(path);
+  if(!found){ return o; }
 
   o.match = found.shift();
-  found = util.clone(this.regex[found.indexOf(o.match)], true);
+  o.notFound = path.replace(o.match, '') || false;
 
-  o.params = {_: found.regex.exec(o.path).slice(1)};
-  o.notFound = o.path.replace(o.match, '') || false;
+  found = this.regex[found.indexOf(o.match)];
+  var params = {_: found.regex.exec(path).slice(1)};
 
   var index = -1;
-  found.stem.replace(paramRE, function($0, $1, $2){
-    o.params[$2] = o.params._[++index];
-    o.params._[index] = $2;
+  found.path.replace(paramRE, function($0, $1, $2){
+    params[$2] = params._[++index];
+    params._[index] = $2;
   });
+  if(index > -1){ o.params = params; }
 
-  return util.merge(found, o);
+  return util.merge(util.clone(found, true), o);
 };
