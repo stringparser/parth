@@ -43,7 +43,7 @@ Parth.prototype.set = function(path, opt){
   }
 
   var o = util.clone(opt || {}, true);
-  o.path = path.replace(/[ ]+/g, ' ').trim();
+  o.path = path.replace(/\s+/g, ' ').trim();
 
   if(this.store[o.path]){
     util.merge(this.store[o.path], o);
@@ -52,17 +52,17 @@ Parth.prototype.set = function(path, opt){
   this.store[o.path] = o;
 
   var index = -1;
-  o.path = o.path.replace(noParamRE, function($0, $1, $2){
+  o.stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
-  o.depth = o.path.replace(depthRE, ' $&').trim().split(/[ ]+/).length;
+  o.depth = o.stem.replace(depthRE, ' $&').trim().split(/[ ]+/).length;
 
   o.regex = new RegExp('^' +
-    o.path.replace(/\S+/g, function(s){
+    o.stem.replace(/\S+/g, function(s){
       var sep = (s.match(/\//) || s.match(/\./) || ['']).pop();
       return s.replace(paramRE, function($0, $1, $2, $3){
-        return $1 + ($3 || '([^' + sep + ' ]+)');
+        return $1 + ($3 || '([^' + sep + '\\s]+)');
       });
     }).replace(/[^?( )+*$]+(?=\(|$)/g, function escapeRegExp($0){
       return $0.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
@@ -75,7 +75,7 @@ Parth.prototype.set = function(path, opt){
    * - if that fails, use localCompare
   **/
   this.regex.sort(function(x, y){
-    return (y.depth - x.depth) || y.path.localeCompare(x.path);
+    return (y.depth - x.depth) || y.stem.localeCompare(x.stem);
   });
 
   /** sum up all learned
@@ -122,8 +122,9 @@ Parth.prototype.get = function(path){
     return {notFound: true};
   }
 
-  path = path.replace(/[ ]+/g, ' ').trim();
-  var o = {path: path, match: path, notFound: path};
+  path = path.replace(/\s+/g, ' ').trim();
+
+  var o = {match: path, notFound: path};
   var urls = path.match(/[^\/:( ]*\/\S*/g);
 
   if(urls){
@@ -145,14 +146,13 @@ Parth.prototype.get = function(path){
   o.notFound = path.replace(o.match, '') || false;
 
   found = this.regex[found.indexOf(o.match)];
-  var params = {_: found.regex.exec(path).slice(1)};
+  var params = found.regex.exec(path).slice(1);
+  if(params.length){ o.params = {}; }
 
   var index = -1;
-  found.path.replace(paramRE, function($0, $1, $2){
-    params[$2] = params._[++index];
-    params._[index] = $2;
+  found.stem.replace(paramRE, function($0, $1, $2){
+    o.params[$2] = params[++index];
   });
-  if(index > -1){ o.params = params; }
 
   return util.merge(util.clone(found, true), o);
 };
