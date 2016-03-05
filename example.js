@@ -19,10 +19,11 @@ input = [
   '(get|post) /:page(\\w+)/number',
   '(get|post) /:page(\\w+)/:Number(\\d+)',
   'get /page/number',
-  '(get|post) /:page(\\w+)/:view([^.\\/]+)',
+  '(get|post) /:page(\\w+)/:view([^.\\/\\s]+)',
   '1', '2', '1 2',
   'obj.path',
   'obj.:path(\\S+).:number(\\d+)',
+  'obj.:number(\\d+).:path(\\S+)',
   'obj.path.:here',
   'obj.(prop|path).:here',
   ':obj.(method|prop).:here'
