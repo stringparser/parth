@@ -12,6 +12,7 @@ input = [
   'get /page',
   'get /:page',
   'get :page/:view',
+  'get /:page/:view',
   'get /page/:number(\\d+)',
   'get /:page(\\w+)/number',
   'get /:page(\\w+)/:number(\\d+)',
