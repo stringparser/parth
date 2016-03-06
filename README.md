@@ -72,10 +72,10 @@ _returns_ `this`
 Any string matching the regular expression below qualifies as a parameter
 
 ````js
-/([ /.=]?):([\w-]+)(\(.+?(?:\)\??)+)?/g;
+/:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
 ````
 
-[Go to http://regexr.com/](http://regexr.com/3be8b) and test it out.
+[Go to http://regexr.com/](http://regexr.com/3cuqq) and test it out.
 
 ## parth.get
 ```js

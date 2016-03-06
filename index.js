@@ -32,10 +32,10 @@ returns `this`
 
 > NOTE: `options` is deep cloned beforehand to avoid mutation
 **/
-
-var depthRE = /([ /.]+[(:\w])/g;
-var paramRE = /([ /.=]?):([\w-]+)(\(.+?\)+)?/g;
-var noParamRE = /(^|[ /.=]+)(\(.+?\)+)/g;
+var qsRE = /\/?[?#][^!=:][^\s]+/g;
+var depthRE = /((^|[/?#.\s]+)[(:\w])/g;
+var paramRE = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
+var noParamRE = /(^|[/.=\s]+)(\(.+?\)+)/g;
 
 Parth.prototype.set = function(path, opt){
   if(typeof path !== 'string'){
@@ -43,6 +43,7 @@ Parth.prototype.set = function(path, opt){
   }
 
   var o = util.clone(opt || {}, true);
+
   o.path = path.replace(/\s+/g, ' ').trim();
 
   if(this.store[o.path]){
@@ -56,13 +57,21 @@ Parth.prototype.set = function(path, opt){
     return $1 + ':' + (++index) + $2;
   });
 
-  o.depth = o.stem.replace(depthRE, ' $&').trim().split(/[ ]+/).length;
+  var url = (o.stem.match(/[^\/:(\s]*\/\S*/) || ['']).pop();
+  var qsh = (url.match(qsRE) || []).pop();
+
+  if(url && (!qsh || !paramRE.test(qsh))){
+    qsh = '\\/?:queryFragment([?#][^/\\s]+)?';
+    o.stem = o.stem.replace(url, url.replace(qsRE, '') + qsh);
+  }
+
+  o.depth = -1;
+  o.stem.replace(depthRE, function(){ ++o.depth; });
 
   o.regex = new RegExp('^' +
     o.stem.replace(/\S+/g, function(s){
-      var sep = (s.match(/\//) || s.match(/\./) || ['']).pop();
-      return s.replace(paramRE, function($0, $1, $2, $3){
-        return $1 + ($3 || '([^' + sep + '\\s]+)');
+      return s.replace(paramRE, function($0, $1, $2){
+        return ($2 || '([^?#./\\s]+)');
       });
     }).replace(/[^?( )+*$]+(?=\(|$)/g, function escapeRegExp($0){
       return $0.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
@@ -110,12 +119,6 @@ return
 > NOTE: the returned object is a deep copy of the original `options`
 > given in `parth.set` to avoid mutation
 **/
-var qsRE = new RegExp([
-  '\\/?', // urls can end with slash but is optional
-  '[?#]', // start of querystring/hash
-  '[^!=:]', // exclude ?!, ?= and ?: regex strings
-  '[^ ]+'
-].join(''), 'g');
 
 Parth.prototype.get = function(path){
   if(typeof path !== 'string'){
@@ -123,16 +126,7 @@ Parth.prototype.get = function(path){
   }
 
   path = path.replace(/\s+/g, ' ').trim();
-
-  var o = {match: path, notFound: path};
-  var urls = path.match(/[^\/:( ]*\/\S*/g);
-
-  if(urls){
-    o.url = urls.length > 1 && urls || urls[0];
-    urls.forEach(function(url){
-      path = path.replace(url, url.replace(qsRE, ''));
-    });
-  }
+  var o = {match: path, notFound: path || true};
 
   if(this.store[path]){
     o.notFound = false;
@@ -150,8 +144,8 @@ Parth.prototype.get = function(path){
   if(params.length){ o.params = {}; }
 
   var index = -1;
-  found.stem.replace(paramRE, function($0, $1, $2){
-    o.params[$2] = params[++index];
+  found.stem.replace(paramRE, function($0, $1){
+    o.params[$1] = params[++index];
   });
 
   return util.merge(util.clone(found, true), o);
