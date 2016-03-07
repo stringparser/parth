@@ -32,7 +32,7 @@ returns `this`
 
 > NOTE: `options` is deep cloned beforehand to avoid mutation
 **/
-var qsRE = /\/?[?#][^!=:][^\s]+/g;
+var qsRE = /(\/?[?#][^!=:][^\s]+)/g;
 var depthRE = /((^|[/?#.\s]+)[(:\w])/g;
 var paramRE = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
 var noParamRE = /(^|[/.=\s]+)(\(.+?\)+)/g;
@@ -58,12 +58,8 @@ Parth.prototype.set = function(path, opt){
   });
 
   var url = (o.stem.match(/[^\/:(\s]*\/\S*/) || ['']).pop();
-  var qsh = (url.match(qsRE) || []).pop();
-
-  if(url && (!qsh || !paramRE.test(qsh))){
-    qsh = '\\/?:queryFragment([?#][^/\\s]+)?';
-    o.stem = o.stem.replace(url, url.replace(qsRE, '') + qsh);
-  }
+  var qsh = (url.match(qsRE) || ['\\/?:queryFragment([?#][^/\\s]+)?']).pop();
+  o.stem = o.stem.replace(url, url.replace(qsRE, '') + qsh);
 
   o.depth = -1;
   o.stem.replace(depthRE, function(){ ++o.depth; });

@@ -7,40 +7,38 @@ module.exports = function(Parth){
 
   it('can be given as part of the input string', function(){
     stem = 'post /:number(\\d+)';
-    path = 'post /1/?query';
+    path = 'post /1';
     result = parth.set(stem).get(path);
     result.should.have.properties({
       params: {
-        number: '1',
-        queryFragment: '?query'
+        number: '1'
       }
     });
   });
 
-  it('may not have contain labels', function(){
+  it('may not contain labels', function(){
     stem = '(get|post) /hello/:there/:you';
-    path = 'post /hello/awesome/10/?query=string&value=true#hash';
+    path = 'post /hello/awesome/10';
     result = parth.set(stem).get(path);
     result.should.have.properties({
       params: {
         '0': 'post',
         you: '10',
-        there: 'awesome',
-        queryFragment: '?query=string&value=true#hash'
+        there: 'awesome'
       }
     });
   });
 
-  it('parameter labels should be at params', function(){
-    stem = ':method(get|post) /page/:there/:you';
-    path = 'post /page/awesome/10/?query#hash';
+  it('querystring may contain parameters', function(){
+    stem = ':method(get|post) /page/:there/:you/?\\?:query([^\\s]+)';
+    path = 'post /page/awesome/10?query=here';
     result = parth.set(stem).get(path);
     result.should.have.properties({
       params: {
         you: '10',
         there: 'awesome',
         method: 'post',
-        queryFragment: '?query#hash'
+        query: 'query=here'
       }
     });
   });
