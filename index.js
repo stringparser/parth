@@ -53,6 +53,7 @@ Parth.prototype.set = function(path, opt){
   this.store[o.path] = o;
 
   var index = -1;
+  // if there are parens without param label, add one
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
@@ -74,11 +75,12 @@ Parth.prototype.set = function(path, opt){
     })
   );
 
-  this.regex.push(o);
   /** order regexes according to
    * - depth (number of separation tokens
    * - if that fails, use localCompare
   **/
+
+  this.regex.push(o);
   this.regex.sort(function(x, y){
     return (y.depth - x.depth) || y.stem.localeCompare(x.stem);
   });
