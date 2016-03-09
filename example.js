@@ -65,5 +65,5 @@ Object.keys(parth).forEach(function(prop){
 });
 
 parth.regex.forEach(function(re){
-  console.log(re.path);
+  console.log(re.stem);
 });
