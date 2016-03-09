@@ -9,8 +9,8 @@ function Parth(){
     return new Parth();
   }
 
-  this.store = {};
   this.regex = [];
+  this.store = {};
   this.regex.master = new RegExp('(?:[])');
 }
 
@@ -43,7 +43,6 @@ Parth.prototype.set = function(path, opt){
   }
 
   var o = util.clone(opt || {}, true);
-
   o.path = path.replace(/\s+/g, ' ').trim();
 
   if(this.store[o.path]){
@@ -58,9 +57,12 @@ Parth.prototype.set = function(path, opt){
     return $1 + ':' + (++index) + $2;
   });
 
-  var url = (o.stem.match(/[^\/:(\s]*\/\S*/) || ['']).pop();
-  var qsh = (url.match(qsRE) || ['\\/?:queryFragment([?#][^/\\s]+)?']).pop();
-  o.stem = o.stem.replace(url, url.replace(qsRE, '') + qsh);
+  var url = (o.stem.match(/[^\/\s]*\/\S*/) || [null]).pop();
+
+  if(url){
+    var qsh = (url.match(qsRE) || [':queryFragment(\\/?[?#][^/\\s]+)?']).pop();
+    o.stem = o.stem.replace(url, url.replace(qsRE, '') + qsh);
+  }
 
   o.depth = -1;
   o.stem.replace(depthRE, function(){ ++o.depth; });
