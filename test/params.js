@@ -29,16 +29,29 @@ module.exports = function(Parth){
     });
   });
 
-  it('querystring may contain parameters', function(){
-    stem = ':method(get|post) /page/:there/:you/?\\?:query([^\\s]+)';
-    path = 'post /page/awesome/10?query=here';
+  it('query fragment is setup by default for an url', function(){
+    stem = '(get|post) /hello/:there/:you';
+    path = 'post /hello/awesome/10?query=string#here';
     result = parth.set(stem).get(path);
     result.should.have.properties({
       params: {
+        '0': 'post',
         you: '10',
         there: 'awesome',
-        method: 'post',
-        query: 'query=here'
+        queryFragment: '?query=string#here'
+      }
+    });
+  });
+
+  it('querystring may contain parameters', function(){
+    stem = 'post /:page\\/?:query(\\?[^/#\\s]+)?:fragment(#[^?\\s]+)?';
+    path = 'post /page?query=here#hash';
+    result = parth.set(stem).get(path);
+    result.should.have.properties({
+      params: {
+        page: 'page',
+        query: '?query=here',
+        fragment: '#hash'
       }
     });
   });
