@@ -9,8 +9,8 @@ function Parth(){
     return new Parth();
   }
 
-  this.store = {};
   this.regex = [];
+  this.store = {};
   this.regex.master = new RegExp('(?:[])');
 }
 
@@ -32,43 +32,58 @@ returns `this`
 
 > NOTE: `options` is deep cloned beforehand to avoid mutation
 **/
-var sepRE = /([/.][(:\w])/g;
-var paramRE = /([ /.=]?):([\w-]+)(\(.+?(?:\)\??)+)?/g;
-var noParamRE = /(^|[ /.=]+)(\(.+?(?:\)\??)+)/g;
+var qsRE = /(\/?[?#][^!=:][^\s]+)/g;
+var depthRE = /((^|[/?#.\s]+)[(:\w])/g;
+var paramRE = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
+var noParamRE = /(^|[/.=\s]+)(\(.+?\)+)/g;
 
 Parth.prototype.set = function(path, opt){
-  var o = util.boil(path, util.clone(opt, true));
+  if(typeof path !== 'string'){
+    return this;
+  }
 
-  if(!o){ return this; } else if(this.store[o.path]){
+  var o = util.clone(opt || {}, true);
+  o.path = path.replace(/\s+/g, ' ').trim();
+
+  if(this.store[o.path]){
     util.merge(this.store[o.path], o);
     return this;
   }
   this.store[o.path] = o;
-  o.depth = o.path.replace(sepRE, ' $&').trim().split(/[ ]+/).length;
 
   var index = -1;
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
+  var url = (o.stem.match(/[^\/\s]*\/\S*/) || [null]).pop();
+
+  if(url){
+    var qsh = (url.match(qsRE) || [':queryFragment(\\/?[?#][^/\\s]+)?']).pop();
+    o.stem = o.stem.replace(url, url.replace(qsRE, '') + qsh);
+  }
+
+  o.depth = -1;
+  o.stem.replace(depthRE, function(){ ++o.depth; });
+
   o.regex = new RegExp('^' +
     o.stem.replace(/\S+/g, function(s){
-      var sep = (s.match(/\//) || s.match(/\./) || ['']).pop();
-      return s.replace(paramRE, function($0, $1, $2, $3){
-        return $1 + ($3 || '([^' + sep + ' ]+)');
+      return s.replace(paramRE, function($0, $1, $2){
+        return ($2 || '([^?#./\\s]+)');
       });
     }).replace(/[^?( )+*$]+(?=\(|$)/g, function escapeRegExp($0){
       return $0.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
     })
   );
 
-  this.regex.push(o);
   /** order regexes according to
    * - depth (number of separation tokens
    * - if that fails, use localCompare
   **/
+
+  this.regex.push(o);
   this.regex.sort(function(x, y){
-    return (y.depth - x.depth) || y.path.localeCompare(x.path);
+    return (y.depth - x.depth) || y.stem.localeCompare(x.stem);
   });
 
   /** sum up all learned
@@ -105,26 +120,32 @@ return
 **/
 
 Parth.prototype.get = function(path){
-  var o = util.boil(path, {notFound: true});
-
-  if(!o){ return null; } else if(this.store[o.path]){
-    return util.clone(this.store[o.path], true);
+  if(typeof path !== 'string'){
+    return {notFound: true};
   }
 
-  var found = this.regex.master.exec(o.path);
-  if(!found){ return null; }
+  path = path.replace(/\s+/g, ' ').trim();
+  var o = {match: path, notFound: path || true};
+
+  if(this.store[path]){
+    o.notFound = false;
+    return util.merge(util.clone(this.store[path], true), o);
+  }
+
+  var found = this.regex.master.exec(path);
+  if(!found){ return o; }
 
   o.match = found.shift();
-  found = util.clone(this.regex[found.indexOf(o.match)], true);
+  o.notFound = path.replace(o.match, '') || false;
 
-  o.params = {_: found.regex.exec(o.path).slice(1)};
-  o.notFound = o.path.replace(o.match, '') || false;
+  found = this.regex[found.indexOf(o.match)];
+  var params = found.regex.exec(path).slice(1);
+  if(params.length){ o.params = {}; }
 
   var index = -1;
-  found.stem.replace(paramRE, function($0, $1, $2){
-    o.params[$2] = o.params._[++index];
-    o.params._[index] = $2;
+  found.stem.replace(paramRE, function($0, $1){
+    o.params[$1] = params[++index];
   });
 
-  return util.merge(found, o);
+  return util.merge(util.clone(found, true), o);
 };

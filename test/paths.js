@@ -1,118 +1,91 @@
 'use strict';
 
-var stem, path, result;
+var path, match;
+
+function check(result) {
+  result.should.have.properties({
+    path: path,
+    match: match
+  });
+}
 
 module.exports = function(Parth){
   var parth = new Parth();
 
   it('object', function(){
-    stem = 'hello.:there';
-    path = 'hello.awesome';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path);
-    result.stem.should.be.eql(stem);
+    path = 'hello.:there';
+    match = 'hello.awesome';
+    check(parth.set(path).get(match));
   });
 
   it('raw object paths', function(){
-    stem = 'hello.there';
-    path = 'hello.there';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(stem);
+    match = path = 'hello.there';
+    check(parth.set(path).get(match));
   });
 
   it('unix paths', function(){
-    stem = '/hello/:there/:you';
-    path = '/hello/awesome/human';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path);
-    result.stem.should.be.eql(stem);
+    path = '/hello/:there/:you';
+    match = '/hello/awesome/human';
+    check(parth.set(path).get(match));
   });
 
   it('raw unix paths', function(){
-    stem = '/hello/there/you';
-    path = '/hello/there/you?here';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path.split('?')[0]);
+    path = '/hello/there/you';
+    match = '/hello/there/you?here';
+    check(parth.set(path).get(match));
   });
 
   it('urls', function(){
-    stem = '/hello/:there';
-    path = '/hello/awesome/?query';
-    result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
-    result.path.should.be.eql(path.split('/?')[0]);
+    path = '/hello/:there';
+    match = '/hello/awesome/?query';
+    check(parth.set(path).get(match));
   });
 
   it('raw urls', function(){
-    stem = '/hello/there';
-    path = '/hello/there/?query';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path.split('/?')[0]);
+    path = '/hello/there';
+    match = '/hello/there/?query';
+    check(parth.set(path).get(match));
   });
 
   it('urls: querystring is stripped', function(){
-    stem = 'get page.thing /hello/there';
-    path = 'get page.thing /hello/there/?query';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path.split('/?')[0]);
+    path = 'get page.thing /hello/there';
+    match = 'get page.thing /hello/there/?query';
+    check(parth.set(path).get(match));
   });
 
   it('urls: hash is stripped', function(){
-    stem = 'get page.thing /hello/there';
-    path = 'get page.thing /hello/there#hello';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path.split('#')[0]);
+    path = 'get page.thing /hello/there';
+    match = 'get page.thing /hello/there#hello';
+    check(parth.set(path).get(match));
   });
 
   it('urls: parameters are not mistaken as querystrings', function(){
-    stem = 'get page.thing /hello/:here(?:\\w+you)';
-    path = 'get page.thing /hello/helloyou';
-    result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
-    result.path.should.be.eql(path);
+    path = 'get page.thing /hello/:here(?:\\w+you)';
+    match = 'get page.thing /hello/helloyou';
+    check(parth.set(path).get(match));
   });
 
   it('space separated paths', function(){
-    path = 'you are an awesome human';
-    stem = 'you are an :there :you';
-    result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
-    result.path.should.be.eql(path);
+    path = 'you are an :there :you';
+    match = 'you are an awesome human';
+    check(parth.set(path).get(match));
   });
 
   it('raw, space separated paths', function(){
-    path = 'you are an there you';
-    stem = 'you are an there you';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path);
+    match = path = 'you are an there you';
+    check(parth.set(path).get(match));
   });
 
   it('unix, object and url paths together', function(){
-    stem = 'get page.:thing /hello/:there';
-    path = 'get page.data /hello/awesome/?query';
-    result = parth.set(stem).get(path);
-    result.stem.should.be.eql(stem);
-    result.path.should.be.eql(path.split('/?')[0]);
+    path = 'get page.:thing /hello/:there';
+    match = 'get page.data /hello/awesome/?query';
+    check(parth.set(path).get(match));
   });
 
   it('raw: unix, object and urls paths together', function(){
-    stem = 'get page.thing /hello/there';
-    path = 'get page.thing /hello/there/?query';
-    result = parth.set(stem).get(path);
-    result.path.should.be.eql(path.split('/?')[0]);
-  });
-
-  after(function(){
-    if(process.argv.indexOf('-l') < 0){ return; }
-    Object.keys(parth.result).forEach(function(prop){
-      var print = parth.result[prop];
-      console.log('parth.result[%s]', prop);
-      if(prop === 'master'){
-        print = print.source.split(/\|(?=\({1,2})/);
-      }
-      console.log(print);
-      console.log(' --\n');
-    });
+    path = 'get page.thing /hello/there';
+    match = 'get page.thing /hello/there/?query';
+    check(parth.set(path).get(match));
   });
 
 };
