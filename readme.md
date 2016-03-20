@@ -16,21 +16,21 @@ var Parth = require('parth');
 var parth = new Parth();
 var props = {handle: function(){}};
 
-parth.set('(get|post) /:page(\\w+)/:view([^./]+)', props)
-     .get('post /user/page/photo?query#hash')
+parth.set('(get|post) /:page/:view', props)
+     .get('get /weekend/baby?query=string#hash user.10.beers now')
 // =>
 {
+  path: 'get /:page/:view',
+  stem: ':0(get|post) /:page/:view:queryFragment(\\/?[?#][^/\\s]+)?',
+  depth: 2,
+  regex: /^(get|post) \/([^?#.\/\s]+)\/([^?#.\/\s]+)(\/?[?#][^\/\s]+)?/,
+  match: 'get /weekend/baby?query=string#hash',
   handle: [Function],
-  path: 'post /user/page/photo',
-  stem: ':0(get|post) /:page(\\w+)/:view([^./]+)',
-  regex: /^(get|post) \/(\w+)\/([^./]+)/,
-  depth: 3,
-  notFound: '/photo',
+  notFound: ' user.10.beers now',
   params: {
-    '0': 'post',
-     _: [ '0', 'page', 'view' ],
-     page: 'user',
-     view: 'page'
+    page: 'weekend',
+    view: 'baby',
+    queryFragment: '?query=string#hash'
   }
 }
 ```
@@ -93,15 +93,15 @@ _return_
 
 > All matches are partial i.e. /^regex baby/.
 > Not being strict is useful for `notFound` paths.
-
+>
 > NOTE: the returned object is a deep copy of the original `options`
 > given in `parth.set` to avoid mutation
 
 ### parth properties
 
- - `store`: all paths set for match are here
- - `regex`: array of carefully ordered regexes
- - `regex.master`: regex aggregating all learned
+ - `parth.store`: all paths set for match are here
+ - `parth.regex`: array of carefully ordered regexes
+ - `parth.regex.master`: regex aggregating all learned
 
 ## why
 

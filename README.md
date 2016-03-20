@@ -16,14 +16,14 @@ var Parth = require('parth');
 var parth = new Parth();
 var props = {handle: function(){}};
 
-parth.set('get /:page/:view', props)
-     .get('post /user/page/photo?query#hash')
+parth.set('(get|post) /:page/:view', props)
+     .get('get /weekend/baby?query=string#hash user.10.beers now')
 // =>
 {
   path: 'get /:page/:view',
-  stem: 'get /:page/:view:queryFragment(\\/?[?#][^/\\s]+)?',
+  stem: ':0(get|post) /:page/:view:queryFragment(\\/?[?#][^/\\s]+)?',
   depth: 2,
-  regex: /^get \/([^?#.\/\s]+)\/([^?#.\/\s]+)(\/?[?#][^\/\s]+)?/,
+  regex: /^(get|post) \/([^?#.\/\s]+)\/([^?#.\/\s]+)(\/?[?#][^\/\s]+)?/,
   match: 'get /weekend/baby?query=string#hash',
   handle: [Function],
   notFound: ' user.10.beers now',
