@@ -125,10 +125,11 @@ Parth.prototype.get = function(path){
   }
 
   path = path.replace(/\s+/g, ' ').trim();
-  var o = {match: path, notFound: path || true};
+  var o = {notFound: path};
 
   if(this.store[path]){
-    o.notFound = false;
+    o.match = path;
+    o.notFound = '';
     return util.merge(util.clone(this.store[path], true), o);
   }
 
@@ -136,7 +137,7 @@ Parth.prototype.get = function(path){
   if(!found){ return o; }
 
   o.match = found.shift();
-  o.notFound = path.replace(o.match, '') || false;
+  o.notFound = path.slice(o.match.length) || false;
 
   found = this.regex[found.indexOf(o.match)];
   var params = found.regex.exec(path).slice(1);
