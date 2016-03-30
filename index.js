@@ -121,7 +121,7 @@ return
 
 Parth.prototype.get = function(path){
   if(typeof path !== 'string'){
-    return {notFound: true};
+    return null;
   }
 
   path = path.replace(/\s+/g, ' ').trim();
@@ -134,10 +134,10 @@ Parth.prototype.get = function(path){
   }
 
   var found = this.regex.master.exec(path);
-  if(!found){ return o; }
+  if(!found){ return null; }
 
   o.match = found.shift();
-  o.notFound = path.slice(o.match.length) || false;
+  o.notFound = path.slice(o.match.length);
 
   found = this.regex[found.indexOf(o.match)];
   var params = found.regex.exec(path).slice(1);
