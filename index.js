@@ -125,16 +125,17 @@ Parth.prototype.get = function(path){
   }
 
   path = path.replace(/\s+/g, ' ').trim();
-  var o = {notFound: path};
 
   if(this.store[path]){
-    o.match = path;
-    o.notFound = '';
-    return util.merge(util.clone(this.store[path], true), o);
+    return util.merge(util.clone(this.store[path], true), {
+      match: path,
+      notFound: ''
+    });
   }
 
   var found = this.regex.master.exec(path);
   if(!found){ return null; }
+  var o = {};
 
   o.match = found.shift();
   o.notFound = path.slice(o.match.length);
