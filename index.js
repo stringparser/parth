@@ -121,22 +121,24 @@ return
 
 Parth.prototype.get = function(path){
   if(typeof path !== 'string'){
-    return {notFound: true};
+    return null;
   }
 
   path = path.replace(/\s+/g, ' ').trim();
-  var o = {match: path, notFound: path || true};
 
   if(this.store[path]){
-    o.notFound = false;
-    return util.merge(util.clone(this.store[path], true), o);
+    return util.merge(util.clone(this.store[path], true), {
+      match: path,
+      notFound: ''
+    });
   }
 
   var found = this.regex.master.exec(path);
-  if(!found){ return o; }
+  if(!found){ return null; }
+  var o = {};
 
   o.match = found.shift();
-  o.notFound = path.replace(o.match, '') || false;
+  o.notFound = path.slice(o.match.length);
 
   found = this.regex[found.indexOf(o.match)];
   var params = found.regex.exec(path).slice(1);
