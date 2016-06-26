@@ -6,20 +6,20 @@ exports = module.exports = Parth;
 
 function Parth(options){
   if(!(this instanceof Parth)){
-    return new Parth();
+    return new Parth(options);
   }
 
   this.store = {};
   this.regex = [];
   this.regex.master = new RegExp('(?:[])');
-  this.regex.default = /[^?#./\s]+/;
+  this.regex.defaultRE = /[^?#./\s]+/;
 
   if(options){
-    this.regex.default = options.defaultRE || this.regex.default;
+    this.regex.defaultRE = options.defaultRE || this.regex.defaultRE;
   }
 }
 
-var qsRE = /(\/?[?#][^!=:][^\s]+)/g;
+var qshRE = /[?#][^\/\s]*/g;
 var depthRE = /((^|[/?#.\s]+)[(:\w])/g;
 var paramRE = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
 var noParamRE = /(^|[/.=\s]+)(\(.+?\)+)/g
@@ -36,24 +36,25 @@ Parth.prototype.set = function(path, opt){
     util.merge(this.store[o.path], o);
     return this;
   }
-  this.store[o.path] = o;
+  this.regex.push(this.store[o.path] = o);
 
   var index = -1;
+  var defaultRE = '(' + this.regex.defaultRE.source + ')';
+
   o.stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
-  var url = (o.stem.match(/[^\/\s]*\/\S*/) || [null]).pop();
-  var defaultRE = '(' + this.regex.default.source + ')';
+  var url = (o.stem.match(/[^\s]*\/\S*/) || [null]).pop();
+  var qsh = util.getQueryString(url);
 
-  if(url){
-    var qsh = (url.match(qsRE) || [':queryFragment(\\/?[?#][^/\\s]+)?']).pop();
-    o.stem = o.stem.replace(url, url.replace(qsRE, '') + qsh);
+  if(url && !qsh){
+    o.stem = o.stem.replace(url, url.replace(/\/$/, '$1') +
+      ':qs(?:\\/)?(' + qshRE.source + ')?'
+    );
   }
 
-  o.depth = -1;
-  o.stem.replace(depthRE, function(){ ++o.depth; });
-
+  o.depth = o.stem.split(depthRE).length || -1;
   o.regex = new RegExp('^' +
     o.stem.replace(/\S+/g, function(s){
       return s.replace(paramRE, function($0, $1, $2){
@@ -67,7 +68,6 @@ Parth.prototype.set = function(path, opt){
   // order regexes according to depth (# of separation tokes) or,
   // if that fails, use localCompare
 
-  this.regex.push(o);
   this.regex.sort(function(x, y){
     return (y.depth - x.depth) || y.stem.localeCompare(x.stem);
   });
@@ -99,10 +99,7 @@ Parth.prototype.get = function(path){
   var found = this.regex.master.exec(path);
   if(!found){ return null; }
 
-  var o = {
-    match: found.shift(),
-    params: {}
-  };
+  var o = {match: found.shift(), params: {}};
 
   found = this.regex[found.indexOf(o.match)];
   o.notFound = path.slice(o.match.length);
