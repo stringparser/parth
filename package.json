@@ -17,13 +17,13 @@
     "url": "https://github.com/stringparser/parth/issues"
   },
   "scripts": {
-    "lint": "jshint lib *.js",
+    "lint": "eslint lib *.js",
     "test": "npm run lint && mocha test"
   },
   "devDependencies": {
     "mocha": "*",
     "should": "*",
-    "jshint": "*"
+    "eslint": "*"
   },
   "keywords": [
     "url",
