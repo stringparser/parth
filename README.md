@@ -43,19 +43,46 @@ The `module.exports` a `Parth` constructor
 var Parth = require('parth');
 ````
 
-which takes no arguments
+which can take the options below
+
 ```js
-var parth = new Parth();
+var parth = new Parth(options);
 ```
+
+_options_ type `object`, can be
+ - `options.defaultRE` default `regex` used if none is given after the params
+
+example:
+
+```js
+var parth = new Parth({ defaultRE: /[^\s\/?#]+/ });
+
+parth.set('/page/:view') // no regex given after ":view"
+     .get('/page/10/?query=here')
+// =>
+{
+  path: '/page/:view/',
+  stem: '/page/:view:qs(?:\\/?)([?#][^\\/\\s]*)?',
+  depth: 2,
+  regex: /^\/page\/([^\s\/?#]+)(?:\/?)([?#][^\/\s]*)?/,
+  match: '/page/10/?query=here',
+  params: {
+    view: '10',
+    qs: '?query=here'
+  },
+  notFound: ''
+}
+```
+
+> NOTE: the query string is separated by default and assigned to `qs`.
+> This will only happen if the path given to `parth.set` has no query string
 
 ## parth.set
 
 ```js
 function set(string path[, object options])
 ```
-This method purpose is to sanitize the `path` given
-and classify the resulting regular expression with those
-previously stored.
+This method job is to sanitize `path` and order it with those previously stored.
 
 _arguments_
  - `path`, type `string`, path to be set
