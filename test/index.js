@@ -8,6 +8,7 @@ require('should');
 [
   'paths.js',
   'params.js',
+  'options.js',
   'notFound.js'
 ].forEach(function(file){
   if(file === 'index.js'){ return; }
