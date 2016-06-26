@@ -19,6 +19,6 @@ module.exports = function(Parth){
     path = 'get /hello/awesome/human';
     result = parth.set(stems).get(path);
     result.should.not.be.eql(null);
-    result.notFound.should.be.eql('/human');
+    result.notFound.should.be.eql('human');
   });
 };

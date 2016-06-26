@@ -38,7 +38,7 @@ module.exports = function(Parth){
         '0': 'post',
         you: '10',
         there: 'awesome',
-        queryFragment: '?query=string#here'
+        qs: '?query=string#here'
       }
     });
   });
@@ -47,6 +47,7 @@ module.exports = function(Parth){
     stem = 'post /:page\\/?:query(\\?[^/#\\s]+)?:fragment(#[^?\\s]+)?';
     path = 'post /page?query=here#hash';
     result = parth.set(stem).get(path);
+
     result.should.have.properties({
       params: {
         page: 'page',
