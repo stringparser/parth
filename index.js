@@ -4,42 +4,31 @@ var util = require('./lib/util');
 
 exports = module.exports = Parth;
 
-function Parth(){
+function Parth(options){
   if(!(this instanceof Parth)){
     return new Parth();
   }
 
-  this.regex = [];
   this.store = {};
+  this.regex = [];
+
+  this.regex.param = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
   this.regex.master = new RegExp('(?:[])');
+  this.regex.noParam = /(^|[/.=\s]+)(\(.+?\)+)/g;
+
+  if(options){
+    this.regex.param = options.paramsRE || this.regex.param;
+    this.regex.noParam = options.noParamRE || this.regex.noParamRE;
+  }
 }
 
-
-/**
-## parth.set
-```js
-function set(string path[, object options])
-```
-This method purpose is to sanitize the `path` given
-and classify the resulting regular expression with those
-previously stored.
-
-arguments
- - path, type `string`
- - options, type `object`, to merge with this path properties
-
-returns `this`
-
-> NOTE: `options` is deep cloned beforehand to avoid mutation
-**/
 var qsRE = /(\/?[?#][^!=:][^\s]+)/g;
 var depthRE = /((^|[/?#.\s]+)[(:\w])/g;
-var paramRE = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
-var noParamRE = /(^|[/.=\s]+)(\(.+?\)+)/g;
 
 Parth.prototype.set = function(path, opt){
+  var self = this;
   if(typeof path !== 'string'){
-    return this;
+    return self;
   }
 
   var o = util.clone(opt || {}, true);
@@ -52,7 +41,7 @@ Parth.prototype.set = function(path, opt){
   this.store[o.path] = o;
 
   var index = -1;
-  o.stem = o.path.replace(noParamRE, function($0, $1, $2){
+  o.stem = o.path.replace(this.regex.noParam, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
@@ -68,7 +57,7 @@ Parth.prototype.set = function(path, opt){
 
   o.regex = new RegExp('^' +
     o.stem.replace(/\S+/g, function(s){
-      return s.replace(paramRE, function($0, $1, $2){
+      return s.replace(self.regex.param, function($0, $1, $2){
         return ($2 || '([^?#./\\s]+)');
       });
     }).replace(/[^?( )+*$]+(?=\(|$)/g, function escapeRegExp($0){
@@ -76,20 +65,15 @@ Parth.prototype.set = function(path, opt){
     })
   );
 
-  /** order regexes according to
-   * - depth (number of separation tokens
-   * - if that fails, use localCompare
-  **/
+  // order regexes according to depth (# of separation tokes) or,
+  // if that fails, use localCompare
 
   this.regex.push(o);
   this.regex.sort(function(x, y){
     return (y.depth - x.depth) || y.stem.localeCompare(x.stem);
   });
 
-  /** sum up all learned
-   * - void all groups
-   * - make a giant regex
-  **/
+  // sum up all learned (void all groups and make a giant regex)
   this.regex.master = new RegExp( '(' +
     this.regex.map(function voidRegExp(el){
       return el.regex.source.replace(/\((?=[^?])/g, '(?:');
@@ -98,26 +82,6 @@ Parth.prototype.set = function(path, opt){
 
   return this;
 };
-
-
-/**
-## parth.get
-```js
-function get(string path)
-```
-
-Take a string, and return a clone of the store object properties
-
-arguments
- - path, type `string` to match stored paths with
-
-return
- - null for non-supported types or not matching path
- - object with all the stored information on `parth.set`
-
-> NOTE: the returned object is a deep copy of the original `options`
-> given in `parth.set` to avoid mutation
-**/
 
 Parth.prototype.get = function(path){
   if(typeof path !== 'string'){
@@ -135,17 +99,19 @@ Parth.prototype.get = function(path){
 
   var found = this.regex.master.exec(path);
   if(!found){ return null; }
-  var o = {};
 
-  o.match = found.shift();
-  o.notFound = path.slice(o.match.length);
+  var o = {
+    match: found.shift(),
+    params: {}
+  };
 
   found = this.regex[found.indexOf(o.match)];
-  var params = found.regex.exec(path).slice(1);
-  if(params.length){ o.params = {}; }
+  o.notFound = path.slice(o.match.length);
 
   var index = -1;
-  found.stem.replace(paramRE, function($0, $1){
+  var params = found.regex.exec(path).slice(1);
+
+  found.stem.replace(this.regex.param, function($0, $1){
     o.params[$1] = params[++index];
   });
 
