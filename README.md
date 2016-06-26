@@ -21,16 +21,16 @@ parth.set('(get|post) /:page/:view', props)
 // =>
 {
   path: 'get /:page/:view',
-  stem: ':0(get|post) /:page/:view:queryFragment(\\/?[?#][^/\\s]+)?',
+  stem: ':0(get|post) /:page/:view:qs(?:\\/?)?([?#][^\\/\s]*)?',
   depth: 2,
-  regex: /^(get|post) \/([^?#.\/\s]+)\/([^?#.\/\s]+)(\/?[?#][^\/\s]+)?/,
+  regex: /^(get|post) \/([^?#.\/\s]+)\/([^?#.\/\s]+)(?:\/?)?([?#][^\/\s]*)?/,
   match: 'get /weekend/baby?query=string#hash',
   handle: [Function],
   notFound: ' user.10.beers now',
   params: {
     page: 'weekend',
     view: 'baby',
-    queryFragment: '?query=string#hash'
+    qs: '?query=string#hash'
   }
 }
 ```
