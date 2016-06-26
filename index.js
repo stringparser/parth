@@ -11,24 +11,22 @@ function Parth(options){
 
   this.store = {};
   this.regex = [];
-
-  this.regex.param = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
   this.regex.master = new RegExp('(?:[])');
-  this.regex.noParam = /(^|[/.=\s]+)(\(.+?\)+)/g;
+  this.regex.default = /[^?#./\s]+/;
 
   if(options){
-    this.regex.param = options.paramsRE || this.regex.param;
-    this.regex.noParam = options.noParamRE || this.regex.noParamRE;
+    this.regex.default = options.defaultRE || this.regex.default;
   }
 }
 
 var qsRE = /(\/?[?#][^!=:][^\s]+)/g;
 var depthRE = /((^|[/?#.\s]+)[(:\w])/g;
+var paramRE = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
+var noParamRE = /(^|[/.=\s]+)(\(.+?\)+)/g
 
 Parth.prototype.set = function(path, opt){
-  var self = this;
   if(typeof path !== 'string'){
-    return self;
+    return this;
   }
 
   var o = util.clone(opt || {}, true);
@@ -41,11 +39,12 @@ Parth.prototype.set = function(path, opt){
   this.store[o.path] = o;
 
   var index = -1;
-  o.stem = o.path.replace(this.regex.noParam, function($0, $1, $2){
+  o.stem = o.path.replace(noParamRE, function($0, $1, $2){
     return $1 + ':' + (++index) + $2;
   });
 
   var url = (o.stem.match(/[^\/\s]*\/\S*/) || [null]).pop();
+  var defaultRE = '(' + this.regex.default.source + ')';
 
   if(url){
     var qsh = (url.match(qsRE) || [':queryFragment(\\/?[?#][^/\\s]+)?']).pop();
@@ -57,8 +56,8 @@ Parth.prototype.set = function(path, opt){
 
   o.regex = new RegExp('^' +
     o.stem.replace(/\S+/g, function(s){
-      return s.replace(self.regex.param, function($0, $1, $2){
-        return ($2 || '([^?#./\\s]+)');
+      return s.replace(paramRE, function($0, $1, $2){
+        return ($2 || defaultRE);
       });
     }).replace(/[^?( )+*$]+(?=\(|$)/g, function escapeRegExp($0){
       return $0.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
@@ -111,7 +110,7 @@ Parth.prototype.get = function(path){
   var index = -1;
   var params = found.regex.exec(path).slice(1);
 
-  found.stem.replace(this.regex.param, function($0, $1){
+  found.stem.replace(paramRE, function($0, $1){
     o.params[$1] = params[++index];
   });
 
