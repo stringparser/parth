@@ -1,8 +1,10 @@
 {
   "name": "parth",
   "main": "dist/index.js",
-  "version": "4.2.3",
-  "engines": "{\"node\":\">= 14\"}",
+  "version": "5.0.0",
+  "engines": {
+    "node": ">= 14"
+  },
   "author": "Javier Carrillo",
   "description": "path to regex madness",
   "repository": "stringparser/parth",
