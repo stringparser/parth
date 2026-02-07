@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "parth": "file:../../parth-4.2.3.tgz"
+    "parth": "file:../../parth-5.0.1.tgz"
   }
 }
