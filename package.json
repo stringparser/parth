@@ -13,6 +13,7 @@
   "scripts": {
     "lint": "eslint src test example.ts --fix",
     "test": "jest",
+    "posttest": "npm run verify:publish",
     "dist": "tsc",
     "prepublishOnly": "npm run dist",
     "verify:publish": "bash test/verify-publish/test.sh"
