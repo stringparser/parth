@@ -6,14 +6,12 @@
 [todo](#todo) -
 [why](#why)
 
-[![build][badge-build]][x-travis]
-
 ## sample
 
 ```js
-var Parth = require('parth');
+import Parth from 'parth';
 
-var parth = new Parth();
+const parth = new Parth();
 var props = {handle: function(){}};
 
 parth.set('(get|post) /:page/:view', props)
@@ -37,11 +35,11 @@ parth.set('(get|post) /:page/:view', props)
 
 ## documentation
 
-The `module.exports` a `Parth` constructor
+Parth exports a `Parth` class (default export)
 
-````js
-var Parth = require('parth');
-````
+```js
+import Parth from 'parth';
+```
 
 which can take the options below
 
@@ -55,7 +53,7 @@ _options_ type `object`, can be
 example:
 
 ```js
-var parth = new Parth({ defaultRE: /[^\s\/?#]+/ });
+const parth = new Parth({ defaultRE: /[^\s\/?#]+/ });
 
 parth.set('/page/:view') // no regex given after ":view"
      .get('/page/10/?query=here')
@@ -124,11 +122,13 @@ _return_
 > NOTE: the returned object is a deep copy of the original `options`
 > given in `parth.set` to avoid mutation
 
-### parth properties
+### TypeScript
 
- - `parth.store`: all paths set for match are here
- - `parth.regex`: array of carefully ordered regexes
- - `parth.regex.master`: regex aggregating all learned
+Parth is written in TypeScript and ships with type definitions. Import types as needed:
+
+```ts
+import Parth, { ParthOptions, ParthResult } from 'parth';
+```
 
 ## why
 
@@ -142,44 +142,22 @@ With [npm](http://npmjs.org)
 
 ### examples
 
-Run the [`example.js`](example.js) file.
+Run the [`example.ts`](example.ts) file: `npx tsx example.ts` (or `npm run dist` then run with Node after changing the import to `./dist`).
 
 ### test
 
     npm test
 
 ```
-➜  parth (master) ✓ npm t
-parth
-  paths
-    ✓ object
-    ✓ raw object paths
-    ✓ unix paths
-    ✓ raw unix paths
-    ✓ urls
-    ✓ raw urls
-    ✓ urls: querystring is stripped
-    ✓ urls: hash is stripped
-    ✓ urls: parameters are not mistaken as querystrings
-    ✓ space separated paths
-    ✓ raw, space separated paths
-    ✓ unix, object and url paths together
-    ✓ raw: unix, object and urls paths together
-  params
-    ✓ can be given as a string regex
-    ✓ will contain all parameter keys at _
-    ✓ parameter values should be at params
-  notFound
-    ✓ should be false for perfect match
-    ✓ should have what is left of the path
+➜  parth npm test
+PASS test/paths.test.ts
+PASS test/params.test.ts
+PASS test/options.test.ts
+PASS test/notFound.test.ts
 
-
-18 passing (16ms)
+Test Suites: 4 passed, 4 total
+Tests:       20 passed, 20 total
 ```
-
-### todo
-
- - [ ] set support for regexp input
 
 ### license
 
@@ -194,7 +172,5 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [x-npm]: https://npmjs.org/package/parth
-[x-travis]: https://travis-ci.org/stringparser/parth/builds
-[badge-build]: http://img.shields.io/travis/stringparser/parth/master.svg?style=flat-square
 [badge-version]: http://img.shields.io/npm/v/parth.svg?style=flat-square
 [badge-downloads]: http://img.shields.io/npm/dm/parth.svg?style=flat-square
