@@ -57,16 +57,3 @@ getInput.forEach((stem, index) => {
   console.log('result =', result);
   console.log(getInput[index + 1] ? ' -- ' : '');
 });
-
-if (process.argv.indexOf('-l') < 0) {
-  process.exit(0);
-}
-
-(Object.keys(parth) as (keyof typeof parth)[]).forEach((prop) => {
-  console.log((parth as Record<string, unknown>)[prop]);
-  console.log(' --\n');
-});
-
-parth.regex.forEach((re) => {
-  console.log(re.stem);
-});
