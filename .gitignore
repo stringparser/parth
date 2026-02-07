@@ -1,2 +1,4 @@
 node_modules
 dist
+test/verify-publish/node_modules
+test/verify-publish/package-lock.json

@@ -1,6 +1,5 @@
 {
   "name": "parth",
-  "type": "module",
   "main": "dist/index.js",
   "version": "4.2.3",
   "engines": "{\"node\":\">= 14\"}",
@@ -15,7 +14,8 @@
     "lint": "eslint src test example.ts --fix",
     "test": "jest",
     "dist": "tsc",
-    "prepublishOnly": "npm run dist"
+    "prepublishOnly": "npm run dist",
+    "verify:publish": "bash test/verify-publish/test.sh"
   },
   "devDependencies": {
     "@types/jest": "30.0.0",

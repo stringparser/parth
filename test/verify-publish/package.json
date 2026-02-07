@@ -1,0 +1,8 @@
+{
+  "name": "parth-verify",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "parth": "file:../../parth-4.2.3.tgz"
+  }
+}
