@@ -1,14 +1,9 @@
 {
   "name": "parth",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.js",
   "version": "4.2.3",
-  "engines": {
-    "node": ">= 0.10.0"
-  },
-  "dependencies": {
-    "lodash.clone": "^3.0.3",
-    "lodash.merge": "^3.3.2"
-  },
+  "engines": "{\"node\":\">= 14\"}",
   "author": "Javier Carrillo",
   "description": "path to regex madness",
   "repository": "stringparser/parth",
@@ -17,13 +12,23 @@
     "url": "https://github.com/stringparser/parth/issues"
   },
   "scripts": {
-    "lint": "eslint lib *.js",
-    "test": "npm run lint && mocha test"
+    "lint": "eslint src test example.ts --fix",
+    "test": "jest",
+    "dist": "tsc",
+    "prepublishOnly": "npm run dist"
   },
   "devDependencies": {
-    "mocha": "*",
-    "should": "*",
-    "eslint": "*"
+    "@types/jest": "30.0.0",
+    "@types/lodash.clonedeep": "4.5.8",
+    "@types/node": "25.2.1",
+    "eslint": "^9.39.2",
+    "jest": "30.2.0",
+    "ts-jest": "29.4.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.54.0"
+  },
+  "dependencies": {
+    "lodash.clonedeep": "4.5.0"
   },
   "keywords": [
     "url",
@@ -34,5 +39,9 @@
     "params",
     "cached"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ]
 }

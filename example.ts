@@ -1,10 +1,9 @@
-'use strict';
+import Parth from './src';
 
-var input, result;
-var parth = require('./.')();
+const parth = new Parth();
 
 // #set
-input = [
+const input = [
   '/',
   '/page',
   '/page/:number(\\d+)',
@@ -21,22 +20,23 @@ input = [
   '(get|post) /:page(\\w+)/:Number(\\d+)',
   'get /page/number',
   '(get|post) /:page(\\w+)/:view([^.\\/\\s]+)',
-  '1', '2', '1 2',
+  '1',
+  '2',
+  '1 2',
   'obj.path',
   'obj.:path(\\S+).:number(\\d+)',
   'obj.:number(\\d+).:path(\\S+)',
   'obj.path.:here',
   'obj.(prop|path).:here',
-  ':obj.(method|prop).:here'
-
+  ':obj.(method|prop).:here',
 ];
 
-input.forEach(function(stem){
+input.forEach((stem) => {
   parth.set(stem);
 });
 
 // #get
-input = [
+const getInput = [
   '1',
   '2',
   '1 2',
@@ -47,23 +47,26 @@ input = [
   'get weekend/baby?query=string#hash user.10.beers',
   'get /weekend/baby?query=string#hash user.10.beers now',
   'get /user/view/#hash',
-  'post /user/page/photo?query=name&path=tree#hash'
+  'post /user/page/photo?query=name&path=tree#hash',
 ];
 
 console.log(' -- parth.get -- ');
-input.forEach(function(stem, index){
-  result = parth.get(stem);
+getInput.forEach((stem, index) => {
+  const result = parth.get(stem);
   console.log(' input =', stem);
   console.log('result =', result);
-  console.log((input[index + 1] ? ' -- ' : '' ));
+  console.log(getInput[index + 1] ? ' -- ' : '');
 });
 
-if(process.argv.indexOf('-l') < 0){ return; }
-Object.keys(parth).forEach(function(prop){
-  console.log(parth[prop]);
+if (process.argv.indexOf('-l') < 0) {
+  process.exit(0);
+}
+
+(Object.keys(parth) as (keyof typeof parth)[]).forEach((prop) => {
+  console.log((parth as Record<string, unknown>)[prop]);
   console.log(' --\n');
 });
 
-parth.regex.forEach(function(re){
+parth.regex.forEach((re) => {
   console.log(re.stem);
 });
