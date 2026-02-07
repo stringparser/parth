@@ -7,7 +7,10 @@
   },
   "author": "Javier Carrillo",
   "description": "path to regex madness",
-  "repository": "stringparser/parth",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stringparser/parth.git"
+  },
   "homepage": "https://github.com/stringparser/parth",
   "bugs": {
     "url": "https://github.com/stringparser/parth/issues"
