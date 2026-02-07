@@ -6,13 +6,15 @@
 [todo](#todo) -
 [why](#why)
 
+Now written in TypeScript
+
 ## sample
 
-```js
+```ts
 import Parth from 'parth';
 
 const parth = new Parth();
-var props = {handle: function(){}};
+const props = { handle: (): void => {} };
 
 parth.set('(get|post) /:page/:view', props)
      .get('get /weekend/baby?query=string#hash user.10.beers now')
@@ -37,14 +39,14 @@ parth.set('(get|post) /:page/:view', props)
 
 Parth exports a `Parth` class (default export)
 
-```js
+```ts
 import Parth from 'parth';
 ```
 
 which can take the options below
 
-```js
-var parth = new Parth(options);
+```ts
+const parth = new Parth(options);
 ```
 
 _options_ type `object`, can be
@@ -52,7 +54,7 @@ _options_ type `object`, can be
 
 example:
 
-```js
+```ts
 const parth = new Parth({ defaultRE: /[^\s\/?#]+/ });
 
 parth.set('/page/:view') // no regex given after ":view"
@@ -77,8 +79,8 @@ parth.set('/page/:view') // no regex given after ":view"
 
 ## parth.set
 
-```js
-function set(string path[, object options])
+```ts
+parth.set(path, options); // (path: string, options?: object) => this
 ```
 This method job is to sanitize `path` and order it with those previously stored.
 
@@ -91,20 +93,21 @@ _returns_ `this`
 > NOTE: `options` is deep cloned beforehand to avoid mutation
 
 `path` can contain any number of parameters(regexes) in the form
-```js
- :param-label(\\regexp(?:here))
+```ts
+':param-label(\\regexp(?:here))'
 ```
 Any string matching the regular expression below qualifies as a parameter
 
-````js
-/:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
-````
+```ts
+const paramRE = /:([-\w]+)(\([^\s]+?[)][?)]*)?/g;
+```
 
 [Go to http://regexr.com/](http://regexr.com/3cuqq) and test it out.
 
 ## parth.get
-```js
-function get(string path)
+
+```ts
+parth.get(path); // (path: string) => ParthResult | null
 ```
 
 Take a string and return a clone of the store object properties
@@ -139,25 +142,6 @@ I need it for the [gulp-runtime](https://github.com/stringparser/gulp-runtime) m
 With [npm](http://npmjs.org)
 
     npm install --save parth
-
-### examples
-
-Run the [`example.ts`](example.ts) file: `npx tsx example.ts` (or `npm run dist` then run with Node after changing the import to `./dist`).
-
-### test
-
-    npm test
-
-```
-➜  parth npm test
-PASS test/paths.test.ts
-PASS test/params.test.ts
-PASS test/options.test.ts
-PASS test/notFound.test.ts
-
-Test Suites: 4 passed, 4 total
-Tests:       20 passed, 20 total
-```
 
 ### license
 
