@@ -3,7 +3,7 @@
   "main": "dist/index.js",
   "version": "5.0.0",
   "engines": {
-    "node": ">= 14"
+    "node": ">=20"
   },
   "author": "Javier Carrillo",
   "description": "path to regex madness",
