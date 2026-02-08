@@ -1,14 +1,20 @@
 # parth [![NPM version][badge-version]][x-npm] [![downloads][badge-downloads]][x-npm]
 
 [documentation](#documentation) -
-[examples](#examples) -
 [install](#install) -
-[todo](#todo) -
 [why](#why)
 
 Now written in TypeScript
 
+## install
+
+With [npm](http://npmjs.org)
+
+    npm i -SE parth
+
 ## sample
+
+> See [./examples.ts](./example.ts) for more
 
 ```ts
 import Parth from 'parth';
@@ -136,12 +142,6 @@ import Parth, { ParthOptions, ParthResult } from 'parth';
 ## why
 
 I need it for the [gulp-runtime](https://github.com/stringparser/gulp-runtime) module.
-
-## install
-
-With [npm](http://npmjs.org)
-
-    npm install --save parth
 
 ### license
 
