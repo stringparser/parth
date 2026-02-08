@@ -20,7 +20,7 @@
     "test": "jest",
     "posttest": "npm run verify:publish",
     "dist": "tsc",
-    "prepublishOnly": "npm run dist",
+    "prepublishOnly": "npm run test && npm run dist",
     "verify:publish": "bash test/verify-publish/test.sh"
   },
   "devDependencies": {
