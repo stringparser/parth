@@ -1,7 +1,7 @@
 {
   "name": "parth",
   "main": "dist/index.js",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "engines": {
     "node": ">=20"
   },
